@@ -1,0 +1,87 @@
+#!/usr/bin/env node
+
+const chalk = require('chalk')
+const requiredVersion = require('../package.json').engines.node
+const semver = require('semver');
+
+const program = require('commander');
+const helper = require('./lib/helper')
+
+const console = helper.stdErrConsole();
+
+function checkNodeVersion (wanted, id) {
+  if (!semver.satisfies(process.version, wanted)) {
+    console.log(chalk.red(
+      'You are using Node ' + process.version + ', but this version of ' + id +
+      ' requires Node ' + wanted + '.\nPlease upgrade your Node version.'
+    ))
+    process.exit(1)
+  }
+}
+
+checkNodeVersion(requiredVersion, 'vue-cli')
+
+// ----------------------------------------------------------------------------
+function RunWithES6( script, options, args ) {
+
+  const environment = options.parent.project || helper.getFirebaseProject();
+  const dry         = options.parent.dry || false;
+  const verbose     = options.parent.verbose || false;
+  const printJson   = options.parent.printJson || false;
+
+  const requireES6 = require("esm")(module)
+  requireES6('module-alias/register')
+
+  let hrstart = process.hrtime()
+  let cmd = requireES6( script )
+  let promise = null;
+
+  const handleError = (err) => {
+    console.log(chalk.red("❌ ERROR"), err.message);
+    if ( verbose ) {
+      console.log("-".repeat(80))
+      console.log(err.stack)
+      console.log("-".repeat(80))
+    }
+    process.exit(1)
+  }
+
+  const handleSuccess = () => {
+    let hrend = process.hrtime(hrstart)
+    console.info(chalk.green('✅ Execution time: %ds %dms'), hrend[0], hrend[1] / 1000000);
+    process.exit(0)
+  }
+
+  try {
+    if ( typeof cmd.main === 'function' ) {
+      promise = cmd.main(args, environment, dry, verbose, printJson);
+    } else if ( typeof cmd.default === 'function' ) {
+      promise = cmd.default(args, environment, dry, verbose, printJson);
+    }
+  } catch ( err ) {
+    handleError(err)
+  }
+
+  Promise.resolve(promise).then(handleSuccess).catch(handleError)
+}
+
+
+// ----------------------------------------------------------------------------
+program
+  .version('0.1.0')
+  .option("-d, --dry", "Perform a dry run (nothing is changed)")
+  .option("-v, --verbose", "Be verbose")
+  .option("-j, --print-json", "Print output as JSON, not pretty tables")
+  .option("-P, --project [projectId]", "Firebase project")
+  .usage("[global options] command")
+
+// ----------------------------------------------------------------------------
+program
+  .command('rules').alias("b")
+  .description('Generate rules')
+  .usage("> output.json")
+  .option("-z, --zip", "Zip result")
+  .action((options) => {
+    const zip = !!options['zip'];
+    RunWithES6('./routines/create_rules', options, { zip })
+  });

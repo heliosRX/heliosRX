@@ -1,0 +1,22 @@
+{
+  "source": "./lib",
+  "destination": "./docs",
+  "excludes": ["_old", "spec", "docs"],
+  "plugins": [
+    {
+      "name": "esdoc-standard-plugin",
+      "option": {
+        "lint": {"enable": true},
+        "coverage": {"enable": false},
+        "undocumentIdentifier": { "enable": true },
+        "unexportedIdentifier": { "enable": false }
+      }
+    },
+    {
+      "name": "esdoc-ecmascript-proposal-plugin",
+      "option": {
+        "all": true
+      }
+    }
+  ]
+}

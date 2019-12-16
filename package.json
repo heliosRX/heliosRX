@@ -1,0 +1,54 @@
+{
+  "name": "heliosrx",
+  "version": "0.1.0",
+  "description": "heliosRX",
+  "author": "Thomas Weustenfeld <tw@goalpilot.com>",
+  "contributors": [
+    "Thomas Weustenfeld <tw@goalpilot.com>"
+  ],
+  "main": "dist/helios-rx.umd.js",
+  "module": "dist/helios-rx.esm.js",
+  "unpkg": "dist/helios-rx.min.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heliosRX/heliosRX.git"
+  },
+  "keywords": [
+    "vue",
+    "firebase",
+    "reactive",
+    "ORM"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heliosRX/heliosRX/issues"
+  },
+  "homepage": "https://github.com/heliosRX/heliosRX#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "private": false,
+  "scripts": {},
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "lodash.clonedeep": "^4.5.0",
+    "vue": "^2.6.10",
+    "vuex": "^3.1.2"
+  },
+  "devDependencies": {
+    "babel-core": "^7.0.0-bridge.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "_moduleAliases": {
+    "@": "src/"
+  }
+}

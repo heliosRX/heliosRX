@@ -1,0 +1,4 @@
+src/models/example_future
+tmp
+node_modules/
+dist/

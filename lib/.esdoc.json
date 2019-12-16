@@ -1,0 +1,37 @@
+{
+  "source": "./",
+  "destination": "./docs",
+  "excludes": [
+    "spec",
+    "docs",
+    "vuefire",
+    "loader",
+    "template",
+    "install\\.js",
+    "ReadMixin\\.js",
+    "WriteMixin\\.js",
+    "GenericStore\\.js"
+  ],
+  "templates": {
+    "default": {
+      "outputSourceFiles": false
+    }
+  },
+  "plugins": [
+    {
+      "name": "esdoc-standard-plugin",
+      "option": {
+        "lint": {"enable": true},
+        "coverage": {"enable": false},
+        "undocumentIdentifier": { "enable": true },
+        "unexportedIdentifier": { "enable": false }
+      }
+    },
+    {
+      "name": "esdoc-ecmascript-proposal-plugin",
+      "option": {
+        "all": true
+      }
+    }
+  ]
+}

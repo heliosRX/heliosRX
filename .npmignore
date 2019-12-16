@@ -1,0 +1,15 @@
+src/
+doc/
+lib/
+bin/
+build/
+example/
+releases/
+types/test/
+tests/
+.babelrc
+.eslintrc.js
+package.org.json
+NAMES.md
+TODO.md
+IDEAS.md

@@ -1,0 +1,29 @@
+{
+  "name": "helios-api",
+  "version": "0.5.0-28",
+  "description": "",
+  "main": "dist/helios-api.js",
+  "private": true,
+  "scripts": {
+    "clean": "rm -r dist && rm -r .cache",
+    "build": "parcel build helios-api.js --target node --detailed-report --no-minify --bundle-node-modules && yarn fix && yarn bundle",
+    "build:min": "parcel build helios-api.js --target node --detailed-report --bundle-node-modules && yarn fix",
+    "fix": "sed -i '' 's/import(/require(/g' ./dist/helios-api.js",
+    "watch": "parcel helios-api.js --target node",
+    "bundle": "npm version prerelease && rm -r .cache && ( cd ../api_release && npm pack ../api )"
+  },
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.debounce": "^4.0.8",
+    "lodash.defaultsdeep": "^4.6.1",
+    "lodash.isequal": "^4.5.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "parcel-bundler": "^1.12.3",
+    "parcel-plugin-alias": "git+https://github.com/tw00/parcel-plugin-alias.git"
+  },
+  "engines": {
+    "node": "~8"
+  }
+}

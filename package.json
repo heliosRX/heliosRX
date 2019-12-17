@@ -2,9 +2,9 @@
   "name": "heliosrx",
   "version": "0.1.0",
   "description": "heliosRX",
-  "author": "Thomas Weustenfeld <tw@goalpilot.com>",
+  "author": "Thomas Weustenfeld <tw@wavefab.com>",
   "contributors": [
-    "Thomas Weustenfeld <tw@goalpilot.com>"
+    "Thomas Weustenfeld <tw@wavefab.com>"
   ],
   "main": "dist/helios-rx.umd.js",
   "module": "dist/helios-rx.esm.js",

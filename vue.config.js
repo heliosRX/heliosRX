@@ -33,7 +33,7 @@ module.exports = {
       ]
     },
     disableHostCheck: true,
-    host: 'app.goalpilot.test',
+    host: 'app.helios.test',
     historyApiFallback: {
       rewrites: [
         { from: /./, to: path.join('/', 'index.html') }

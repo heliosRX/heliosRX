@@ -1,0 +1,79 @@
+// Returns true if the value is intialized to init, or if it retains it's prior
+// value, otherwise.
+function initial(value, init) { value == (prior(value) == null ? init : prior(value)) }
+
+type Timestamp extends Number {
+}
+
+type ServerTimestamp extends Number {
+ // same as Timestamp but WITH milliseconds
+}
+
+type CurrentTimestamp extends ServerTimestamp {
+  validate() { this == now }
+}
+
+type InitialTimestamp extends ServerTimestamp {
+  validate() { initial(this, now) }
+}
+
+type PastTimestamp extends Number {
+	validate() { this <= now }
+}
+
+type FutureTimestamp extends Number {
+	validate() { this >= now }
+}
+
+type AnyID extends String {
+  validate() { this.length >= 20 }
+}
+
+type PushID extends String {
+	// Source: https://firebase.googleblog.com/2015/02/the-2120-ways-to-ensure-unique_68.html
+  validate() { this.length == 20 }
+}
+
+type UserID extends String {
+	// Source: https://firebase.google.com/docs/auth/admin/manage-users
+	// Source: https://groups.google.com/forum/#!topic/firebase-talk/5ENGCX8y04M
+  validate() { this.length >= 28 && this.length <= 128 }
+}
+
+type MemberID extends String {
+  validate() { this.length >= 28 && this.length <= 128 }
+}
+
+type ReasonableDate extends Number {
+  //   200000000 = '1976-05-03'
+  // 30000000000 = '2065-01-24'
+  validate() { this > 200000000 && this < 30000000000 }
+}
+
+type ReasonableYear extends String {
+	// YYYY is 20th or 21st century
+  validate() { this.test(/^(19|20)\d\d$/) }
+}
+
+type YYMMDDDate extends String {
+  validate() { this.test(/^\d{2}(((0)[0-9])|((1)[0-2]))([0-2][0-9]|(3)[0-1])$/) }
+}
+
+type ISODate extends String {
+	// YYYY-MM-DD in 20th or 21st century
+	// Note: Does not validate day-of-month is valid.
+  validate() { this.test(/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/) }
+}
+
+type Domain extends String {
+  validate() { this.test(/^.+\.(com|org|edu)$/) }
+}
+
+type EMail extends String {
+  // TODO:
+}
+
+type Point2D {
+  x: Number, // | Null ?
+  y: Number, // | Null ?
+}

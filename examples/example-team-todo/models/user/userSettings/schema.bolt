@@ -1,0 +1,8 @@
+type {NAME_PLACEHOLDER} {
+	{FIELDS_PLACEHOLDER}
+}
+
+type UserSettingsSettings {
+	// TODO: {FIELDS_PLACEHOLDER:UserSettingsSettings}
+	nightMode: Boolean | Null,
+}

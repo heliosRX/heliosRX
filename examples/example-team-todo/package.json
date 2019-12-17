@@ -1,0 +1,16 @@
+{
+  "name": "heliosrx-example-vue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve:public": "vue-cli-service serve --host 0.0.0.0",
+    "serve:build": "vue-cli-service build && http-server ./dist/ --proxy http://localhost:80? -p 80 -g",
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "heliosrx": "^0.1.0"
+  }
+}

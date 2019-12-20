@@ -1,9 +1,7 @@
-src/
 doc/
-lib/
-bin/
+docs/
 build/
-example/
+examples/
 releases/
 types/test/
 tests/

@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { genericStoreMutations } from '../firebase-rtdb'
+
+// import { genericStoreMutations } from './index.js'
+import genericStoreMutations from './mutations'
 // import createPersistedState from 'vuex-persistedstate'
 // import { ENABLE_PERSISTENT_REGISTRY } from '@/features'
 
@@ -10,7 +12,7 @@ import { genericStoreMutations } from '../firebase-rtdb'
 Vue.use(Vuex)
 
 const registry = new Vuex.Store({
-  strict: false,
+  strict: true,
   plugins: /* ENABLE_PERSISTENT_REGISTRY ? [ createPersistedState() ] : */ [],
   state: {
     initialized: false,

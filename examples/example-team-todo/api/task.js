@@ -1,7 +1,7 @@
 import $models from '@/models'
 import $store from '@/store'
-import util from "@/util";
-import moment from '@/moment-gp'
+import util from "heliosrx/src/util/types";
+import moment from 'heliosrx/src/moment'
 
 const $taskMeta = $models.taskMeta;
 const $taskChecklistItem = $models.taskChecklistItem;

@@ -3,7 +3,7 @@ import VueLoader from "@/generic_api/lib"
 import models from "@/models"
 import GenericStore from './lib/generic_store/GenericStore'
 import rtdb1 from './firebase/rtdb'
-import db from "@/generic_api/lib/global_api"
+import db from "@/global_api"
 import registry from "@/generic_api/lib/generic_store/loader/registry"
 import api from '@/api'
 

@@ -1,6 +1,6 @@
 import Vue from "vue"
 import App from "./App"
-import moment from '@/moment-gp.js'
+import moment from 'heliosrx/src/moment.js'
 import db from "@/generic_api/config";
 
 /* -------------------- Global CSS imports ---------------------------------- */

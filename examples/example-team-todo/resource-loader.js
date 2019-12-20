@@ -3,7 +3,7 @@ import store from "@/store"
 import $models, { resetGenericStores } from "@/models"
 import { rem_ready, set_ready, get_registry_state, get_registry } from '@/api/misc'
 import GenericStore from '@/generic_api/lib/generic_store/GenericStore'
-import util from '@/util'
+import util from 'heliosrx/src/util/types'
 import { UserFeatureStore } from '@/features.js';
 
 const DEFAULT_ROUTER_AFTER_LOGIN = '/';

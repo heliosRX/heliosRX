@@ -1,4 +1,4 @@
-import moment from '@/moment-gp'
+import moment from 'heliosrx/src/moment'
 import $registry from "@/generic_api/lib/generic_store/loader/registry"
 import { ALLOWED_GLOBAL_READY_FLAGS } from '../config'
 

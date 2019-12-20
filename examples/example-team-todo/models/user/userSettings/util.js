@@ -1,4 +1,4 @@
-import moment from '@/moment-gp'
+import moment from 'heliosrx/src/moment'
 
 export function guess_timezone() {
   if ( process.browser ) {

@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import clonedeep from 'lodash.clonedeep'
 // import { _models } from '../../install'
-import { add_custom_getters } from '../loader/utils'
-import moment from '@/moment-gp'
-import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../../firebase-rtdb/utils'
+import { add_custom_getters } from '../classes/utils'
+import moment from '../moment'
+import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/utils'
 
 const externalVMStore = new WeakMap(); // Exclude vm from instance, so it can be serialized
 const externalModelStore = new WeakMap(); // Stores generic store references

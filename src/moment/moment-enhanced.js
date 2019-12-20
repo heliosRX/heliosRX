@@ -1,11 +1,11 @@
 /* momen plugin for helios specific date time conversions */
-import Vue from 'vue'
+// import Vue from 'vue'
 import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
-import momentDurationFormatSetup from "moment-duration-format"
-import firebase from "@firebase/app";
+// import momentDurationFormatSetup from "moment-duration-format"
+import firebase from "@firebase/app"; // TODO: Remove dependency
 import "@firebase/database";
 import * as tzHelper from './timezone-helper'
-import util from '@/util'
+import util from '../util/types'
 
 /*******************************************************************************
 
@@ -343,7 +343,7 @@ export let localeSetUp = (function () {
 
   // moment.locale("en"); // -> i18n
 
-  momentDurationFormatSetup( moment );
+  // momentDurationFormatSetup( moment );
   enhanceMomentJS( moment );
 })();
 

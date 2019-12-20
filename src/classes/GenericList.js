@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { add_custom_getters } from '../loader/utils'
+import { add_custom_getters } from '../classes/utils'
 
 function sortidx_sorter(a, b) {
   if (a.sortidx < b.sortidx) return -1;

@@ -33,7 +33,6 @@ export function install (Vue, options) {
   }
 
   if ( process.env.VUE_APP_PRODUCTION === 'false' && process.browser ) {
-    // window.$api = options.api;
     window.$models = options.models;
     window.$api = options.api;
   }

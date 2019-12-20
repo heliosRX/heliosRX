@@ -1,12 +1,19 @@
+import GenericStore from './store/';
 import { install } from './install'
+import registry from './registry/';
+import api from './api/';
 
-class VueLoader {
+class heliosRX {
   static install() {}
 }
 
-VueLoader.install = install
+heliosRX.install = install
+heliosRX.registry = registry;
+heliosRX.api = api;
+heliosRX.GenericStore = GenericStore;
 
-export default VueLoader;
+export default heliosRX;
 
-export { walkGet } from '@/lib/backends/firebase-rtdb/utils'
-// export { walkGetSafe } from '@/generic_api/lib/generic_store/vuefire/utils'
+// TODO: Do not export
+// export { walkGet } from './registry/utils'
+// export { walkGetSafe } from './registry/utils'

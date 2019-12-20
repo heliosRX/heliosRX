@@ -5,12 +5,12 @@
 *******************************************************************************/
 
 import isEqual from 'lodash.isequal'
-import { parseTpl, analyzeTpl } from '../util/template'
 import { DeleteMode } from './GenericStore'
 import { _models } from '../install'
-import registry from './loader/registry'
-import { add_custom_actions, make_reactive_model } from './loader/utils'
-import moment from '@/moment-gp'
+import registry from '../registry/registry'
+import { parseTpl, analyzeTpl } from '../util/template'
+import { add_custom_actions, make_reactive_model } from '../classes/utils'
+import moment from '../moment'
 
 const BACKEND = 'REALTIMEDB';
 const log = (...args) => { console.log(...args) };

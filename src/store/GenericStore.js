@@ -5,20 +5,21 @@
 *******************************************************************************/
 
 import Vue from 'vue'
-import util from '../../../util'
-import moment from '../../../i18n/moment/moment-enhanced.js'
+import util from '../util/types.js'
+import moment from '../moment/moment-enhanced.js'
 import firebase from "@firebase/app" // <<< not node compatible ?
 
-import { parseTpl, analyzeTpl } from '../util/template'
+import { parseTpl, analyzeTpl } from '../util/template.js'
 import { rtdbBindAsArray,
          rtdbBindAsObject,
          rtdbFetchAsArray,
-         rtdbFetchAsObject } from '../firebase-rtdb/rtdb'
+         rtdbFetchAsObject } from '../backends/firebase-rtdb/rtdb'
 
 import ReadMixin from './ReadMixin'
 import WriteMixin from './WriteMixin'
 
 const slugid = require('slugid');
+
 const log = (...args) => { console.log(...args) };
 const log2 = (...args) => {};
 
@@ -329,6 +330,7 @@ export default class GenericStore {
    */
   static setDefaultDB( db ) {
     defaultDB = db;
+    console.log("setDefaultDB", defaultDB)
   }
 
   /**
@@ -337,6 +339,7 @@ export default class GenericStore {
    * @return {type}  Firebase.db
    */
   get _db() {
+    console.log("_db", defaultDB)
     return this._localDB || defaultDB;
   }
 

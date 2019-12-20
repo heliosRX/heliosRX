@@ -7,20 +7,20 @@
 
 *******************************************************************************/
 
-import registry from './loader/registry'
+import registry from '../registry'
 import { _models } from '../install'
-import { walkGet, walkGetObjectSave } from '../firebase-rtdb/utils'
-import joint from './loader/joint'
+import { walkGet, walkGetObjectSave } from '../registry/utils'
+import joint from '../util/joint'
 import { VUEXFIRE_INIT_VALUE,
          VUEXFIRE_UNSET_VALUE,
          VUEXFIRE_ARRAY_SET,
          VUEXFIRE_ARRAY_ADD,
          VUEXFIRE_ARRAY_REMOVE,
-         VUEXFIRE_SET } from '../firebase-rtdb/types'
+         VUEXFIRE_SET } from '../registry/types'
 
-import { make_reactive_model, make_reactive_list, add_custom_getters } from './loader/utils'
-import util from '@/util' // TODO: move arrayDiffTwoWay here
-import defer from './loader/defer'
+import { make_reactive_model, make_reactive_list, add_custom_getters } from '../classes/utils'
+import util from '../util/types' // TODO: move arrayDiffTwoWay here
+import defer from '../util/defer'
 
 const LOCAL_PATH_PREFIX = 'res.';
 

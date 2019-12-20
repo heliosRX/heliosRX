@@ -1,1 +1,6 @@
 #!/usr/bin/env node
+
+
+"rules:make": "node db/main.js db/rules/create_rules.js --write database.rules.bolt",
+"rules:compile": "firebase-bolt database.rules.bolt",
+"rules": "npm run rules:make && npm run rules:compile",

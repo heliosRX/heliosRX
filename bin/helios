@@ -3,7 +3,6 @@
 const chalk = require('chalk')
 const requiredVersion = require('../package.json').engines.node
 const semver = require('semver');
-
 const program = require('commander');
 const helper = require('./lib/helper')
 
@@ -65,7 +64,6 @@ function RunWithES6( script, options, args ) {
   Promise.resolve(promise).then(handleSuccess).catch(handleError)
 }
 
-
 // ----------------------------------------------------------------------------
 program
   .version('0.1.0')
@@ -77,11 +75,68 @@ program
 
 // ----------------------------------------------------------------------------
 program
-  .command('rules').alias("b")
+  .command('rules').alias("r")
   .description('Generate rules')
-  .usage("> output.json")
-  .option("-z, --zip", "Zip result")
+  .option("--skip-types", "Skip loading type definition from model config")
+  .option("--only-types", "Only load type definition from model config")
+  .option("--gen-paths", "Generate rule paths instead of schema")
+  .option("-w, --write <filename>", "Write bolt definition to file")
   .action((options) => {
-    const zip = !!options['zip'];
-    RunWithES6('./routines/create_rules', options, { zip })
+
+    const skipTypes = !! options['skipTypes'];
+    const onlyTypes = !! options['onlyTypes'];
+    const genPaths  = !! options['genPaths'];
+    const filename  = options['write'];
+
+    if ( !filename ) {
+      throw new Error('missing write filename')
+    }
+
+    RunWithES6('./routines/create_rules', options,
+      { filename, skipTypes, onlyTypes, genPaths });
   });
+
+// ----------------------------------------------------------------------------
+program
+  .command('check').alias("c")
+  .description('Check schema for errros')
+  .option("-f, --file <filename>", "Config file")
+  .action((options) => {
+
+    const filename  = options['file'] || null;
+    // if ( !filename ) {
+    //   throw new Error('missing write filename')
+    // }
+
+    RunWithES6('./routines/check_schema', options, { filename });
+  });
+
+// ----------------------------------------------------------------------------
+program
+  .command('init <name>').alias("i")
+  .description('Initialize helios config')
+  .action((options) => {
+    RunWithES6('./routines/initialize', options, {});
+  });
+
+// ----------------------------------------------------------------------------
+program
+  .command('gen-model <name>').alias("m")
+  .description('Generate a new model')
+  .action((options) => {
+    let name = options['name'] || null;
+    RunWithES6('./routines/make_model', options, { name });
+  });
+
+// ----------------------------------------------------------------------------
+// error on unknown commands
+program.on('command:*', () => {
+  console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
+  process.exit(1);
+});
+
+program.parse(process.argv);
+
+if ( process.argv.length === 2 ) {
+  program.help();
+}

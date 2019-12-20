@@ -31,13 +31,33 @@
   "private": false,
   "scripts": {},
   "dependencies": {
-    "deepmerge": "^4.2.2",
+    "core-js": "^3.4.3",
     "lodash.clonedeep": "^4.5.0",
-    "vue": "^2.6.10",
-    "vuex": "^3.1.2"
+    "lodash.isequal": "^4.5.0",
+    "moment": "^2.24.0",
+    "moment-duration-format": "^2.3.2",
+    "moment-timezone": "^0.5.27",
+    "slugid": "^2.0.0"
   },
   "devDependencies": {
-    "babel-core": "^7.0.0-bridge.0"
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.3",
+    "chalk": "^3.0.0",
+    "commander": "^4.0.1",
+    "configstore": "^5.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "esm": "^3.2.25"
+  },
+  "peerDependency": {
+    "vue": "^2.6.10",
+    "vuex": "^3.1.2",
+    "firebase": "^7.4.0",
+    "firebase-bolt": "^0.8.4"
+  },
+  "bin": {
+    "helios": "bin/helios"
   },
   "engines": {
     "node": ">= 6.0.0",

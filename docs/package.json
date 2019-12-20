@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "dependencies": {
+    "glob": "^7.1.6"
+  },
+  "devDependencies": {
+    "vuepress": "^1.2.0"
+  }
+}

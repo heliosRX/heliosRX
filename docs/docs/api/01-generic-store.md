@@ -1,157 +1,195 @@
 # Generic Store
 
-This is the generic store, which provides a unified API to our database.
+The Generic Store is the global object that holds a Model Definition.
+The only purpose of the Generic Store is to store Database instance so that we can use it in other places.
+Please refer to Database to see why we need this global object in the first place.
 
-Create store with different UID method.
+## Instance Constructor
+
+### Generic Store
+
+- **`constructor( templatePath, modelDefinition, options = {} ) ⇒ GenericStore`**
+
+Creates a new generic store.
 
 ```js
-new GenericStore( "/path/to/{otherId}/data/*",
- myTypeDef,
- { uidMethod: uidMethods.SLUGID })
+const post = new GenericStore(
+  '/post/*',
+  postModelDefinition
+);
 ```
 
-Examples:
+### Generic Store Constructor Options
+
+#### templatePath
+
+- type: `string`
+
+TODO
+
+#### modelDefinition
+
+- type: `Object (ModelDefinition)`
+
+TODO
+
+#### options
+
+- type: `Object`
+
+TODO
+
+| Option            | Type                | Description  |
+| ----------------- | ------------------- | ------------ |
+| uidMethod         | `string`            | See [UIDMethod](./00-database#UIDMethod)
+| defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./00-database#DeleteMode)
+| additionalProps   | `array<string>`     | Additional properties |
 
 ```js
-// --- Creating a generic store:
-
-// Normal list:
-challenge = new GenericStore('[DB1]:/challenge/*', ChallengeTypeDefinition, { custom_key: timestamp });
-
-// Nested list:
-task_session_list = new GenericStore(
- '/goal/{goalId}/user_list/{uid}/task_session_list/{taskId}/*',
- TaskSessionTypeDefinition
-)
-
-// -- Defining the path
-let task_session_list_defined = task_session_list.with({
-  goalId: 'KrZPg8N6THOisFz_T992Zg',
-  uid: 'l1X8FPc7YtbftlC31frciInV3PU2'
-})
-
-// --- Writing data:
-
-// Add items
-challenge.add({ title: 'Name' })
-challenge.add(overwrite_data)
-
-// Update items
-challenge.update(id, { key: value })
-challenge.update(id, [{ key1: value1 }, { key2: value2 }, ...])
-
-// Reorder items
-challenge.reorder(...)
-
-// Remove items
-challenge.remove(id)
-challenge.remove(id, true) // Soft delete
-
-// --- Retrieving data:
-
-// Lists
-challenge.subscribeList()       // Subscribe to list at path and listen for changes
-challenge.subscribeQuery({...}) // Subscribe using a query
-challenge.fetchList()           // Get GenericLists from Cache
-challenge.getList()             // Fetch GenericLists once
-
-// Nodes
-challenge.subscribeNode(id) // Subscribe to node at path and listen for changes
-challenge.getNode(id)       // Get GenericModel from Cache
-challenge.fetchNode(id)     // Fetch GenericModel once
-
-let syncId1 = task_session_list.sync(target, { taskId: '123' })
-let syncId2 = task_session_list.sync_add(target, { taskId: '234' })
-task_session_list.sync_rem(syncId1)
+const post = new GenericStore(
+  '/post/*',
+  postModelDefinition,
+  { 
+    uidMethod: UIDMethod.TIMESTAMP,
+    defaultDeleteMode: deleteMode.HARD,
+  }
+);
 ```
 
-Example: Suffixed paths
+## Instance Properties
+
+### name
+- **`name ⇒ String`**
+
+Returns store name. This is automatically set based on the export name in the
+model `config.js`.
+
+### templatePath
+- **`templatePath ⇒ String`**
+
+Returns template path, e.g. `/user/{userId}/example/*`.
+
+### modelDefinition
+- **`modelDefinition ⇒ ModelDefinition`**
+
+Returns model definition.
+
+### isAbstract
+- **`isAbstract ⇒ Boolean`**
+
+Returns if the store was defined as abstract store. Abstract stores provide
+abstraction by allowing you to define stores, that don't write or read data
+from the database.
+
+### isSuffixed
+- **`isSuffixed ⇒ Boolean`**
+
+Returns if the store is suffixed, which means that the id is not last item
+in the template path.
+
 ```js
-goal_meta = new GenericStore('/goal/ * /meta', GoalMetaTypeDefinition)
-goal_meta.add() // -> creates a new goal at /goal/<newId>/meta
+let example1 = new GenericStore('/user/*')
+let example2 = new GenericStore('/user/*/settings')
+
+example1.isSuffixed // > false
+example2.isSuffixed // > true
 ```
 
-Example: Non suffixed paths
+### isReadonly
+- **`isReadonly ⇒ Boolean`**
+
+Returns if the store is a read-only store (all 'write methods' are removed from the Generic Store instance).
+
+### definedProps
+- **`definedProps ⇒ Object<string: string>`**
+
+Returns an object of defined properties.
+
 ```js
-goal_deadline_list = new GenericStore('/goal/{goalId}/meta/deadlines/*', GoalMetaTypeDefinition)
-goal_deadline_list
-  .with({ goalId: 'KrZPg8N6THOisFz_T992Zg' })
-  .add({ title: 'My deadline' })
+example.with({ x: 'a', y: 'b' }).definedProps
+// > { x: 'a', y: 'b' }
 ```
 
-::: tip
-Sync-Implementation is based on:
-https://github.com/vuejs/vuefire/blob/master/packages/vuexfire/src/index.js
-:::
+### additionalProps
+- **`additionalProps ⇒ Array<string>`**
 
-## Static
+Returns an array of additional path properties. Additional properties can be
+used to define properties that are not part of the `templatePath`.
+See constructor.
 
-```
-static get defaultUserId()
-* @static get - Returns the default default UserId for all stores
-
-static set defaultUserId(id)
-* @static set - Set the default default UserId for all all stores
-
-static resetState()
-```
-
-```
-export const UIDMethod = {
-  CUSTOM:          1,
-  SLUGID:          2, // R0qHTeS8TyWfV2_thfFn5w (Default)
-  PUSHID:          3, // -JhLeOlGIEjaIOFHR0xd
-  TIMESTAMP:       4, // 1548573128294 (unix?)
-  LOCAL_TIMESTAMP: 5, // 1553700866
-  DATE:            6, // DDMMYYYY / 01032019
-  OTHER_USER_ID:   7,
-  MY_USER_ID:      8, // fOjaiwtyxoQdOGe6Z2zULK18ggv2
-  ARRAY:           9, // 0,1,2,3,...
-  EMAIL:          10, // test@test.de
-}
+```js
+const contact = new GenericStore(
+  "/user/{myUserId}/contacts/*",
+  contactModelDefinition,
+  { additionalProps: ['otherUserId'] }
+);
+// Now myUserId and otherUserId can be used as path property
+example.with({ myUserId: 'a', otherUserId: 'b' }).definedProps
 ```
 
-```
-export const DeleteMode = {
-  SOFT: 0,
-  HARD: 1
-}
-```
+### uidMethod
+- **`uidMethod ⇒ UIDMethod`**
 
-## Creating a Generic Store
+Returns the unique id method, which defined how id's for new entries are generated.
+See [UIDMethod](./00-database.md#UIDMethod).
 
-constructor( templatePath, modelDefinition, options = {} )
+### defaultDeleteMode
+- **`defaultDeleteMode ⇒ DeleteMode`**
 
-Creates generic store.
-@param {string} templatePath - Path where the ressouce is stored.
-@param {TypeDefinition} modelDefinition - Type definition.
-@param {object} options - options.
-@param {string} options.uidMethod - One of 'SLUGID' (default), 'PUSHID', 'TIMESTAMP', custom callback.
-@param {string} options.defaultDeleteMode - One of deleteMode.SOFT (default) or deleteMode.HARD
+Returns the default delete mode. See [DeleteMode](./00-database.md#DeleteMode).
 
+### path
+- **`get path() ⇒ string`**
 
-## Props
+Returns a substituted path based on the template string and defined path properties.
+Automatically sets user Id if not defined.
 
-```
-isAbstract (Boolean)
-templatePath (String)
-modelDefinition (ModelDefinition)
-definedProps (PropsList);
-name (String)
-isSuffixed (Boolean)
-uidMethod (UIDMethod)
-isReadonly (Boolean)
-defaultDeleteMode (DeleteMode)
-additionalProps (PropsArray)
+### parentRef
+- **`get parentRef() ⇒ Reference`**
 
-this._localDB = null;
-this._clones = [];
-this.global_store_path_array = [];
-```
+Returns Firebase Database Reference to collection that contains all items.
 
-## Getters
+### rootRef
+- **`get rootRef() ⇒ Reference`**
 
-```
+Return Firebase Database Reference to root of database.
+
+### childRef
+
+- **`childRef( id: string ) ⇒ Reference`**
+
+Returns Firebase Realtime Database Reference to child with given `id`.
+
+### schema_required_fields
+- **`get schema_required_fields() ⇒ array<string>`**
+
+Returns all required fields defined in the schema.
+
+### schema_optional_fields
+- **`get schema_optional_fields() ⇒ array<string>`**
+
+Returns all required fields defined in the schema.
+
+### schema_all_fields
+- **`get schema_all_fields() ⇒ array<string>`**
+
+Returns all fields that are defined in the schema.
+
+### subscriptions (internal)
+- **`get subscriptions() ⇒ array<Subscrition>`**
+
+Returns all subscriptions that were created by this store.
+
+### rules
+- **`get rules() ⇒ string`**
+
+Return custom validation rules that can be used with Element UI. See: [Element UI Docs](https://element.eleme.io/#/en-US/component/form#custom-validation-rules).
+
+<!--
+_localDB = null;
+_clones = [];
+global_store_path_array = [];
+
 get _db()
 * get _db - Get reference to db (this will allow other then default databases in the future)
 
@@ -159,42 +197,62 @@ get _template_path_field_names()
 * get _template_path_field_names - Returns all fields in the template path that need to be defined
 
 get _schema_fields()
-get defaultUserId()
-get path()
-* get path - Returns a firestore reference based on the template string
-* Automatically sets user if not defined
+-->
 
-get parentRef()
- * get parentRef - Returns reference to collection that contains all items
+## Instance Methods
 
-get rootRef()
-* get rootRef - Return reference to root of database
+### define
 
-get schema_required_fields()
-* get schema_required_fields - Returns all required fields defined in the schema
+- **`define( object<string:string> ) ⇒ void`**
 
-get schema_optional_fields()
-* get schema_optional_fields - Returns all required fields defined in the schema
+Defines path properties for a store instance.
 
-get schema_all_fields()
-* get schema_all_fields - Returns all fields that are defined in the schema
-
-get subscriptions()
-* get subscriptions - Returns subscriptions that were create by this store
-
-get rules()
-* rules - Return custom validation rules for elements
-* See: https://element.eleme.io/#/en-US/component/form#custom-validation-rules
-```
-
-## Methods
-
-#### with
 ```js
-with(props)
+const task_session_list = new GenericStore(
+  '/project/{projectId}/user/{userId}/tasks/{taskId}/*',
+  TaskSessionTypeDefinition
+);
+
+task_session_list.define({
+  project: 'KrZPg8N6THOisFz_T992Zg',
+  userId:  'l1X8FPc7YtbftlC31frciInV3PU2'
+})
+
+// projectId and userId now always defined
 ```
 
+### with
+
+- **`with( object<string:string> ) ⇒ GenericStore`**
+
+Defines path properties and returns a new store instance which now refers to
+a sub path:
+
+```js
+// template path: /project/{x}/post/{y}/comment/*
+example.with({ x: 'a', y: 'b' }).add({ ... })
+// A new entry is added to /project/a/post/b/comment/-Lw_jEwrxiM6d2fS0n2m
 ```
+
+### setName (INTERNAL?)
+
+- **`setName( string ) ⇒ void`**
+
+Set stores name
+
+### generateId
+
+- **`generateId() ⇒ string`**
+
+Generates a new unique identifier based on the selected method in the constructor.
+
+### reset
+
+- **`reset( level: numeric ) ⇒ void`**
+
+Resets the template path to it's initial state, without substitutions.
+
+<!--
 _clone()
 _get_uid()
 * _get_uid - Generates a new unique identifier based on the selected method in the constructor
@@ -215,17 +273,6 @@ _define( target, props )
 * @param {object} props - Id's that should be replaced.
 
 * @example <caption>Example usage of method1.</caption>
-
-```js
-task_session_list = new GenericStore('/goal/{goalId}/user_list/{uid}/task_session_list/{taskId}/*', TaskSessionTypeDefinition)
-
-task_session_list.define({
-  goalId: 'KrZPg8N6THOisFz_T992Zg',
-  uid: 'l1X8FPc7YtbftlC31frciInV3PU2'
-})
-```js
-*
-* @returns {nothing}
 
 _check_required_fields( data )
 * _check_required_fields - Check if all required fields exists according to schema
@@ -259,264 +306,350 @@ _unbind_rtdb({ key })
 
 _bind_firestore( { state, commit, key, ref, ops } )
 _unbind_firestore({ commit, key })
+-->
 
-setName( name ) -> private
-* setName - Set stores name
-
-generateId()
-define( props )
-with( props )
-*   store.with({ prop1: 'value' }).add({...}) - store is not mutated
-
-reset(level = 1)
-* Resets the template path to it's initial state, without substitutions.
-
-childRef(id)
-```
-
-# Write API
+## Instance Methods (Writing)
 
 ### add
-```js
-add( overwrite_data, new_id, options )
-```
-* @example <caption>Add a new item</caption>
-* challenge.add({ title: 'Name' })
-*
-* @returns {Promise} - Promise that returns the new id when resolved
+- **`add( overwrite_data <, new_id: string> <, options: object> ) ⇒ Promise<id: string>`**
 
-#### update
-```js
-update(id, data)
-```
-* @example <caption>Update single field</caption>
-* challenge.update(id, { key: value })
-* goal_user_settings.update({ 'kanbanSettings/showFinishedTasks': 1 })
-*
-* @example <caption>Update multiple fields</caption>
-* challenge.update(id, { key1: value1, key2: value2 })
-* challenge.update([{ key1: value1 }, { key2: value2 }, ...]) -- ????
-*
+Adds a new item to the database. Returns a promise, which will then resolve
+to the id of the newly created item. `overwrite_data` is passed to the model
+definition has a `create` function. If `new_id` is provided it will be used
+as the id for the new entry. The UIDMethod is ignored. Valid options are:
 
-#### remove
-```js
-remove(id, soft_delete)
-```
-* Deletes one or many an entry at the data location
-* @param {UUID} id - id the item or arrary of ids of items that should be deleted
-* @param {bool=} soft_delete - optional: Overwrite default behaviour for delete mode
-* @example
-* challenge.remove(id)
-* challenge.remove(id, true) // Soft delete
-* challenge.remove([id1, id2, id3], true) // List mode
+| Option            | Type                | Description  |
+| ----------------- | ------------------- | ------------ |
+| directWrite       | `boolean`           | Don't pass `overwrite_data` to the `create` function of the model definition, but instead write the data directly to the database.
 
-#### reorder
-```js
-reorder(sortidxList, options = {})
-```
-* @param {object|array} sortidxList - Batch should be an array or array of objects
-* @param {object} options
-*
-* @example
-* store.reorder([id1, id2, ...])
-* store.reoder([{ id: id1, sortidx: 1 }, { id: id2 sortidx: 2 }, ...])
-*
-* The second version can also be used to pass the entire collection
-* store.reoder(updated_commitment_list)
 
-#### restore
 ```js
-restore( id )
+$models.example.add({ title: 'Name' })
+// or
+$models.example.add({ title: 'Name' }).then(id => { ... })
 ```
-* Restores a deleted entry at the data location
 
-#### copy
-```js
-copy(id, contextA, contextB)
-```
-* copy - Copy data between nodes (same as move, but keeps original
-*        and generates new id)
-* @param {id} id - id of source object
-* @param {object} contextA - props of the source path
-* @param {object} contextB - props of the destination path
+### update
+- **`update(id: string, data: object<string: any>) ⇒ Promise`**
 
-#### move
-```js
-move(id, contextA, contextB, { keepOriginal = false, keepId = true } = {})
-```
-* Move data between nodes
-* @param {UUID} id - Id of the object that should be moved
-* @param {object} contextA - props of the source path
-* @param {object} contextB - props of the destination path
-* @param {{ keepOriginal, keepId }} obj - desc
-*
-* @example
-*   store.move(234, { uid: 'A' }, { uid: 'B' })
-*
-*   store.move(id, { uid: 'A', taskId: 234 }, { uid: 'B', taskId: 234 })
-*
-* @todo support batch move (as transaction!):
-*   storeA = GenericStore('/goal/{goalId}/user_list/{uid}/task_names/*')
-*   storeB = GenericStore('/goal/{goalId}/user_list/{uid}/task_details/*')
-*   storeC = GenericStore('/goal/{goalId}/user_list/{uid}/task_end_dates/*')
-*   let superStore = SuperStore([storeA, storeB, storeC])
-*   superStore.batchMove( id, contextA, contextB )
-*
+Update one or many fields. First argument is the id of the entry (the `*` in
+  the `templatePath`). Second argument is the data the should be updated. It
+  is possible to futher nest data with '/':
 
-#### transaction
 ```js
-transaction( id, prop, transaction, value = 1 )
-```
-* transaction - perform transaction on RTDB
-*
-* @example
-*   $models.example.transaction( <childId>, <prop>, <transaction> )
-*   $models.example.transaction( id, 'coins', coins => coins * 2 )
-*   $models.example.transaction( id, 'coins', 'inc', 100 )
-*   $models.example.transaction( id, 'coins', 'inc' ) // defaul: increment by 1
-*
-
-#### new
-```js
-new()
+// Update single fields
+$models.example.update(id, { key: 'value' })
+$models.user_settings.update({ 'address/zipcode': 12345 })
 ```
 
 ```js
-* new - Create empty model from schema (without calling create function)
-*
-* new + write = new_id + update
-*
-* @return {type}  description
-``
-
-#### new_from_template
-```js
-new_from_template( data = {}, optional_data = null )
-```
-* new_from_template - Create empty model from create function
-*
-* new_from_template + write = add
-*
-* @return {type}  description
-
-#### new_from_data
-```js
-new_from_data( data = {}, make_dirty = false )
+// Update multiple fields
+$models.example.update(id, { key1: value1, key2: value2 })
 ```
 
-#### empty
-```js
-empty( data = {}, optional_data = null )
-```
-* empty - Create empty payload from schema.create()
-*         This method WILL only create an JS-Object, not a GenericModel
-*         In most cases, you want to use new_from_template_instead
+### remove
+- **`remove(id: string <, soft_delete: DeleteMode> ) ⇒ Promise`**
+- **`remove(ids: array<string> <, soft_delete: DeleteMode> ) ⇒ Promise`**
 
-#### Internal
+Deletes one or many an entry at the data location
+
+* `id` - id the item or arrary of ids of items that should be deleted
+* `soft_delete` - optional: Overwrite default behaviour for delete mode
+
+```js
+$models.example.remove(id)
+$models.example.remove(id, true) // Soft delete
+$models.example.remove([id1, id2, id3], true) // Delete list of entries
+```
+
+### reorder
+- **`reorder(sortidxList: object<string: string> <, options = {}>) ⇒ Promise`**
+- **`reorder(sortidxList: array<string> <, options = {}>) ⇒ Promise`**
+
+Change the order of items. This is achieved through a special field called `sortidx`.
+<!-- TODO: Implement intelligent sortidx update -->
+
+- `sortidxList` - Batch should be an array or array of objects
+
+```js
+$models.example.reorder([ id1, id2, ... ])
+$models.example.reorder([{ id: id1, sortidx: 1 }, { id: id2 sortidx: 2 }, ...])
+```
+
+Passing an object as first argument is especially useful, when passing an
+existing collection of items.
+
+```js
+// TODO
+// ...
+$models.example.reorder(updated_commitment_list)
+```
+
+### restore
+- **`restore( id ) ⇒ Promise`**
+
+Restores a deleted entry at the data location (the `deleted` field is set to false).
+
+```js
+$models.example.restore('-Lw_jEwrxiM6d2fS0n2m')
+```
+
+### copy
+- **`copy(id, contextA, contextB) ⇒ Promise`**
+
+Copy data between nodes (same as move, but keeps original and generates new id)
+
+- `id` (string) - id of source object
+- `contextA` (object) - props of the source path
+- `contextB` (object) - props of the destination path
+
+```js
+// copy a task from /user/A/task/234 to /user/B/task/234
+$models.task.copy('234',
+  { userId: 'A' },
+  { userId: 'B' }
+);
+```
+
+```js
+// copy a comment from /user/A/task/234/comment/789 to /user/B/task/234/comment/789
+$models.comment.copy(789,
+  { userId: 'A', taskId: 234 },
+  { userId: 'B', taskId: 234 }
+);
+```
+
+### move
+- **`move(id, contextA, contextB, { keepOriginal = false, keepId = true } = {}) ⇒ Promise`**
+
+Move data between nodes
+
+- `id`: {string} - Id of the object that should be moved
+- `contextA`: {object} - props of the source path
+- `contextB`: {object} - props of the destination path
+- `options`: Options
+
+| Option            | Type                | Description  |
+| ----------------- | ------------------- | ------------ |
+| keepOriginal      | `boolean`           | Keep original? (copy)
+| keepId            | `boolean`           | Keep original id or generate a new id?
+
+```js
+$models.example.move(234,
+  { userId: 'A' },
+  { userId: 'B' }
+)
+// or
+$models.example.move(id,
+  { userId: 'A', taskId: 234 },
+  { userId: 'B', taskId: 234 },
+  { keepOriginal: true, keepId: false }
+)
+```
+
+<!-- TODO: support batch move (as transaction!) -->
+
+### transaction
+- **`transaction( id: string, prop: string, transaction: string, value: numeric ) ⇒ Promise`**
+
+Performs a transaction on the realtime database.
+<!-- TODO: ENUM TransactionType -->
+
+- `id`: {string} - Id of the object that should be moved
+- `prop`: {string} - props of the source path
+- `transaction`: {string|function} - Predefined transaction are `inc` and `dec`. Alternatively a callback can be passed.
+- `value`: If `inc` or `dec` are used this defines by which amount a field is
+incremented or decremented. Default value is `1`.
+
+```js
+$models.example.transaction( <childId>, <prop>, <transaction> )
+$models.example.transaction( id, 'coins', coins => coins * 2 )
+$models.example.transaction( id, 'coins', 'inc', 100 )
+$models.example.transaction( id, 'coins', 'inc' ) // default: increment by 1
+```
+
+### new
+- **`new() ⇒ GenericModel`**
+
+Create empty model from schema (without calling create function)
+<!-- new + write = new_id + update -->
+
+### new_from_template
+- **`new_from_template( data: object<string:any> <, optional_data<string:any>> ) ⇒ GenericModel`**
+
+Create empty model from create function
+<!-- new_from_template + write = add -->
+
+### new_from_data (INTERNAL)
+- **`new_from_data( data: object<string:any> <, make_dirty:boolean> ) ⇒ GenericModel`**
+
+<!-- TODO: make_dirty: default: false -->
+
+### empty
+- **`empty( data: object<string:any> <, optional_data<string:any>> ) ⇒ object<string:any>`**
+
+Create empty payload from `schema.create()`. This method WILL only create
+an Object, not a GenericModel. In most cases, you want to use
+`new_from_template` instead
+
+<!--
+### Internal
 ```js
 _write_mixin_init( reset = false )
 _convert_moment_objects( payload )
 ```
+-->
 
-# Read API
+## Instance Methods (Reading)
 
-#### subscribeList
+### subscribeList
+- **`subscribeList( <idList: array<string>> <, option:object>) ⇒ GenericList`**
+
+TODO
+
 ```js
-subscribeList(idList = [], {
+return $models.example.subscribeList();
+return $models.example.subscribeList([ id1, id2, id3 ]);
+```
+
+<!--
+```js
+$models.example.subscribeList(idList = [], {
   noSync = false,
   noReactiveGetter = false,
   createModelFromExistingCache = false,
   queryParams = null
 } = {})
 ```
+-->
 
-#### subscribeNode
+### subscribeNode
+- **`subscribeNode( <id: string> <, option:object>) ⇒ GenericModel`**
+
+TODO
+
 ```js
-subscribeNode( id, {
+return $models.example.subscribeNode( id );
+```
+
+<!--
+```js
+$models.example.subscribeNode( id, {
   noSync = false,
   noReactiveGetter = false,
   createModelFromExistingCache = false
 } = {} )
 ```
+-->
 
 * noSync = Return from cache
 
 
-#### subscribeQuery
+### subscribeQuery
+- **`subscribeQuery( <query:QueryDefinition> <, option:object>) ⇒ GenericList`**
+
 ```js
 subscribeQuery(query, options = {})
 ```
 
-* @param {object} query
-* @param {object} query.key = key, '*' or undefined
-* @param {object} query.value
-* @param {object} query.limit
-* @param {object} query.startAt
-* @param {object} query.endAt
-*
+| Option            | Type                | Description  |
+| ----------------- | ------------------- | ------------ |
+| key               | `string`            | '*' or undefined
+| value             | `any`               |
+| limit             | `numeric`           |
+| startAt           | `string`            |
+| endAt             | `string`            |
+
+<!--
 * @param {object} options
 * @param {object} options.noSync = false
 * @param {object} options.noReactiveGetter = false
 * @param {object} options.createModelFromExistingCache = false
-*
-* @example
-* this.$models.example.subscribeQuery({
-*   key: 'createdAt',
-*   startAt: 123456789,
-*   limit: 100
-* });
+-->
 
----
+```js
+this.$models.example.subscribeQuery({
+  key: 'createdAt',
+  startAt: 123456789,
+  limit: 100
+});
+```
+### fetchList
 
-#### fetchList
+- **`fetchList( <option:object> ) ⇒ GenericList`**
+
 ```js
 fetchList({
   noReactiveGetter = false,
   // customRef = null,
   queryParams = null,
 } = {})
-  ```
+```
 
-
-#### fetchNode
+### fetchNode
+- **`fetchNode( <id:string>, <option:object> ) ⇒ GenericModel`**
 ```js
 fetchNode(id, { noReactiveGetter = false } = {})
 ```
 
-#### fetchQuery
+### fetchQuery
+- **`fetchQuery( <query:QueryDefinition> <, option:object> ) ⇒ GenericList`**
 ```js
 fetchQuery(query, options)
 ```
 
 ---
 
-#### getList
+### getList
+- **`getList( <idList:array<string>> <, option:object>) ⇒ GenericList`**
 ```js
 getList( idList, { noReactiveGetter = false } = {} )
 ```
 
-#### getNode
+### getNode
+- **`getNode( <id:string> <, option:object>) ⇒ GenericModel`**
 ```js
 getNode( id, { noReactiveGetter = false } = {} )
 ```
 
-#### getData
+### getData
+- **`getData( <id:string> <, option:object>) ⇒ Object<string:any>`**
+
+Get raw state from registry.
+
+- getData() -> get reference to list of data
+- getData(child_id) -> get reference to an item in the list
+
 ```js
 getData(id = null, safe = false)
 ```
-* getData() -> get reference to list of data
-* getData(child_id) -> get reference to an item in the list
-*
-* TODO: Move redudant?
-*
 
-#### exists
+```js
+let list = $models.example.getData()
+let obj = $models.example.getData('234')
+```
+
+### exists
+- **`exists( <id:string> ) ⇒ boolean`**
+
+TODO
+
 ```js
 exists(id = null)
 ```
 
+### getRegistryState
+- **`getRegistryState() => object`**
+
+TODO
+
+### getAllSyncedPaths
+- **`getAllSyncedPaths() => object<string:string>`**
+
+TODO
+
+<!--
 ### More
----
 
 ```js
 buildQueryRef({
@@ -527,10 +660,10 @@ buildQueryRef({
   endAt = undefined,
 })
 queryHash( query )
-getRegistryState()
-getAllSyncedPaths()
 ```
+-->
 
+<!--
 ```js
 unsync( id = null, { clean_up = false } = {} )
 * unsync - Stop syncing.
@@ -582,8 +715,10 @@ sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef 
 
 reset_global_instance_cache()
 ```
+-->
 
 
+<!--
 ```js
 read_mixin_init()
 _infer_local_path_from_ref( ref )
@@ -609,3 +744,40 @@ _match_all_existing_synced_queries( requested_path, only_active = true )
 _match_existing_synced_nodes( requested_path, subnodes_can_match_lists = false)
 _get_sync_state( path  )
 ```
+-->
+
+## Static Methods
+
+### defaultUserId
+
+- **`set defaultUserId( value: string )`**
+
+Sets the default user Id. If set, any `{uid}` or `{userId}` will
+automatically get substituted with the default user Id.
+
+```js
+GenericStore.defaultUserId = 'Qz3p2fpvTyeje5As3WDfgQtTCEK2';
+```
+
+- **`get defaultUserId() ⇒ string`**
+
+Returns the default UserId for all stores
+
+A good time to set the user id is after the user has been authenticated:
+
+```js
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User authenticated and is signed in
+    GenericStore.defaultUserId = user.uid;
+  } else {
+    // User was signed in and now signed out
+    GenericStore.resetState();
+  }
+});
+```
+
+- **`resetState() ⇒ void`**
+
+Reset stores. Should be called when the user logs out, in order to remove
+any stored user information from the state.

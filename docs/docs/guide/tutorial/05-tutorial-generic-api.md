@@ -3,7 +3,7 @@
 ## How to write a model definition
 
 ### src/model/taskSession/index.js
-```jsx
+```js
 import * as getters from './getters'
 import * as actions from './actions'
 import * as schema from './schema'
@@ -20,7 +20,7 @@ export default {
 ```
 
 ### src/model/taskSession/schema.js
-```jsx
+```js
 
 export default {
 
@@ -69,7 +69,7 @@ export default {
 ```
 
 ### src/model/taskSession/actions.js
-```jsx
+```js
 export default {
   my_action({ $store, $models }, goalId ) {
     // ...
@@ -79,7 +79,7 @@ export default {
 ```
 
 ### src/model/taskSession/getters.js
-```jsx
+```js
 export default {
   my_getter: ($models, $registry, $store) => {
     // ...
@@ -89,7 +89,7 @@ export default {
 ```
 
 ### src/model/taskSession/schema.bolt
-```jsx
+```js
 type {NAME_PLACEHOLDER} {
   {FIELDS_PLACEHOLDER}
 }
@@ -105,7 +105,7 @@ type UserDayplanSessionsTask {
 
 ## How to use the model
 
-```jsx
+```html
 <template>
   <div v-if=”hours.$ready”>...display hours...</div>
   <div v-if=”goals.$ready_all”>

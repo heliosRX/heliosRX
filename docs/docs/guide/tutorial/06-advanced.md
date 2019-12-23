@@ -34,7 +34,7 @@ type TemplateRepeat extends Number
 
 ## Custom functions
 
-```jsx
+```js
 // Checks if user is a specific (authenticated) user
 function isUser(uid) { auth != null && auth.uid == uid }
 function isConfirmedUser(uid) { auth != null && auth.uid == uid }

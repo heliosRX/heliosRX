@@ -12,8 +12,8 @@
 
 ## Defining a simple model
 
-```jsx
-# src/model/task/schema.js
+```js
+// file: src/model/task/schema.js
 export default {
   create({ title }) {
     return {
@@ -41,7 +41,7 @@ export default {
 
 Run
 
-```jsx
+```js
 helios gen
 firebase deploys --only rules
 ```

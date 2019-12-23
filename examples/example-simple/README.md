@@ -1,4 +1,4 @@
-# example-simple
+# heliosRX Example: Simple
 
 ## Project setup
 ```

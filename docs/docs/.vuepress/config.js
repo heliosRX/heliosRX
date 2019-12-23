@@ -30,10 +30,10 @@ module.exports = printConfig({
     displayAllHeaders: true,
     // sidebar: markdownFiles,
     sidebar: {
+      '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials'),
       '/api/': getApiSidebar(),
-      // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
-      '/guide/': getGuideSidebar('Guide', 'Tutorials'),
       '/tips/': getTipsSidebar('Firebase', 'Advanced'),
+      // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
       // '/guide/': {
       //   title: 'Guide',     // required
       //   // path: '/guide/',    // optional, which should be a absolute path.
@@ -83,8 +83,8 @@ module.exports = printConfig({
     nav: [
       { text: 'Home',  link: '/' },
       { text: 'Guide', link: '/guide/' },
-      { text: 'Tips', link: '/tips/' },
       { text: 'API',   link: '/api/' },
+      { text: 'Tips', link: '/tips/' },
       // { text: 'External', link: 'https://google.com' }
     ],
   },
@@ -107,7 +107,7 @@ function getApiSidebar () {
   // ]
 }
 
-function getGuideSidebar (groupA, groupB) {
+function getGuideSidebar (groupA, groupB, groupC) {
 
   // update the docs/**/*.md pattern with your folder structure
   let markdownFiles = glob
@@ -125,11 +125,19 @@ function getGuideSidebar (groupA, groupB) {
   return [
     {
       title: groupA,
-      collapsable: false,
+      collapsable: true,
       children: markdownFiles,
     },
     {
       title: groupB,
+      collapsable: false,
+      children: [
+        'basics/01-5-minute-intro.md',
+        'basics/02-cheat-sheet.md',
+      ],
+    },
+    {
+      title: groupC,
       collapsable: false,
       children: markdownFilesTutorial,
     }

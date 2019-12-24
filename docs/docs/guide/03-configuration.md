@@ -1,12 +1,12 @@
 # Configuration
 
-Before you can start using heliosRX ,you have to configure Firebase and heliosRX.
+Before you can start using heliosRX, you have to configure Firebase and heliosRX.
 Usually this should be very simple.
 
-## Configure Firebase Realtime Database
+### Configure Firebase Realtime Database
 
 This is really up to you, but one way to do it, is to get your Firebase
-configuration and but it in a new file in `src/firebase.js` that looks
+configuration and put it in a new file in `src/firebase.js` that looks
 something like this:
 
 ```js
@@ -41,7 +41,7 @@ Please feel free to do this in a way that suits your needs best.
 The important thing here is that we need to import `rtdb` later on,
 which is why we're exporting it here.
 
-## Create folder structure and configuration files
+### Create folder structure and configuration files
 
 Next create the following folder structure:
 
@@ -65,7 +65,7 @@ should look like this:
         └── *           - Model definitions (Can be accessed through this.$models)
 ```
 
-alternatively you can execute
+alternatively you can run
 
 ```bash
 helios init
@@ -73,7 +73,7 @@ helios init
 
 which will create these files and folders automatically.
 
-## Add heliosRX to your main.js
+### Add heliosRX to your main.js
 
 Next in your `src/main.js` you can import `rtdb` as well as your model
 definitions and setup heliosRX:
@@ -100,7 +100,7 @@ new Vue({
 }).$mount('#app')
 ```
 
-## FUTURE API: Add heliosRX to your main.js
+### FUTURE API: Add heliosRX to your main.js
 
 ```js
 import Vue from 'vue'

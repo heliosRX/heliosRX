@@ -1,4 +1,4 @@
-# Advanced: Custom getters & actions
+# Custom getters & actions
 
 ## How to write a model definition
 

@@ -302,7 +302,7 @@ export default {
 
 This is all it takes to write a realtime web applications with heliosRX!
 
-## A few more things
+### A few more things
 
 - Almost all "write" methods in heliosRX will return a promise. Usually the
 first argument is the `id` of the (newly created) object

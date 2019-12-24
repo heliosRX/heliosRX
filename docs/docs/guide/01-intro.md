@@ -53,16 +53,17 @@ just Firebase Client API are:
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
 - ➡️ Automatically generate Security Rules based on schema
-- ➡️ Additional layer of abstraction and therefor less vendor lock-in
+- ➡️ Allows easy sorting of objects  
 - ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ State management, no `Vuex` needed
+- ➡️ Additional layer of abstraction and therefor less vendor lock-in
+- ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
 - ➡️ Write significantly less code
 
 If that makes sense to you, you should give heliosRX a try.
 
 ## How it works
 
-To understand how heliosRX works, have a look following graph. Basically the
+To understand how heliosRX works, have a look following picture. Basically the
 database is specified by (1) model definition files, that describe *which* fields
 can be stored and (2) a path definition file, that describes *where* data is
 stored.

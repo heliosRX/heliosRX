@@ -1,4 +1,4 @@
-# Tutorial 2: Dealing with nested data
+# Dealing with nested data
 
 Imagine your data is nested like this:
 

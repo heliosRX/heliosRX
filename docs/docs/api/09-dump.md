@@ -46,3 +46,7 @@ let superStore = SuperStore([storeA, storeB, storeC])
 superStore.batchMove( id, contextA, contextB )
 ```
 -->
+
+
+The generic store provides a unified API to the database.
+Create store with different UID method.

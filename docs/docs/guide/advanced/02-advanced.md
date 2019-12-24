@@ -1,37 +1,5 @@
 # Advanced topics
 
-## Custom types
-
-HeliosTypes are:
-
-```ts
-type ServerTimestamp extends Number
-type CurrentTimestamp extends ServerTimestamp
-type InitialTimestamp extends ServerTimestamp
-type Timestamp extends Number
-type PastTimestamp extends Number
-type FutureTimestamp extends Number
-type AnyID extends String
-type PushID extends String
-type SlugID extends String
-type UserID extends String
-type MemberID extends String
-type ReasonableDate extends Number
-type DDMMYYYYDate extends String
-type YYMMDDDate extends String
-type BooleanYYMMDDDate extends String
-type ISODate extends String
-type ReasonableYear extends String
-type Domain extends String
-type EMail extends String
-type InvitationCode extends String
-type Counter extends Number
-type JSON extends String
-type Point2D
-type FontSettings
-type TemplateRepeat extends Number
-```
-
 ## Custom functions
 
 ```js

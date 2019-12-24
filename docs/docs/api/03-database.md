@@ -1,3 +1,6 @@
+# Enums
+
+<!--
 # Database
 
 Database is the object that holds all Models and Modules that registered to the Vuex ORM.
@@ -5,13 +8,11 @@ It is also responsible for generating the whole database relational schema
 from registered models. This schema is used to "Normalize" data before persisting
 to the Vuex Store.
 
-
-## Enums
-
 ### Path syntax
 
 `*` = main id
 ...
+-->
 
 ### UIDMethod
 

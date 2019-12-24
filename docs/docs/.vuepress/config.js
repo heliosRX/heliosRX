@@ -30,7 +30,7 @@ module.exports = printConfig({
     displayAllHeaders: true,
     // sidebar: markdownFiles,
     sidebar: {
-      '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials'),
+      '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials', 'Advanced'),
       '/api/': getApiSidebar(),
       '/tips/': getTipsSidebar('Firebase', 'Advanced'),
       // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
@@ -93,7 +93,7 @@ module.exports = printConfig({
   },
 });
 
-function getApiSidebar () {
+function getApiSidebar() {
   let markdownFiles = glob
     .sync('docs/api/**/*.md')
     .map(f => f.substr(5+4).replace('README.md', ''))
@@ -107,26 +107,27 @@ function getApiSidebar () {
   // ]
 }
 
-function getGuideSidebar (groupA, groupB, groupC) {
+function readFileList( name ) {
+  return glob
+    .sync('docs/guide/' + name + '/*.md')
+    .map(f => f.substr(5+6))
+    .filter(f => !f.includes('README.md'))
+    .sort()
+}
+
+function getGuideSidebar( groupA, groupB, groupC, groupD ) {
 
   // update the docs/**/*.md pattern with your folder structure
-  let markdownFiles = glob
-    .sync('docs/guide/*.md')
-    .map(f => f.substr(5+6))
-    .filter(f => !f.includes('README.md'))
-    .sort()
 
-  let markdownFilesTutorial = glob
-    .sync('docs/guide/tutorial/*.md')
-    .map(f => f.substr(5+6))
-    .filter(f => !f.includes('README.md'))
-    .sort()
+  let markdownFilesBasics = readFileList('');
+  let markdownFilesTutorial = readFileList('tutorial');
+  let markdownFilesAdvanced = readFileList('advanced');
 
   return [
     {
       title: groupA,
-      collapsable: true,
-      children: markdownFiles,
+      collapsable: false,
+      children: markdownFilesBasics,
     },
     {
       title: groupB,
@@ -140,6 +141,11 @@ function getGuideSidebar (groupA, groupB, groupC) {
       title: groupC,
       collapsable: false,
       children: markdownFilesTutorial,
+    },
+    {
+      title: groupD,
+      collapsable: false,
+      children: markdownFilesAdvanced,
     }
   ]
 }

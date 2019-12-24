@@ -29,7 +29,7 @@ function RunWithES6( script, options, args ) {
   const printJson   = options.parent.printJson || false;
 
   const requireES6 = require("esm")(module)
-  requireES6('module-alias/register')
+  // requireES6('module-alias/register')
 
   let hrstart = process.hrtime()
   let cmd = requireES6( script )
@@ -113,7 +113,7 @@ program
 
 // ----------------------------------------------------------------------------
 program
-  .command('init <name>').alias("i")
+  .command('init').alias("i")
   .description('Initialize helios config')
   .action((options) => {
     RunWithES6('./routines/initialize', options, {});

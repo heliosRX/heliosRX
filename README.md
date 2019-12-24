@@ -49,7 +49,7 @@
 **heliosRX** is a reactive front-end ORM layer for the real-time web 🔥
 - Currently supports Vue and Firebase.
 
- ![heliosRX](./doc/img/helios-rx.png)
+ ![heliosRX](./docs/docs/.vuepress/public/helios-rx.png)
 
 - 🍭 Easy to use abstraction layer for firebase
 - ⚡ Speeds up development significantly

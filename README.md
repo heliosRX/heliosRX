@@ -1,7 +1,6 @@
 <h1 align="center">heliosRX</h1>
 
-<!-- ![heliosRX](./docs/docs/.vuepress/public/helios-rx.png) -->
-![heliosRX](../guide/img/helios-rx.png)
+![heliosRX](./docs/docs/.vuepress/public/helios-rx.png)
 
 <p align="center">
   <a href="http://badge.fury.io/js/heliosrx" alt="NPM">

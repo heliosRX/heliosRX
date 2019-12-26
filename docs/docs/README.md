@@ -38,41 +38,62 @@ for reactive real-time web applications using Firebase Realtime Database.
 ### 1. Define a Schema
 
 ```js
-export default {
-  fields: {
-    title:     { validate_bolt_type: 'String', required: true },
-    createdAt: { validate_bolt_type: 'ServerTimestamp' },
-    isDone:    { validate_bolt_type: 'Boolean' },
-  },
+const taskModelDefinition = {
+  schema: {
+    fields: {
+      title:     { validate_bolt_type: 'String', required: true },
+      createdAt: { validate_bolt_type: 'ServerTimestamp' },
+      isDone:    { validate_bolt_type: 'Boolean' },
+    }
+  }
 };
+
+export const task = new GenericStore( '/user/{userId}/task/*', taskModelDefinition );
 ```
 
 ### 2. Use auto-generated API
 
 ```html
 <template>
+  <!-- Example: Simple To-Do App -->
   <ul>
     <li v-for="task in tasks.items" :key="task.$key">
       <input type="checkbox" @input="onCheckTask( task )">
       {{task.title}}
+      <a href="#" @click.prevent="onDeleteTask( task )" />
     </li>
+    <input v-model="title" />
+    <button @click="onAddTask" />
   </ul>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      title: ""
+    }
+  },
   computed: {
     tasks() {
-      return this.$models.task.subscribeList();      
+      return this.$models.task.subscribeList();
     }
   },
   methods: {
     onCheckTask( task ) {
       task.isDone = !task.isDone;
       task.save();
-      // - or -
-      this.$models.task.update( task.$id, { isDone: !task.isDone } )
+      // or: this.$models.task.update( task.$id, { isDone: !task.isDone } )
     },
+    onAddTask() {
+      this.$models.task.add({
+        title: this.title
+      });
+    },
+    onDeleteTask( task ) {
+      task.remove();
+      // or: this.$models.task.remove( task.$id );
+    }
   }
 }
 </script>

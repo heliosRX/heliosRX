@@ -32,7 +32,7 @@ module.exports = printConfig({
     sidebar: {
       '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials', 'Advanced'),
       '/api/': getApiSidebar(),
-      '/tips/': getTipsSidebar('Firebase', 'Advanced'),
+      '/tips/': getTipsSidebar('Firebase Security Rules', 'Advanced'),
       // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
       // '/guide/': {
       //   title: 'Guide',     // required
@@ -82,9 +82,9 @@ module.exports = printConfig({
     ], */
     nav: [
       { text: 'Home',  link: '/' },
-      { text: 'Guide', link: '/guide/' },
+      { text: 'Guide', link: '/guide/01-intro' },
       { text: 'API',   link: '/api/' },
-      { text: 'Tips', link: '/tips/' },
+      { text: 'Tips', link: '/tips/01-security-rules-tips' },
       // { text: 'External', link: 'https://google.com' }
     ],
   },

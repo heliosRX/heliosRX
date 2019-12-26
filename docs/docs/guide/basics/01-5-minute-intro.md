@@ -14,9 +14,9 @@ Before you start, you probably want to create a new Firebase project in the
 and create a new *Realtime Database* with "Start in **production mode**" security rules. before you start please consult the [configuration guide](../03-configuration)
 in order to setup heliosRX and Firebase.
 
-## Step 1: Create a task model
+## Step 1: Create a Model
 
-First let's create a new model in `src/models/task/`:
+First let's create a new model in `src/models/task/` for tasks:
 
 ```touch
 mkdir -p src/models/task
@@ -134,7 +134,7 @@ syncing all data in `/tasks/*` as a list of `GenericModels`:
 export default {
   computed: {
     tasks() {
-      return this.$models.task.subscribeList();      
+      return this.$models.task.subscribeList();
     }
   },
 }
@@ -176,7 +176,7 @@ let taskId = '-Lw_jEwrxiM6d2fS0n2m';
 export default {
   computed: {
     task() {
-      return this.$models.task.subscribeNode(taskId);      
+      return this.$models.task.subscribeNode(taskId);
     }
   },
 }
@@ -290,7 +290,7 @@ export default {
       // Check if all task fields have valid values
       if ( this.task.$isValid() ) {
         // Write task to db ()
-        this.task.save();        
+        this.task.save();
       } else {
         // Handle invalid user input
       }

@@ -61,7 +61,7 @@ export default class GenericList {
   _add_child( id, child ) {
     // TODO: Check if this.items is an array
     this.$readySome = true;
-    this.$lastUpdate  = Date.now();
+    this.$lastUpdate = Date.now();
     Vue.set( this.items, id, child )
     this.$numChildren += 1;
     this.items[ id ].$idx = this.$numChildren;

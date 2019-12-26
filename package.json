@@ -6,10 +6,10 @@
   "contributors": [
     "Thomas Weustenfeld <tw@wavefab.com>"
   ],
-  "main": "dist/helios-rx.umd.js",
   "module": "dist/helios-rx.esm.js",
   "unpkg": "dist/helios-rx.min.js",
   "typings": "types/index.d.ts",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/heliosRX/heliosRX.git"
@@ -29,7 +29,8 @@
     "access": "public"
   },
   "private": false,
-  "scripts": {},
+  "scripts": {
+  },
   "files": [
     "src"
   ],

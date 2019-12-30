@@ -29,7 +29,9 @@
     "access": "public"
   },
   "private": false,
-  "scripts": {},
+  "scripts": {
+    "docs": "(cd docs && yarn docs:build && yarn docs:deploy)"
+  },
   "files": [
     "src"
   ],

@@ -2,7 +2,8 @@
   "version": "0.0.1",
   "scripts": {
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "docs:deploy": "rsync -avv docs/.vuepress/dist/* nitro:/home/www/thomas-weustenfeld.de/web/heliosrx/"
   },
   "dependencies": {
     "glob": "^7.1.6"

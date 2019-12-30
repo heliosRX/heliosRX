@@ -7,6 +7,7 @@ function printConfig(config) {
 }
 
 module.exports = printConfig({
+  base: '/heliosrx/', // ONLY BUILD @ tw.de
   configureWebpack: {
     resolve: {
       alias: {

@@ -15,10 +15,10 @@ export function install (Vue, options) {
 
   // const isDef = v => v !== undefined
 
-  Object.defineProperty(Vue.prototype, '$db', {
+  /* Object.defineProperty(Vue.prototype, '$db', {
     // get () { return this._loaderRoot._loader }
     get () { return this.$root.$options.db }
-  })
+  }) */
 
   if ( options && options.models ) {
     Object.defineProperty(Vue.prototype, '$models', {

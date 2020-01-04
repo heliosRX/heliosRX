@@ -1,0 +1,30 @@
+<rules>
+  // read() { isSignedIn() }
+  // write() { isSignedIn() }
+  read() { true }
+  write() { true }
+</rules>
+
+<index>
+  foo
+</index>
+
+<model lang="yaml">
+  field: required
+</model>
+
+<script>
+export default {
+
+  templatePath: '/foobar/{myid}/*',
+
+  index: [ field ],
+
+  fields: {
+
+  },
+
+  modelDefinition:
+
+}
+</script>

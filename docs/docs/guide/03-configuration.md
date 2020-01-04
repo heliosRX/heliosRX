@@ -59,7 +59,7 @@ should look like this:
 ├── db                  - Used for admin and database scripts
 │   └── rules           - Database access rules
 │       └── rules.bolt  - add new database models to get necessary permission
-└── src              
+└── src
     └── models
         ├── config.js   - Models are assigned to DB paths here
         └── *           - Model definitions (Can be accessed through this.$models)
@@ -110,6 +110,8 @@ import { rtdb1, rtdb2, rtdb3 } from './firebase' // Import realtime database
 const db = heliosRX.setup({
   // definitions: 'src/models',
   userModels:  'src/models',
+  // userModels:  requireContext('src/models'),
+  userModels:  require.context('./models/', true, /\.model\.js$/ ),
   userApi:     'src/api'
   devMode:     false,
   firebaseDb:  {
@@ -117,6 +119,7 @@ const db = heliosRX.setup({
     db2: rtdb2,
     db3: rtdb3,
   },
+  plugins: [],
   // list of ready flags
 })
 

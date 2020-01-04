@@ -9,34 +9,34 @@ module.exports = {
     browser: true,
   },
   extends: [
-    'plugin:vue/essential',
+    // 'plugin:vue/essential',
     'standard',
-    'plugin:import/errors',
-    'plugin:import/warnings',
+    // 'plugin:import/errors',
+    // 'plugin:import/warnings',
   ],
   plugins: [
-    'vue', // required to lint *.vue files
-    'import'
+    // 'vue', // required to lint *.vue files
+    // 'import'
   ],
   settings: {
-    'import/extensions': [ ".js", ".vue" ],
-    'import/resolver': {
-      'alias': {
-          map: [
-              ['@', './src/'],
-          ],
-          extensions: [ '.js', '.vue' ]
-      },
-    }
+    // 'import/extensions': [ ".js", ".vue" ],
+    // 'import/resolver': {
+    //   'alias': {
+    //       map: [
+    //           ['@', './src/'],
+    //       ],
+    //       extensions: [ '.js', '.vue' ]
+    //   },
+    // }
   },
   rules: {
     // ---- modules
-    'import/no-unresolved'        : [2, {commonjs: true, amd: false}],
-    'import/named'                : 2,
-    'import/namespace'            : 2, // good
-    'import/default'              : 2, // good
-    'import/export'               : 2,
-    'import/first'                : 'warn',
+    // 'import/no-unresolved'        : [2, {commonjs: true, amd: false}],
+    // 'import/named'                : 2,
+    // 'import/namespace'            : 2, // good
+    // 'import/default'              : 2, // good
+    // 'import/export'               : 2,
+    // 'import/first'                : 'warn',
     // ----
     'spaced-comment'              : 0,
     'comma-dangle'                : 0, // NO NO NOPE

@@ -1,6 +1,5 @@
 <template>
   <div class="bypass-writing-page">
-    <AdminMenu />
     <div class="p-4">
 
       <el-row>
@@ -71,8 +70,7 @@
 </template>
 
 <script>
-import AdminMenu from './Elements/AdminMenu'
-import db from "@/generic_api/firebase/rtdb"
+import { rtdb as db } from "@/firebase"
 
 export default {
   data: () => ({
@@ -128,7 +126,6 @@ export default {
     }
   },
   components: {
-    AdminMenu
   }
 };
 </script>

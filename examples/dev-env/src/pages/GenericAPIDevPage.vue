@@ -1,7 +1,5 @@
 <template>
   <div>
-    <AdminMenu />
-
     <el-card class="m-2">
       <div slot="header">
         <h3 class="m-0">Admin Tool: Generic API (GenericStore)</h3>
@@ -200,9 +198,10 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import GenericStore from '@/generic_api/lib/generic_store/GenericStore'
+import GenericStore from 'heliosrx/src/store/GenericStore'
 import generic_store_list from '@/models'
-import AdminMenu from './Elements/AdminMenu'
+import db from "heliosrx/src/global_api"; // TODO
+import registry from 'heliosrx/src/registry'
 
 // import Vue from 'vue'
 // import VueFormGenerator from 'vue-form-generator'
@@ -240,15 +239,20 @@ export default {
     },
   }),
   created() {
+    this.$db = db;
+    this.$store = registry;
     this.onSelectStore();
   },
   mounted() {
     this.onUpdateStore();
   },
   computed: {
-    ...mapGetters("user", [
+    /* ...mapGetters("user", [
       "userAuth"
-    ]),
+    ]), */
+    userAuth() {
+      return { id: '0123456798 '};
+    },
     ...mapState([
       'res',
       'sync',
@@ -279,7 +283,7 @@ export default {
 
     createGens() {
       let gs = new GenericStore( this.template_path, null )
-      window.gpdev.gstest = gs;
+      window.$gstest = gs;
       this.gens_selected = gs;
       console.log("GenStore", gs);
       this.onUpdateStore();
@@ -460,7 +464,6 @@ export default {
     }
   },
   components: {
-    AdminMenu
   }
 };
 </script>

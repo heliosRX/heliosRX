@@ -1,7 +1,5 @@
 <template>
   <div>
-    <AdminMenu />
-
     <el-card class="m-2">
       <div slot="header">
         <h3 class="m-0">Proof of concept: Async Getters</h3>
@@ -59,10 +57,9 @@
 </template>
 
 <script>
-import AdminMenu from './Elements/AdminMenu'
-// import { fake_models, fake_db } from './Elements/AsyncGetterProofOfConcept'
-// import { fake_models, fake_db } from './Elements/RegistryProofOfConcept'
-import { fake_models, fake_db } from './Elements/VuexProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/AsyncGetterProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/RegistryProofOfConcept'
+import { fake_models, fake_db } from '@/poc/VuexProofOfConcept'
 
 export default {
   data: () => ({
@@ -127,7 +124,6 @@ export default {
     }
   },
   components: {
-    AdminMenu
   }
 };
 </script>

@@ -1,0 +1,14 @@
+/*
+*/
+
+path / {
+  // Do not allow to read to /
+  // Do not write to false to /
+}
+
+path /example is Example[] {
+  // read() { isSignedIn() }
+  // write() { isSignedIn() }
+  read() { true }
+  write() { true }
+}

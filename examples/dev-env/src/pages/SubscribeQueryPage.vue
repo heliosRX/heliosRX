@@ -1,14 +1,13 @@
 <template>
   <div class="subscribe-query-page">
-    <AdminMenu />
     <div class="p-4">
       <!--
       <el-button size="small">SYNC</el-button>
       <el-button size="small">UNSYNC</el-button>
       -->
-      <el-button @click="mode = mode === 1 ? 2 : 1">Toggle</el-button>
+      <!-- <el-button @click="mode = mode === 1 ? 2 : 1">Toggle</el-button> -->
 
-      <el-row :gutter="10" v-if="mode === 1">
+      <el-row :gutter="10" v-if="mode === 1 && false">
         <el-col :span="8">
           <!-- <h5>unfinished_tasks_db_query2</h5> -->
           <h5>finished === false</h5>
@@ -125,10 +124,9 @@
 </template>
 
 <script>
-import AdminMenu from './Elements/AdminMenu'
 // import db from "@/generic_api/firebase/rtdb"
 import Color from 'color'
-import moment from '@/moment-gp'
+import moment from 'heliosrx/src/moment'
 
 function random() {
   return Math.round( Math.random() * 100 ) / 100;
@@ -136,7 +134,7 @@ function random() {
 
 export default {
   data: () => ({
-    mode: 1,
+    mode: 2,
   }),
   computed: {
     exampleNode() {
@@ -169,7 +167,7 @@ export default {
       }).itemsAsArray();
     },
 
-    dayplanner_tasks_from_db_query() {
+    /* dayplanner_tasks_from_db_query() {
       let startAt = moment.currentDate().clone().subtract(5,'day').format('YYMMDD').toString()
       return this.$models.userDayplannerTasks.subscribeQuery({
         key: "dateString",
@@ -193,7 +191,7 @@ export default {
         value: false,
         limit: 10000
       }).itemsAsArray()
-    },
+    }, */
 
     filterDatePast() {
       return moment.currentDate().clone().subtract(5,'day').format('YYMMDD').toString()
@@ -250,7 +248,6 @@ export default {
     },
   },
   components: {
-    AdminMenu
   }
 };
 </script>

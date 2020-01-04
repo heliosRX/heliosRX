@@ -1,0 +1,23 @@
+type Example {
+  {FIELDS_PLACEHOLDER}
+}
+
+/*
+path {PATH_PLACEHOLDER} is Example {
+  read() { auth != null }
+  write() { auth != null }
+}
+*/
+
+/*
+type Example {
+  a: String,
+  b: Boolean,
+  nested: NestedType
+}
+
+type ExampleNestedType {
+  c: String | Null,
+  d: Boolean,
+}
+*/

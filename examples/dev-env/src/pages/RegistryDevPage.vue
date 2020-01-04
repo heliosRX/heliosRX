@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <AdminMenu />
-
+  <div class="d-flex">
     <el-card class="m-2">
       <div slot="header">
         <h3 class="m-0">Admin Tool: Registry</h3>
@@ -37,7 +35,6 @@
 </template>
 
 <script>
-import AdminMenu from './Elements/AdminMenu'
 import Vue from 'vue'
 
 export default {
@@ -92,7 +89,6 @@ export default {
     }
   },
   components: {
-    AdminMenu
   }
 };
 </script>

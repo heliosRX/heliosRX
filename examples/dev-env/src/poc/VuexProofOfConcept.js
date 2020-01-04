@@ -372,9 +372,9 @@ add_custom_getters( 'magic_store', customGetters );
 const fake_db = {}
 
 if ( process.env.VUE_APP_PRODUCTION === 'false' ) {
-  window.gpdev.fake_models = fake_models;
-  window.gpdev.fake_db = fake_db;
-  window.gpdev.fake_registry = registry;
+  window.$fake_models = fake_models;
+  window.$fake_db = fake_db;
+  window.$fake_registry = registry;
 }
 
 // console.log("registry", registry);

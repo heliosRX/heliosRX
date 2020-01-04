@@ -17,3 +17,5 @@ export default heliosRX;
 // TODO: Do not export
 // export { walkGet } from './registry/utils'
 // export { walkGetSafe } from './registry/utils'
+
+export { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers'

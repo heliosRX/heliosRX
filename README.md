@@ -99,12 +99,6 @@ npm install --save heliosrx
 yarn add heliosrx
 ```
 
-3. CDN
-
-```
-TODO
-```
-
 heliosRX requires bolt-compiler as a peer dependency, so please run:
 
 ```bash
@@ -161,9 +155,8 @@ which is why we're exporting it here.
 Next create the following folder structure:
 
 ```
-├── db
-│   └── rules
-│       └── rules.bolt  - Database access rules
+└── rules
+    └── rules.bolt      - Database access rules
 └── src
     ├── api             - Additional user API
     └── models
@@ -185,10 +178,10 @@ which will create these files and folders automatically.
 import Vue from 'vue'
 import heliosRX from 'heliosRX'
 import { rtdb } from './firebase' // Import realtime database
+import models from '@/models'
 
 Vue.use(heliosRX, {
-  userModels:  'src/models',
-  userApi:     'src/api'
+  userModels:  models, // 'src/models',
   devMode:     true,
   firebaseDb:  rtdb
 })
@@ -204,7 +197,7 @@ new Vue({
 
 This is an example for a simeple To-Do App:
 
-- [Demo](https://eager-xxx-yyy.netlify.com/demo1)
+- [Demo](https://heliosrx-demo1.web.app/)
 
 ### 1. Define a Schema
 
@@ -273,7 +266,7 @@ export default {
 ### 3. Generate Security Rules automatically
 
 ```bash
-> helios rules
+> helios rules --write <output-file>
 
 type Task {
   title: String

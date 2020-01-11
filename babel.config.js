@@ -1,6 +1,8 @@
 module.exports = {
   presets: [
-    [ "@vue/app", { corejs: 3, useBuiltIns: "entry" } ]
+    // [ "@vue/app", { corejs: 3, useBuiltIns: "entry" } ]
+    // "@babel/preset-env",
+    [require('@babel/preset-env'), { 'modules': false }],
   ],
   env: {
     test: {
@@ -22,7 +24,6 @@ module.exports = {
 /*
 module.exports = {
   'presets': [
-    [require('@babel/preset-env'), { 'modules': false }],
   ],
   'plugins': [
     require('@babel/plugin-proposal-class-properties'),

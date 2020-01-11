@@ -1,5 +1,6 @@
 # Before Release
 
+[ ] Split into helios cli (global) and helios
 [ ] Describe uid handling in docs, include in example
 
 # After Release
@@ -19,3 +20,24 @@
 - [ ] Based on Vue 3 (New observer, native classes as models?)
 - [ ] bolt_validation_type -> type
 - [ ]
+
+
+
+???:
+
+#### get_registry
+
+```js
+function get_registry()
+```
+
+TODO: Move to $registry
+
+#### get_registry_state
+
+```js
+function get_registry_state()
+```
+
+TODO: Move to $registry
+

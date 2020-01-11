@@ -36,26 +36,29 @@
     "src"
   ],
   "dependencies": {
+    "chalk": "^3.0.0",
+    "commander": "^4.0.1",
+    "configstore": "^5.0.0",
     "core-js": "^3.6.1",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
+    "firebase": "^7.6.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.27",
-    "slugid": "^2.0.0"
+    "slugid": "^2.0.0",
+    "vue": "^2.6.11",
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
-    "chalk": "^3.0.0",
-    "commander": "^4.0.1",
-    "configstore": "^5.0.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "esm": "^3.2.25"
   },
   "peerDependency": {

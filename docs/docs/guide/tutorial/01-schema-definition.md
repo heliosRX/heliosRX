@@ -95,27 +95,16 @@ The third argument is an options object. Valid options are `isAbstract` or
 
 ## Generate and deploy security rules
 
-Run
-
-```js
-helios gen
-firebase deploys --only rules
-```
-
-## Advanced model defintion with getters and actions
-
-```
-└── models              
-    └── tasks
-        ├── schema.js   -
-        ├── getters.js  -
-        └── actions.js  -
-```
-
 Verify everything is set up correctly with:
 
 ```bash
 helios check
 ```
 
-### Schemata in heliosRX
+then run:
+
+```js
+helios rules --write database.rules.bolt
+firebase-bolt database.rules.bolt
+firebase deploy --only database
+```

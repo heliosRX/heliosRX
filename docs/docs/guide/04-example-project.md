@@ -2,17 +2,22 @@
 
 If you're looking for a basic example, please have a look at:
 
-- [`/examples/example-simple`](https://github.com/tw00/heliosrx-private/tree/master/examples/example-simple)
+- [`heliosRX/example-simple-todo`](https://github.com/heliosRX/example-simple-todo)
 
 For a more comprehensive example please check out:
 
-- [`/examples/example-team-todo`](https://github.com/tw00/heliosrx-private/tree/master/examples/example-team-todo)
+- [`heliosRX/example-fitness-tracker`](https://github.com/heliosRX/example-fitness-tracker)
+
+<!-- [`heliosRX/example-team-todo`](https://github.com/tw00/heliosrx-private/tree/master/examples/example-team-todo) -->
 
 ::: warning
-The project `example-team-todo` is still under development.
+The project `example-fitness-tracker` is still under development.
+<!-- The project `example-team-todo` is still under development. -->
 :::
 
+<!--
 ::: tip
 Firebase project can be found here:
 - [https://console.firebase.google.com/u/0/project/heliosrx-demo1](https://console.firebase.google.com/u/0/project/heliosrx-demo1)
 :::
+-->

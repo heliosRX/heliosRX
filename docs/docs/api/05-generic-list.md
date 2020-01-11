@@ -1,6 +1,8 @@
 # Generic List
 
-----
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ## Properties
 
@@ -20,17 +22,17 @@ _unwatch     = null;
 
 ## Getters
 
-#### $$key
+#### $key
 ```js
 get $key()
 ```
 
-#### $$vm
+#### $vm
 ```js
 get $vm()
 ```
 
-#### $$model
+#### $model
 ```js
 get $model()
 ```

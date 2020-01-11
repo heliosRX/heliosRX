@@ -1,6 +1,19 @@
 # Custom getters & actions
 
-## How to write a model definition
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
+
+
+### Extended model definition
+
+```
+└── models
+    └── tasks
+        ├── schema.js   -
+        ├── getters.js  -
+        └── actions.js  -
+```
 
 ### src/model/taskSession/index.js
 ```js
@@ -103,7 +116,7 @@ type UserDayplanSessionsTask {
 }
 ```
 
-## How to use the model
+### How to use the model
 
 ```html
 <template>

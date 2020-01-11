@@ -1,5 +1,9 @@
 # Ready flags
 
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
+
 ```vue
 <template>
   <div v-if="$ready_tasks">
@@ -35,5 +39,5 @@ set_ready( FOOBAR )
 rem_ready( FOOBAR )
 ```
 
-- TODO: Move to $ready.*
-- TODO: Publish as plugin @heliosrx/ready, @heliosrx/auth
+- TODO: Move to `$ready.*`
+- TODO: Publish as plugin `@heliosrx/ready`, `@heliosrx/auth`

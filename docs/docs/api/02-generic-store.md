@@ -25,19 +25,25 @@ const post = new GenericStore(
 
 - type: `string`
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 #### modelDefinition
 
 - type: `Object (ModelDefinition)`
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 #### options
 
 - type: `Object`
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 | Option            | Type                | Description  |
 | ----------------- | ------------------- | ------------ |
@@ -505,7 +511,9 @@ _convert_moment_objects( payload )
 ### subscribeList
 - **`subscribeList( <idList: array<string>> <, option:object>) ⇒ GenericList`**
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ```js
 return $models.example.subscribeList();
@@ -526,7 +534,9 @@ $models.example.subscribeList(idList = [], {
 ### subscribeNode
 - **`subscribeNode( <id: string> <, option:object>) ⇒ GenericModel`**
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ```js
 return $models.example.subscribeNode( id );
@@ -632,7 +642,9 @@ let obj = $models.example.getData('234')
 ### exists
 - **`exists( <id:string> ) ⇒ boolean`**
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ```js
 exists(id = null)
@@ -641,12 +653,16 @@ exists(id = null)
 ### getRegistryState
 - **`getRegistryState() => object`**
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ### getAllSyncedPaths
 - **`getAllSyncedPaths() => object<string:string>`**
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 <!--
 ### More

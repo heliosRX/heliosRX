@@ -3,52 +3,31 @@
 Before you can start using heliosRX, you have to configure Firebase and heliosRX.
 Usually this should be very simple.
 
-### Configure Firebase Realtime Database
+::: tip Configure Firebase
+If you haven't configured firebase yet, first create a new project in the firebase console
 
-This is really up to you, but one way to do it, is to get your Firebase
-configuration and put it in a new file in `src/firebase.js` that looks
-something like this:
+- [console.firebase.google.com](https://console.firebase.google.com/)
 
-```js
-// file: src/firebase.js
+then create a `firebase.json` and `.firebaserc.js` by typing:
 
-// Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
-
-// Add the Firebase products that you want to use
-import "firebase/auth";
-import "firebase/database";
-
-// TODO: Replace the following with your app's Firebase project configuration
-const firebaseConfig = {
-  apiKey: "<YOUR API KEY>",
-  authDomain: "heliosrx-demo1.firebaseapp.com",
-  databaseURL: "https://heliosrx-demo1.firebaseio.com",
-  projectId: "heliosrx-demo1",
-  storageBucket: "heliosrx-demo1.appspot.com",
-  messagingSenderId: "<YOUR MESSAING SENDER ID>",
-  appId: "<YOUR APP ID>"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Initialize Realtime DB
-export const rtdb = firebase.database();
+```bash
+firebase login # when ushing firebase the 1st time
+firebase init # select newly created project
+# 'firebase use' for existing firebase projects
 ```
 
-Please feel free to do this in a way that suits your needs best.
-The important thing here is that we need to import `rtdb` later on,
-which is why we're exporting it here.
+Don't forget to also create a database for your project in the Firebase console.
+:::
+
 
 ### Create folder structure and configuration files
 
 Next create the following folder structure:
 
 ```bash
-mkdir -p db/rules
+mkdir -p rules
 mkdir -p src/models
-touch db/rules/rules.bolt
+touch rules/rules.bolt
 touch src/models/config.js
 ```
 
@@ -56,14 +35,25 @@ after you successfully created these files and folders your directory structure
 should look like this:
 
 ```
-├── db                  - Used for admin and database scripts
-│   └── rules           - Database access rules
-│       └── rules.bolt  - add new database models to get necessary permission
+├── rules               - Used for database access rules
+│   └── rules.bolt      - Default access rules
 └── src
     └── models
         ├── config.js   - Models are assigned to DB paths here
         └── *           - Model definitions (Can be accessed through this.$models)
 ```
+
+::: warning Create src/models/index.js
+This won't be necessary in future releases, but for now please also create a new file `src/models/index.js`:
+
+```js
+import * as GenericStores from './config.js'
+for ( let storeName in GenericStores ) {
+  GenericStores[ storeName ].setName( storeName )
+}
+export default GenericStores;
+```
+:::
 
 alternatively you can run
 
@@ -82,61 +72,54 @@ definitions and setup heliosRX:
 // file: src/main.js
 import Vue from 'vue'
 import heliosRX from 'heliosrx'
-import api from 'heliosrx/src/api' // TODO: Remove
 import { rtdb } from './firebase' // Import realtime database
-import models from "@/models" // TODO
+import models from "@/models"
 
 Vue.use(heliosRX, {
-  models: models,
-  api: api, // TODO: Remove
-  // TODO: rtdb: rtdb,
+  models:  models,
+  devMode: true,
+  db:      rtdb,
 })
-
-heliosRX.GenericStore.setDefaultDB( rtdb );
-heliosRX.registry.commit('INIT_REGISTRY');
 
 new Vue({
   render: h => h(App),
 }).$mount('#app')
 ```
 
-### FUTURE API: Add heliosRX to your main.js
+### Configure Firebase Realtime Database
+
+This is really up to you, but one way to do it, is to get your Firebase
+configuration and put it in a new file in `src/firebase.js` that looks
+something like this:
 
 ```js
-import Vue from 'vue'
-import heliosRX from 'heliosRX'
-import { rtdb1, rtdb2, rtdb3 } from './firebase' // Import realtime database
+// file: src/firebase.js
 
-const db = heliosRX.setup({
-  // definitions: 'src/models',
-  userModels:  'src/models',
-  // userModels:  requireContext('src/models'),
-  userModels:  require.context('./models/', true, /\.model\.js$/ ),
-  userApi:     'src/api'
-  devMode:     false,
-  firebaseDb:  {
-    db1: rtdb1,
-    db2: rtdb2,
-    db3: rtdb3,
-  },
-  plugins: [],
-  // list of ready flags
-})
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
 
-new Vue({
-  ...
-  render: h => h(App)
-}).$mount('#app');
+// Add the Firebase products that you want to use
+import "firebase/auth";
+import "firebase/database";
+
+// TODO: Replace the following with your app's Firebase project configuration
+const firebaseConfig = {
+  apiKey:            "<YOUR API KEY>",
+  authDomain:        "<YOUR AUTH DOMAIN>",
+  databaseURL:       "<YOUR DATABSE URL>",
+  projectId:         "<YOUR PROJECT ID>",
+  storageBucket:     "<YOUR STORAGE BUCKET>",
+  messagingSenderId: "<YOUR MESSAING SENDER ID>",
+  appId:             "<YOUR APP ID>"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Realtime DB
+export const rtdb = firebase.database();
 ```
 
-or
-
-```js
-import Vue from 'vue'
-import heliosRX from 'heliosRX'
-
-Vue.use(heliosRX, {
-  definitions: 'src/models',
-  debug: false,
-})
-```
+Please feel free to do this in a way that suits your needs best.
+The important thing here is that we need to import `rtdb` later on,
+which is why we're exporting it here.

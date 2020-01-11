@@ -1,6 +1,6 @@
 # Cheat sheet
 
-TODO: Move to guide, keep simple example here?
+<!-- TODO: Move to guide, keep simple example here? -->
 
 #### Type definition
 
@@ -29,7 +29,11 @@ import moment from 'heliosrx/src/moment'
 
 export default {
 
-  create_required: [ 'name' ], // ???
+  // Will be called when creating new instances (optional)
+  // Arguments:
+  // 1. required data
+  // 2. optional data
+  // 3. backend, which is used ('REALTIMEDB' for now)
   create({ name }, data, BACKEND) {
     return {
       createdAt:     moment.currentTimeServer(BACKEND),
@@ -38,14 +42,16 @@ export default {
     };
   },
 
+  // create_required: [ 'name' ],
+
   fields: [
     createdAt: {
       validate_bolt_type: 'ServerTimestamp',
     },
     name: {
-      validate_bolt_type: 'String',
+      validate_bolt_type: 'String', // server side validation
       required: true,
-      validate: v => v.length < 30
+      validate: v => v.length < 30, // client side validation
     },
     someNumber: {
       validate_bolt_type: 'Number',
@@ -54,7 +60,7 @@ export default {
 };
 ```
 
-- **Getters `getters.js`**:
+- **Static getters `getters.js`**:
 
 ```js
 // file: src/models/example/getters.js
@@ -67,7 +73,7 @@ export default {
 $models.example.getters.mygetter
 ```
 
-- **Actions `actions.js`**:
+- **Static actions `actions.js`**:
 
 ```js
 // file: src/models/example/actions.js
@@ -84,7 +90,7 @@ $models.example.doSomethingFancy()
 $models.example.doAction('0123456789')
 ```
 
-- **Bolt definition `schema.bolt`**:
+- **Bolt definition `schema.bolt`** (default, optional):
 ```js
 // file: src/models/example/schema.bolt
 type Example {
@@ -92,18 +98,52 @@ type Example {
 }
 ```
 
-#### Data types
+#### Data types (`validate_bolt_type`)
+
+- **Default bolt type:**
 
 ```
-validate_bolt_type:
-String
-Boolean
-Number
-...
+String            - Character strings
+Number            - Integer or floating point
+Boolean           - Values `true` or `false`
+Object            - A structured object containing named properties.
+Any               - Every non-null value is of type Any.
+Null              - Value `null` (same as absence of a value, or deleted)
+Map<Key, Value>   - A generic type - maps string valued keys to corresponding
+                    values (similar to an Object type).
+Type[]            - An "array-like" type (actually same as Map<String, Type>
+                    where Type can be any other built-in or user-defined type.
+```
+
+- **Additional types:**
+
+```bolt
+Timestamp (extends Number)
+PastTimestamp (extends Number)
+FutureTimestamp (extends Number)
+ServerTimestamp (extends Number)
+CurrentTimestamp (extends ServerTimestamp)
+InitialTimestamp (extends ServerTimestamp)
+
+AnyID (extends String)
+PushID (extends String)
+SlugID (extends String)
+UserID (extends String)
+
+ReasonableDate (extends Number)
+DDMMYYYYDate (extends String)
+YYMMDDDate (extends String)
+ISODate (extends String)
+ReasonableYear (extends String)
+
+Domain (extends String)
+EMail (extends String)
+JSON (extends String)
+Point2D ({ x: Number, y: Number })
 ```
 
 
-#### Creating a new store
+#### Creating new stores
 
 ```js
 // --- Creating a generic store:
@@ -126,7 +166,7 @@ goal_meta = new GenericStore(
   '/goal/*/meta',
   GoalMetaTypeDefinition
 );
-goal_meta.add() // -> creates a new goal at /goal/<newId>/meta
+// goal_meta.add() -> creates a new goal at /goal/<newId>/meta
 
 // Store with alternative unique id method:
 new GenericStore(
@@ -143,6 +183,7 @@ goal_deadline_list = new GenericStore(
   '/goal/{goalId}/meta/deadlines/*',
   GoalMetaTypeDefinition
 );
+
 goal_deadline_list
   .with({ goalId: 'KrZPg8N6THOisFz_T992Zg' })
   .add({ title: 'My deadline' })

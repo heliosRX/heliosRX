@@ -1,5 +1,9 @@
 # Ready API
 
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
+
 #### mapReady
 
 ```js
@@ -29,22 +33,3 @@ function get_ready( name, id = null )
 ```js
 function get_ready_count( name )
 ```
-
-???:
-
-#### get_registry
-
-```js
-function get_registry()
-```
-
-TODO: Move to $registry
-
-#### get_registry_state
-
-```js
-function get_registry_state()
-```
-
-TODO: Move to $registry
-

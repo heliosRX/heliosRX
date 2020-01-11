@@ -85,21 +85,15 @@ type AnyID extends String { ... }
 type PushID extends String { ... }
 type SlugID extends String { ... }
 type UserID extends String { ... }
-type MemberID extends String { ... }
 type ReasonableDate extends Number { ... }
 type DDMMYYYYDate extends String { ... }
 type YYMMDDDate extends String { ... }
-type BooleanYYMMDDDate extends String { ... }
 type ISODate extends String { ... }
 type ReasonableYear extends String { ... }
 type Domain extends String { ... }
 type EMail extends String { ... }
-type InvitationCode extends String { ... }
-type Counter extends Number { ... }
 type JSON extends String { ... }
 type Point2D { ... }
-type FontSettings { ... }
-type TemplateRepeat extends Number { ... }
 ```
 
 You can also define your own types, by creating a new file `rules/types.bolt`
@@ -128,12 +122,18 @@ If the schema is defined as an object, it will be ignored.
 
 ## Store Getters and Actions
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ## Model Getters and Actions
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ## List Getters and actions
 
-TODO
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::

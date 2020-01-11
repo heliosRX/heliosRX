@@ -1,7 +1,8 @@
 # Generic Model
 
----
-...
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
 
 ## Properties
 
@@ -21,13 +22,13 @@ _store_name  = name;
 ## Getters
 
 #### $id_list
-- X
+- **`TODO`**
 ```js
 get $id_list()
 ```
 
 #### itemsSorted
-- X
+- **`TODO`**
 ```js
 get itemsSorted()
 ```
@@ -40,43 +41,43 @@ constructor( name )
 ```
 
 #### getItemByIdx
-- X
+- **`TODO`**
 ```js
 getItemByIdx( idx )
 ```
 
 #### asArraySorted
-- X
+- **`TODO`**
 ```js
 asArraySorted()
 ```
 
 #### asArraySortedBy
-- X
+- **`TODO`**
 ```js
 asArraySortedBy(prop)
 ```
 
 #### asArrayFilteredBy
-- X
+- **`TODO`**
 ```js
 asArrayFilteredBy(prop, value)
 ```
 
 #### itemsAsArrayWithoutDeleted
-- X
+- **`TODO`**
 ```js
 itemsAsArrayWithoutDeleted( custom_sortidx )
 ```
 
 #### itemsAsArrayOnlyDeleted
-- X
+- **`TODO`**
 ```js
 itemsAsArrayOnlyDeleted( custom_sortidx )
 ```
 
 #### reset
-- X
+- **`TODO`**
 ```js
 reset()
 ```

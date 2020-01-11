@@ -53,7 +53,7 @@ just Firebase Client API are:
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
 - ➡️ Automatically generate Security Rules based on schema
-- ➡️ Allows easy sorting of objects  
+- ➡️ Allows easy sorting of objects
 - ➡️ Automatic type conversion for timestamps to moment-js
 - ➡️ Additional layer of abstraction and therefor less vendor lock-in
 - ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
@@ -78,3 +78,7 @@ forward way. Based on the model definition, model instances can be created from
 existing or new data. Under the hood heliosRX creates a new `Vue` instance within
 each model instance, that manages state and reactivity, obviating the need
 for other state management solutions, like `Vuex`.
+
+<!--
+TODO: Mention other similar libs
+-->

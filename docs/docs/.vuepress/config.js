@@ -32,8 +32,8 @@ module.exports = printConfig({
     // sidebar: markdownFiles,
     sidebar: {
       '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials', 'Advanced'),
-      '/api/': getApiSidebar(),
-      '/tips/': getTipsSidebar('Firebase Security Rules', 'Advanced'),
+      '/api/':   getApiSidebar(),
+      '/tips/':  getTipsSidebar('Firebase Security Rules', 'Migration'),
       // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
       // '/guide/': {
       //   title: 'Guide',     // required
@@ -85,7 +85,7 @@ module.exports = printConfig({
       { text: 'Home',  link: '/' },
       { text: 'Guide', link: '/guide/01-intro' },
       { text: 'API',   link: '/api/' },
-      { text: 'Tips', link: '/tips/01-security-rules-tips' },
+      { text: 'Tips', link: '/tips/01-designing-good-security-rules' },
       // { text: 'External', link: 'https://google.com' }
     ],
   },
@@ -99,13 +99,8 @@ function getApiSidebar() {
     .sync('docs/api/**/*.md')
     .map(f => f.substr(5+4).replace('README.md', ''))
     .sort();
-  // console.log("markdownFiles", markdownFiles)
 
   return markdownFiles;
-  // return [
-  //   'one',
-  //   'two'
-  // ]
 }
 
 function readFileList( name ) {
@@ -160,16 +155,22 @@ function getTipsSidebar (groupA, groupB) {
     .filter(f => !f.includes('README.md'))
     .sort()
 
+  let markdownFilesMigration = glob
+    .sync('docs/tips/migration/*.md')
+    .map(f => f.substr(5+5))
+    .sort()
+  console.log("markdownFilesMigration", markdownFilesMigration)
+
   return [
     {
       title: groupA,
       collapsable: false,
       children: markdownFiles,
     },
-    // {
-    //   title: groupB,
-    //   collapsable: false,
-    //   children: markdownFilesTutorial,
-    // }
+    {
+      title: groupB,
+      collapsable: false,
+      children: markdownFilesMigration,
+    }
   ]
 }

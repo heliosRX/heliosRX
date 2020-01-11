@@ -6,7 +6,7 @@ This guide is a quick starter. After going through this guide, you will be able
 to define models, access data through your models, subscribe to realtime data
 and create and update data. We will use a simple **todo app** as an example.
 A working demo of what we're going to build can be found here:
-[Demo](https://eager-xxx-yyy.netlify.com/demo1)
+[Demo](https://heliosrx-demo1.web.app/)
 :::
 
 Before you start, you probably want to create a new Firebase project in the
@@ -21,6 +21,7 @@ First let's create a new model in `src/models/task/` for tasks:
 ```touch
 mkdir -p src/models/task
 touch src/models/task/schema.js
+touch src/models/task/index.js
 ```
 
 The model has three fields. A `title`, a creation date `createdAt` and a flag
@@ -38,6 +39,17 @@ export default {
 };
 ```
 
+and
+
+```js
+// file: src/models/task/index.js
+import schema from './schema'
+
+export default {
+  schema: schema,
+};
+```
+
 This defines a model with a required field `title` and two optional fields.
 Next we create a `GenericStore`, which gives us access to data stored in
 realtime db through a object oriented interface. A `GenericStore` serves
@@ -46,11 +58,12 @@ instances. More an that later. First edit `src/models/config.js` like this:
 
 ```js
 // file: src/models/config.js
+import heliosrx from 'heliosrx'
 import taskModelDefinition from './task';
 
-export const task = new GenericStore(
-  "/tasks/*",
-  featureModelDefinition
+export const task = new heliosrx.GenericStore(
+  '/tasks/*',
+  taskModelDefinition
 );
 ```
 
@@ -64,17 +77,28 @@ data to realtime database it should correspond to something like this:
 
 ![Screenshot Firebase 1](./img/screenshot-firebase-01.png)
 
-Next we create a security rule `db/rules/rules.bolt`:
+Next we create a security rule `db/rules/rules.bolt` that allow everybody read and write access to the path:
 
-```bolt
+```
 // file: db/rules/rules.bolt
+path /tasks is Task[] {
+  read() { true }
+  write() { true }
+}
+```
+
+::: warning Security tip
+This should later be replaced with somthing like
+```
 path /tasks is Task[] {
   read() { isSignedIn() }
   write() { isSignedIn() }
 }
 ```
+otherwise the whole internet can read and write to your project. Probably not want you want.
+:::
 
-If you're not familiar, this is the [bolt syntax](https://github.com/FirebaseExtended/bolt).
+If you're not familiar with this, this is the [bolt syntax](https://github.com/FirebaseExtended/bolt).
 heliosRX automatically generate bolt files, which are compiled to security rules
 using the `bolt-compiler`. Lean more [here](./01-intro).
 
@@ -83,12 +107,12 @@ when a new instance of this model is created:
 
 ```js
 // file: src/models/task/schema.js
-import moment from 'heliosrx/moment' // This is actually a enhanced version of moment
+import moment from 'heliosrx/src/moment' // This is a enhanced version of moment-js
 
 export default {
   create({ title }) {
     return {
-      title:     "Undefined title" || title,
+      title:     title || "Undefined title",
       createdAt: moment.currentTimeServer('REALTIMEDB'),
       isDone:    false,
     };
@@ -112,10 +136,23 @@ generate a `.bolt` file for every model and merge it with `rules.bolt` into
 `/database.bolt` which is then compiled to `/database.json`.
 
 ```bash
-helios gen && firebase deploy --only database
+helios rules --write database.rules.bolt
+firebase-bolt database.rules.bolt
+firebase deploy --only database
 ```
 
 Now we're ready to read and write data to the firebase realtime database.
+
+::: tip
+You might want to add a few aliases to your `package.json`
+```js
+"scripts": {
+  ...
+  "rules:make":   "helios rules --write database.rules.bolt && firebase-bolt database.rules.bolt"
+  "rules:deploy": "firebase deploy --only database",
+},
+```
+:::
 
 ## Step 2: Subscribe to data
 

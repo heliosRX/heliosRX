@@ -10,8 +10,8 @@ import {
 
 import { walkSetAndMerge, deepMergeVue } from './utils'
 
-// const log = (...args) => { /* console.log('[REGISTRY]', ...args) */ };
-const log = (...args) => { console.log('[REGISTRY]', ...args) };
+const log = (...args) => { /* console.log('[REGISTRY]', ...args) */ };
+// const log = (...args) => { console.log('[REGISTRY]', ...args) };
 
 export default {
 

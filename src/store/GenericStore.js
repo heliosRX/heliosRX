@@ -339,7 +339,6 @@ export default class GenericStore {
    * @return {type}  Firebase.db
    */
   get _db() {
-    console.log("_db", defaultDB)
     return this._localDB || defaultDB;
   }
 

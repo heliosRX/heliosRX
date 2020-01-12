@@ -5,7 +5,7 @@ import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.m
 import firebase from "@firebase/app"; // TODO: Remove dependency
 import "@firebase/database";
 import * as tzHelper from './timezone-helper'
-import util from '../util/types'
+import { matchUserInputDuration } from '../util/types'
 
 /*******************************************************************************
 
@@ -227,7 +227,7 @@ export function enhanceMomentJS( moment ) {
         text += "m"
       }
 
-      let durationInfo = util.matchUserInputDuration('!' + text);
+      let durationInfo = matchUserInputDuration('!' + text);
 
       if ( !durationInfo.match ) {
         return null;

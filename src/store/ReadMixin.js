@@ -19,8 +19,9 @@ import { VUEXFIRE_INIT_VALUE,
          VUEXFIRE_SET } from '../registry/types'
 
 import { make_reactive_model, make_reactive_list, add_custom_getters } from '../classes/utils'
-import util from '../util/types' // TODO: move arrayDiffTwoWay here
+// import util from '../util/types'
 import defer from '../util/defer'
+import { arrayDiffTwoWay } from '../util/array'
 
 const LOCAL_PATH_PREFIX = 'res.';
 
@@ -660,7 +661,7 @@ export default {
               log4(this.name, "[Watcher] Watcher values are the same? WHY? ", ids_new, ids_old_via_watcher);
             }
 
-            let diff = util.arrayDiffTwoWay( ids_new, ids_old );
+            let diff = arrayDiffTwoWay( ids_new, ids_old );
             log4(this.name, "[Watcher] DIFF", diff, ids_new, ids_old);
             diff.removed.forEach(id => {
               log4(this.name, "[Watcher]  -- REMOVED", id)

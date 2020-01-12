@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 import Vue from 'vue'
-import util from '../util/types.js'
+import { isValidId, isFunction } from '../util/types.js'
 import moment from '../moment/moment-enhanced.js'
 import firebase from "@firebase/app" // <<< not node compatible ?
 
@@ -158,7 +158,7 @@ export default class GenericStore {
       this.isSuffixed = ( templatePath.indexOf('*') !== templatePath.length - 1 );
         // this.isSuffixed = this.path.substr(-1) !== '*';
 
-      if ( util.isFunction( options.uidMethod ) ) {
+      if ( isFunction( options.uidMethod ) ) {
         this.uidMethod = UIDMethod.CUSTOM;
         this.uidMethodCallback = options.uidMethod;
       } else {
@@ -349,7 +349,7 @@ export default class GenericStore {
    */
   _validateId( id ) {
     if ( this.uidMethod === UIDMethod.SLUGID ) {
-      if ( !util.isValidId(id) ) {
+      if ( !isValidId(id) ) {
         return false;
       }
     }

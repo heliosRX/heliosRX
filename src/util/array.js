@@ -1,6 +1,8 @@
 /* Extend native Array. Not best practive, but at least it's done the
    right way (prototype, non enumerable) */
 
+// TODO: Do not extend native types
+
 let proto = Array.prototype;
 
 Object.defineProperty(proto, 'clone', {
@@ -21,32 +23,30 @@ Object.defineProperty(proto, 'move', {
   writable: true
 });
 
-export default {
-  arrayEqual(array1, array2) {
-    return array1.length === array2.length &&
-           array1.sort().every((value, index) => value === array2.sort()[index] );
-  },
+/**
+ * Partitions array in two array depencing on callback result
+ *
+ */
+export function partition(array, isValid) {
+  return array.reduce(([ pass, fail ], element) => {
+    return isValid( element )
+      ? [ [ ...pass, element ], fail ]
+      : [ pass, [ ...fail, element ] ];
+  }, [ [], [] ]);
+}
 
-  arrayDiff( array1, array2 ) {
-    return array1.filter(i => array2.indexOf(i) < 0 );
-  },
+export function arrayEqual(array1, array2) {
+  return array1.length === array2.length &&
+         array1.sort().every((value, index) => value === array2.sort()[index] );
+}
 
-  arrayDiffTwoWay( new_list, old_list ) {
-    return {
-      'removed': this.arrayDiff( old_list, new_list ),
-      'added':   this.arrayDiff( new_list, old_list )
-    }
-  },
+export function arrayDiff( array1, array2 ) {
+  return array1.filter(i => array2.indexOf(i) < 0 );
+}
 
-  /**
-   * Partitions array in two array depencing on callback result
-   *
-   */
-  partition(array, isValid) {
-    return array.reduce(([ pass, fail ], element) => {
-      return isValid( element )
-        ? [ [ ...pass, element ], fail ]
-        : [ pass, [ ...fail, element ] ];
-    }, [ [], [] ]);
-  },
+export function arrayDiffTwoWay( new_list, old_list ) {
+  return {
+    'removed': arrayDiff( old_list, new_list ),
+    'added':   arrayDiff( new_list, old_list )
+  }
 }

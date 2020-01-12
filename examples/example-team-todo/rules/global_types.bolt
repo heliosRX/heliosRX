@@ -1,3 +1,0 @@
-type MemberID extends String {
-  validate() { this.length >= 28 && this.length <= 128 }
-}

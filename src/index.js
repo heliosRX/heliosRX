@@ -14,6 +14,8 @@ heliosRX.GenericStore = GenericStore;
 
 export default heliosRX;
 
+export { registry, GenericStore, api }
+
 // TODO: Do not export
 // export { walkGet } from './registry/utils'
 // export { walkGetSafe } from './registry/utils'

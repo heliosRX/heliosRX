@@ -329,7 +329,6 @@ export default class GenericStore {
    */
   static setDefaultDB( db ) {
     defaultDB = db;
-    console.log("setDefaultDB", defaultDB)
   }
 
   /**

@@ -31,7 +31,7 @@ export default class GenericModel {
     this.$noaccess    = null;
     this._store_name  = name;
 
-    Vue.observable( this.$state );
+    Vue.observable( this.$state ); // TODO: Check if we get an error here
     // Vue.observable( this.$ready );
     // this.$state = Vue.oberservable({});
   }

@@ -27,6 +27,8 @@ export default {
 
     ...genericStoreMutations,
 
+    // TODO: Refactor (ready mutations)
+
     INIT_REGISTRY(state) {
       state.initialized = true;
     },

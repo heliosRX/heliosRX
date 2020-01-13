@@ -6,10 +6,11 @@
   "contributors": [
     "Thomas Weustenfeld <tw@wavefab.com>"
   ],
-  "module": "dist/helios-rx.esm.js",
-  "unpkg": "dist/helios-rx.min.js",
+  "main": "dist/heliosrx.common.js",
+  "module": "dist/heliosrx.esm.js",
+  "unpkg": "dist/heliosrx.js",
+  "jsdelivr": "dist/heliosrx.js",
   "typings": "types/index.d.ts",
-  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/heliosRX/heliosRX.git"
@@ -30,11 +31,16 @@
   },
   "private": false,
   "scripts": {
-    "docs": "(cd docs && yarn docs:build && yarn docs:deploy)"
+    "docs": "(cd docs && yarn docs:build && yarn docs:deploy)",
+    "dev": "rollup -wm -c build/rollup.dev.config.js",
+    "build": "npm run build:main",
+    "build:main": "node build/build.main.js",
     "lint": "eslint src tests",
+    "release": "bash build/release.sh"
   },
   "files": [
-    "src"
+    "dist",
+    "types/index.d.ts"
   ],
   "dependencies": {
     "@rollup/plugin-commonjs": "^11.0.1",

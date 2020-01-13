@@ -1,8 +1,17 @@
 module.exports = {
   presets: [
-    // [ "@vue/app", { corejs: 3, useBuiltIns: "entry" } ]
+    // "env"
     // "@babel/preset-env",
+    // "@babel/env"
+    // [ "@vue/app", { corejs: 3, useBuiltIns: "entry" } ]
     [require('@babel/preset-env'), { 'modules': false }],
+  ],
+  plugins: [
+    // "@babel/plugin-transform-runtime",
+    // require('@babel/plugin-proposal-class-properties'),
+    // [require('@babel/plugin-transform-for-of'), { assumeArray: true }],
+    // ["@babel/plugin-proposal-class-properties", { "loose": false }],
+    // "transform-object-rest-spread",
   ],
   env: {
     test: {
@@ -20,14 +29,3 @@ module.exports = {
     }
   }
 }
-
-/*
-module.exports = {
-  'presets': [
-  ],
-  'plugins': [
-    require('@babel/plugin-proposal-class-properties'),
-    [require('@babel/plugin-transform-for-of'), { assumeArray: true }],
-  ],
-}
-*/

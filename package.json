@@ -31,6 +31,7 @@
   "private": false,
   "scripts": {
     "docs": "(cd docs && yarn docs:build && yarn docs:deploy)"
+    "lint": "eslint src tests",
   },
   "files": [
     "src"

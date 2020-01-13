@@ -36,7 +36,7 @@ export function resetGenericStores( unsubscribe = true ) {
     //   continue
     // }
 
-    // eslint-disable-next-line import/namespace
+    // xxx-eslint-disable-next-line import/namespace
     let model = stores[ key ];
     let sublist = model.subscriptions;
 

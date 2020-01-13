@@ -1,8 +1,5 @@
-// https://eslint.org/docs/user-guide/configuring
-
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
     parser: 'babel-eslint',
     sourceType: "module"
@@ -12,9 +9,10 @@ module.exports = {
     browser: true,
   },
   extends: [
+    "plugin:vue-libs/recommended"
     // 'plugin:vue/essential',
     // 'standard',
-    'eslint:recommended'
+    // 'eslint:recommended'
     // 'plugin:import/errors',
     // 'plugin:import/warnings',
   ],
@@ -33,6 +31,7 @@ module.exports = {
     //   },
     // }
   },
+  // TODO: Create my own preset
   rules: {
     // ---- modules
     // 'import/no-unresolved'        : [2, {commonjs: true, amd: false}],
@@ -83,3 +82,9 @@ module.exports = {
     'object-curly-spacing'        : 0,
   }
 }
+
+/* {
+  "root": true,
+  "extends": [
+  ]
+} */

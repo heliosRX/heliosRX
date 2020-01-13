@@ -5,11 +5,12 @@
 *******************************************************************************/
 
 import isEqual from 'lodash.isequal'
-import { DeleteMode } from './GenericStore'
-import { _models } from '../install'
-import { _registry as registry } from '../install'
+import { DeleteMode } from './enums'
+import { _models } from '../external-deps'
+import { _registry as registry } from '../external-deps'
 import { parseTpl, analyzeTpl } from '../util/template'
-import { add_custom_actions, make_reactive_model } from '../classes/utils'
+import { add_custom_actions } from '../classes/utils'
+import factory from '../classes/factory'
 import moment from '../moment'
 
 const BACKEND = 'REALTIMEDB';
@@ -468,7 +469,7 @@ export default {
    * @return {type}  description
    */
   new() {
-    let model = make_reactive_model( this.modelDefinition, null, this._create_context(), false );
+    let model = factory.make_reactive_model( this.modelDefinition, null, this._create_context(), false );
     return model;
   },
 
@@ -481,7 +482,7 @@ export default {
    */
   new_from_template( data = {}, optional_data = null ) {
     let generated_data = this.empty( data, optional_data )
-    let model = make_reactive_model( this.modelDefinition, data, this._create_context(), false );
+    let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     model._update_data( generated_data, null, true ); // doppelt
     return model
   },
@@ -491,7 +492,7 @@ export default {
    * new_from_template + write = add
    */
   new_from_data( data = {}, make_dirty = false ) {
-    let model = make_reactive_model( this.modelDefinition, data, this._create_context(), false );
+    let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     // model._update_data( generated_data, null, true );
     return model
   },

@@ -1,6 +1,6 @@
-import { _Vue as Vue } from '../install'
+import { _Vue as Vue } from '../external-deps'
 import clonedeep from 'lodash.clonedeep'
-// import { _models } from '../install'
+// import { _models } from '../external-deps'
 import { add_custom_getters } from '../classes/utils'
 import moment from '../moment'
 import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/utils'

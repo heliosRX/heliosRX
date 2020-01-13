@@ -4,16 +4,21 @@
 
 *******************************************************************************/
 
-import { _Vue as Vue } from '../install'
+// import { _Vue as Vue } from '../external-deps'
 import { isValidId, isFunction } from '../util/types.js'
 import moment from '../moment/moment-enhanced.js'
 import firebase from "@firebase/app" // <<< not node compatible ?
+import { UIDMethod, DeleteMode } from './enums'
 
 import { parseTpl, analyzeTpl } from '../util/template.js'
 import { rtdbBindAsArray,
          rtdbBindAsObject,
          rtdbFetchAsArray,
          rtdbFetchAsObject } from '../backends/firebase-rtdb/rtdb'
+
+import factory from '../classes/factory'
+import GenericModel from '../classes/GenericModel'
+import GenericList from '../classes/GenericList'
 
 import ReadMixin from './ReadMixin'
 import WriteMixin from './WriteMixin'
@@ -23,39 +28,25 @@ const slugid = require('slugid');
 const log = (...args) => { console.log(...args) };
 const log2 = (...args) => {};
 
-export const UIDMethod = {
-  CUSTOM:          1,
-  SLUGID:          2, // R0qHTeS8TyWfV2_thfFn5w (Default)
-  PUSHID:          3, // -JhLeOlGIEjaIOFHR0xd
-  TIMESTAMP:       4, // 1548573128294 (unix?)
-  LOCAL_TIMESTAMP: 5, // 1553700866
-  DATE:            6, // DDMMYYYY / 01032019
-  OTHER_USER_ID:   7,
-  MY_USER_ID:      8, // fOjaiwtyxoQdOGe6Z2zULK18ggv2
-  ARRAY:           9, // 0,1,2,3,...
-  EMAIL:          10, // test@test.de
-}
-
-export const DeleteMode = {
-  SOFT: 0,
-  HARD: 1
-}
-
 const subscriptions = new WeakMap()
 
 let defaultDB = null;
+let _Vue;
 
 // let _userId = null; // This is not stateless !!! also this is NOT reactive !!!
-// let genericStoreGlobalState = Vue.observable({ userId: null })
+// let genericStoreGlobalState = _Vue.observable({ userId: null })
 let genericStoreGlobalState = { userId: null }
 
 export function setup( Vue ) {
-  genericStoreGlobalState = Vue.observable(genericStoreGlobalState)
-  /* In Vue 2.x, Vue.observable directly mutates the object passed to it, so that it
+  _Vue = Vue;
+  genericStoreGlobalState = _Vue.observable(genericStoreGlobalState)
+  /* In Vue 2.x, _Vue.observable directly mutates the object passed to it, so that it
   is equivalent to the object returned, as demonstrated here. In Vue 3.x, a reactive
   proxy will be returned instead, leaving the original object non-reactive if mutated
   directly. Therefore, for future compatibility, we recommend always working with the
-  object returned by Vue.observable, rather than the object originally passed to it. */
+  object returned by _Vue.observable, rather than the object originally passed to it. */
+
+  factory.configure({ GenericModel, GenericList });
 }
 
 const USE_READ_MIXIN = true;
@@ -391,6 +382,8 @@ export default class GenericStore {
    */
   static set defaultUserId(id) {
 
+    // TODO: Throw error if called before Vue.use(heliosRX)
+
     /* When changing the user id we have to DELETE the 'uid' prop,
        otherwise the user uid will be stored in definedProps,
        and is still used. This is especially dangerous in Cloud Functions,
@@ -402,7 +395,7 @@ export default class GenericStore {
     /* INFO: In the future this should be refactored to be completly stateless! */
 
     log("[GENS] settings default user id to: uid =", id);
-    Vue.set( genericStoreGlobalState, 'userId', id)
+    _Vue.set( genericStoreGlobalState, 'userId', id)
     // _userId = id;
   }
 
@@ -413,7 +406,7 @@ export default class GenericStore {
   static resetState() {
     // genericStoreGlobalState.reset();
     log("[GENS] reset state");
-    Vue.set( genericStoreGlobalState, 'userId', null)
+    _Vue.set( genericStoreGlobalState, 'userId', null)
   }
 
   /**

@@ -1,4 +1,4 @@
-import { _models } from '../install'
+import { _models } from '../external-deps'
 
 function check_model( model ) {
   // TODO: These are dev message, hide in production

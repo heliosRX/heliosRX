@@ -1,5 +1,4 @@
-// import Vue from 'vue'; // TODO
-import { _Vue as Vue } from '../install'
+import { _Vue as Vue } from '../external-deps'
 
 import {
   VUEXFIRE_INIT_VALUE,

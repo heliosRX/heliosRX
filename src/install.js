@@ -1,26 +1,17 @@
-import Vuex from 'vuex'; // TODO: Connect to existint vuex vs create new vue
+import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
 
-import api from './api'
-import GenericStore from './store'
+// import api from './api/index.js'
+import GenericStore from './store/index.js'
 import registrySetup from './registry/setup.js'
 import { setup as storeSetup } from './store/GenericStore.js'
+import setupExternalDeps from './external-deps'
 
-export let _Vue; // bind on install
-export let _Vuex; // TODO
-export let _Firebase; // TODO
-export let _registry;
-export let _models = {};
-export let _db = {};
+export let _Vue; // bind on install ( --> MOVE)
 
 export function install (Vue, options) {
 
   if (install.installed && _Vue === Vue) return
   install.installed = true
-
-  _Vue = Vue
-
-  Object.assign(_models, options.models)
-  Object.assign(_db, options.db)
 
   console.log("[GENS] Installing Generic API plugin");
 
@@ -36,29 +27,38 @@ export function install (Vue, options) {
     throw new Error('heliosRX: Missing configuration "models".')
   }
 
+  _Vue = Vue
+  setupExternalDeps({
+    Vue,
+    models: options.models,
+    db:     options.db,
+  });
+
   // Configure database
   let dbConfig = options.db
   // Checking dbConfig.constructor.name === 'Database' won't work in production
+  // Setup generic store
+  storeSetup( Vue )
+
   if ( dbConfig.app && dbConfig.app.database ) {
-    GenericStore.setDefaultDB( options.db );
+    GenericStore.setDefaultDB( options.db ); // TODO: Move to 'storeSetup'?
   } else if ( typeof dbConfig === 'object' ) {
     throw new Error('heliosRX: Multi-DB configuration not implemented yet.')
   } else {
     throw new Error('heliosRX: Invalid configuration for db.')
   }
 
-  // Setup generic store
-  storeSetup( Vue )
-
   // Setup registry
   if ( !options.stateManagement ) {
     // TODO: Get vue from option or from vue instance?
     Vue.use( Vuex );
-    _registry = registrySetup( Vuex )
+    let _registry = registrySetup( Vuex )
+    setupExternalDeps({ Vuex, registry: _registry });
 
     // Initialize registry
-    // let registry = api.get_registry();
-    _registry.commit('INIT_REGISTRY'); // TOOD: module/INIT_REGISTRY
+    _registry.commit('INIT_REGISTRY'); // TODO: module/INIT_REGISTRY
+  } else {
+    throw new Error('heliosRX: Custom state management not implemented.')
   }
 
   // Define $models
@@ -67,9 +67,11 @@ export function install (Vue, options) {
   })
 
   // Merge user api with helios API
-  let mergedApi = api;
+  // let mergedApi = api;
+  let mergedApi = {};
   if ( options.userApi ) {
-    mergedApi = Object.assign({}, api, options.userApi);
+    // mergedApi = Object.assign({}, api, options.userApi);
+    mergedApi = options.userApi;
   }
 
   // Define $api

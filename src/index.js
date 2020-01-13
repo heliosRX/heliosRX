@@ -1,32 +1,29 @@
-import GenericStore from './store/'
-import { install, _registry as registry } from './install'
+import GenericStore from './store/index.js'
+// import { install, _registry as registry } from './install'
+import { install } from './install'
 import registryModule from './registry/module'
-import { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers'
-import { UIDMethod, DeleteMode } from './store/GenericStore'
-import moment from './moment'
-import api from './api/'
+import { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers.js'
+import { UIDMethod, DeleteMode } from './store/enums.js'
+import moment from './moment/index.js'
+import { getRegistry } from './external-deps'
+
+const version = '__VERSION__';
 
 class heliosRX {
   static install() {}
 }
 
+heliosRX.version = version
 heliosRX.install = install
-heliosRX.registry = registry;
-heliosRX.api = api;
+heliosRX.getRegistry = getRegistry;
+heliosRX.registryModule = registryModule;
+heliosRX.moment = moment;
 heliosRX.GenericStore = GenericStore;
-// heliosRX.version = '__VERSION__';
+heliosRX.UIDMethod = UIDMethod;
+heliosRX.DeleteMode = DeleteMode;
+heliosRX.setDefaultDB = setDefaultDB;
+heliosRX.setDefaultUser = setDefaultUser;
+heliosRX.resetGenericStores = resetGenericStores;
 
 export default heliosRX;
 
-export {
-  registry,
-  registryModule,
-  api,
-  moment,
-  GenericStore,
-  UIDMethod,
-  DeleteMode,
-  setDefaultDB,
-  setDefaultUser,
-  resetGenericStores
-}

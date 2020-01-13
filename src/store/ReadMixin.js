@@ -7,8 +7,8 @@
 
 *******************************************************************************/
 
-import { _registry as registry } from '../install'
-import { _models } from '../install'
+import { _registry as registry } from '../external-deps' // TODO ???
+import { _models } from '../external-deps'
 import { walkGet, walkGetObjectSave } from '../registry/utils'
 import joint from '../util/joint'
 import { VUEXFIRE_INIT_VALUE,
@@ -18,7 +18,10 @@ import { VUEXFIRE_INIT_VALUE,
          VUEXFIRE_ARRAY_REMOVE,
          VUEXFIRE_SET } from '../registry/types'
 
-import { make_reactive_model, make_reactive_list, add_custom_getters } from '../classes/utils'
+
+import { add_custom_getters } from '../classes/utils'
+import factory from '../classes/factory'
+
 // import util from '../util/types'
 import defer from '../util/defer'
 import { arrayDiffTwoWay } from '../util/array'

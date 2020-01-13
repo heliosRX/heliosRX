@@ -594,10 +594,10 @@ export default {
     /*
     if ( registry_entry ) {
       if ( registry_entry.status === 'Loading' ) {
-        return make_reactive_list( this.modelDefinition, null );
+        return factory.make_reactive_list( this.modelDefinition, null );
       }
       if ( registry_entry.status === 'Ready' ) {
-        return make_reactive_list( this.modelDefinition, this.getData(), this._create_context() );
+        return factory.make_reactive_list( this.modelDefinition, this.getData(), this._create_context() );
       }
     }*/
 
@@ -614,7 +614,7 @@ export default {
 
         // TODO: This model is not reactive for some reason
 
-        let list = make_reactive_list(
+        let list = factory.make_reactive_list(
           this.modelDefinition,
           existing_data,
           this._create_context(),
@@ -682,7 +682,7 @@ export default {
               // todo: also check list cache?
 
               let data_reactive = this.getData( new_id );
-              let item = make_reactive_model(
+              let item = factory.make_reactive_model(
                    this.modelDefinition,
                    data_reactive,
                    this._create_context(),
@@ -734,7 +734,7 @@ export default {
     registry.commit('ADD_ENTRY', { name: entry_name, data: registry_entry })
     // TODO: registry.add_entry( registry_entry)
 
-    let result = make_reactive_list( this.modelDefinition, null, this._create_context() );
+    let result = factory.make_reactive_list( this.modelDefinition, null, this._create_context() );
     _resultListCache.set(entry_name, result)
     result.$promise = defer()
 
@@ -762,7 +762,7 @@ export default {
 
         let item = _resultInstanceCache.has(child_entry_name)
                  ? _resultInstanceCache.get(child_entry_name)
-                 : make_reactive_model(
+                 : factory.make_reactive_model(
                       this.modelDefinition,
                       data,
                       this._create_context(),
@@ -942,7 +942,7 @@ export default {
         let existing_data = this.getData( id ); // Should automatically return the correct data node
         log1(this.name, "Found node in existing synced data making model from existing data", existing_data);
 
-        let model = make_reactive_model(
+        let model = factory.make_reactive_model(
           this.modelDefinition,
           existing_data,
           this._create_context(),
@@ -977,7 +977,7 @@ export default {
     log0(this.name, id, "*new* subscribeNode", entry_name_child);
 
     /* 2. Create empty model that is updated later when data is ready */
-    let load_result = make_reactive_model(
+    let load_result = factory.make_reactive_model(
       this.modelDefinition,
       null,
       this._create_context(),
@@ -1157,7 +1157,7 @@ export default {
     // TODO: ['.exists'] wird nicht gesetzt! -> Actually not possible, once('value') won't trigger
 
     /* 2. Create empty model that is updated later when data is ready */
-    let load_result = make_reactive_model(
+    let load_result = factory.make_reactive_model(
       this.modelDefinition,
       null,
       this._create_context(),
@@ -1214,7 +1214,7 @@ export default {
     let customRef = queryParams ? this.buildQueryRef( queryParams ) : null;
 
     /* 1. Create empty model list */
-    let list = make_reactive_list(
+    let list = factory.make_reactive_list(
       this.modelDefinition,
       null,
       this._create_context(),
@@ -1242,7 +1242,7 @@ export default {
       id_list.forEach(new_id => {
 
         let item_data = data[ new_id ]
-        let item = make_reactive_model(
+        let item = factory.make_reactive_model(
              this.modelDefinition,
              item_data,
              this._create_context(),

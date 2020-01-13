@@ -48,6 +48,7 @@ export default {
   },
 
   [HELIOSRX_SET] (state, { target, data, performMerge = false }) {
+    log('[HELIOSRX_SET]', { target, data, performMerge });
     deepMergeVue( target, data, !performMerge )
   },
 }

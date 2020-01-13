@@ -54,3 +54,30 @@ storeC = GenericStore('/goal/{goalId}/user_list/{uid}/task_end_dates/*')
 let superStore = SuperStore([storeA, storeB, storeC])
 superStore.batchMove( id, contextA, contextB )
 ```
+
+```js
+// Create Vuex Store and register database through heliosRX.
+const store = new Vuex.Store({
+  plugins: [heliosRX.install(database)]
+})
+
+export default (database, options = {}) => {
+  const namespace = options.namespace || 'entities'
+
+  return (store) => {
+    database.start(store, namespace)
+    Container.register(store)
+  }
+}
+
+import { vuexfireMutations } from 'vuexfire'
+const store = new Vuex.Store({
+  state: {
+    todos: [], // Will be bound as an array
+    user: null, // Will be bound as an object
+  },
+  mutations: {
+    // your mutations
+    ...vuexfireMutations,
+  },
+})

@@ -1,6 +1,6 @@
 # Future
 
-### FUTURE API: Add heliosRX to your main.js
+## Add heliosRX to your main.js
 
 ```js
 import Vue from 'vue'
@@ -14,6 +14,7 @@ const db = heliosRX.setup({
   userModels:  require.context('./models/', true, /\.model\.js$/ ),
   userApi:     'src/api'
   devMode:     false,
+  debugLevel:  heliosRX.DebugLevel.WARN,
   firebaseDb:  {
     db1: rtdb1,
     db2: rtdb2,
@@ -38,5 +39,19 @@ import heliosRX from 'heliosRX'
 Vue.use(heliosRX, {
   definitions: 'src/models',
   debug: false,
+})
+```
+
+## Use heliosRX with existing Vuex Store
+
+```js
+import { registryModule } from 'heliosrx'
+
+const store = new Vuex.Store({
+  modules: {
+    // heliosrx: registryModule('heliosrx'),
+    heliosrx: registryModule(),
+    ...
+  }
 })
 ```

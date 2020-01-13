@@ -46,8 +46,7 @@
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.27",
-    "slugid": "^2.0.0",
-    "vuex": "^3.1.2"
+    "slugid": "^2.0.0"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-bridge.0",
@@ -61,10 +60,10 @@
     "esm": "^3.2.25"
   },
   "peerDependency": {
-    "vue": "^2.6.10",
-    "vuex": "^3.1.2",
-    "firebase": "^7.4.0",
-    "firebase-bolt": "^0.8.4"
+    "vue": ">= 2.0.0",
+    "vuex": ">= 3.0.0",
+    "firebase": ">= 7.0.0",
+    "firebase-bolt": "=> 0.8.4"
   },
   "bin": {
     "helios": "bin/helios"

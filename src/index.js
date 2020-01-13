@@ -1,10 +1,10 @@
-import GenericStore from './store/';
+import GenericStore from './store/'
 import { install, _registry as registry } from './install'
 import registryModule from './registry/module'
 import { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers'
-// import registry from './registry/';
+import { UIDMethod, DeleteMode } from './store/GenericStore'
 import moment from './moment'
-import api from './api/';
+import api from './api/'
 
 class heliosRX {
   static install() {}
@@ -24,6 +24,8 @@ export {
   api,
   moment,
   GenericStore,
+  UIDMethod,
+  DeleteMode,
   setDefaultDB,
   setDefaultUser,
   resetGenericStores

@@ -79,6 +79,7 @@ module.exports = {
     'object-curly-newline'        : 0,
     'no-case-declarations'        : 0,
     'no-multiple-empty-lines'     : 'warn',
-    'object-curly-spacing'        : 'warn'
+    // 'object-curly-spacing'        : 'warn'
+    'object-curly-spacing'        : 0,
   }
 }

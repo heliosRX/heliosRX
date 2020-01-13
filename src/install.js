@@ -1,5 +1,3 @@
-import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
-
 // import api from './api/index.js'
 import GenericStore from './store/index.js'
 import registrySetup from './registry/setup.js'
@@ -38,7 +36,7 @@ export function install (Vue, options) {
   let dbConfig = options.db
   // Checking dbConfig.constructor.name === 'Database' won't work in production
   // Setup generic store
-  storeSetup( Vue )
+  storeSetup({ Vue, firebase: options.firebase || null }) // TODO: Figure out from rtdb
 
   if ( dbConfig.app && dbConfig.app.database ) {
     GenericStore.setDefaultDB( options.db ); // TODO: Move to 'storeSetup'?
@@ -51,6 +49,9 @@ export function install (Vue, options) {
   // Setup registry
   if ( !options.stateManagement ) {
     // TODO: Get vue from option or from vue instance?
+    // import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
+    const Vuex = import('vuex');
+
     Vue.use( Vuex );
     let _registry = registrySetup( Vuex )
     setupExternalDeps({ Vuex, registry: _registry });

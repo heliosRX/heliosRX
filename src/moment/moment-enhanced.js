@@ -1,11 +1,15 @@
 /* momen plugin for helios specific date time conversions */
 // import { _Vue as Vue } from '../external-deps'
 // import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
+// const moment = {}
 const moment = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js")
 
 // import momentDurationFormatSetup from "moment-duration-format"
-import firebase from "@firebase/app"; // TODO: Remove dependency
-import "@firebase/database";
+// import firebase from "@firebase/app"; // TODO: Remove dependency
+// import "@firebase/database";
+
+import firebase from "./firebase-shim";
+
 import { matchUserInputDuration } from '../util/types'
 
 /*******************************************************************************

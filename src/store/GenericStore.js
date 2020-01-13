@@ -7,7 +7,6 @@
 // import { _Vue as Vue } from '../external-deps'
 import { isValidId, isFunction } from '../util/types.js'
 import moment from '../moment/moment-enhanced.js'
-import firebase from "@firebase/app" // <<< not node compatible ?
 import { UIDMethod, DeleteMode } from './enums'
 
 import { parseTpl, analyzeTpl } from '../util/template.js'
@@ -32,12 +31,13 @@ const subscriptions = new WeakMap()
 
 let defaultDB = null;
 let _Vue;
+let _firebase = null; // TODO: Getter with not init warn
 
 // let _userId = null; // This is not stateless !!! also this is NOT reactive !!!
 // let genericStoreGlobalState = _Vue.observable({ userId: null })
 let genericStoreGlobalState = { userId: null }
 
-export function setup( Vue ) {
+export function setup( Vue, firebase ) {
   _Vue = Vue;
   genericStoreGlobalState = _Vue.observable(genericStoreGlobalState)
   /* In Vue 2.x, _Vue.observable directly mutates the object passed to it, so that it
@@ -47,6 +47,8 @@ export function setup( Vue ) {
   object returned by _Vue.observable, rather than the object originally passed to it. */
 
   factory.configure({ GenericModel, GenericList });
+
+  _firebase = firebase;
 }
 
 const USE_READ_MIXIN = true;
@@ -282,7 +284,7 @@ export default class GenericStore {
         // return this.ref.push().key;
 
       case UIDMethod.TIMESTAMP:
-        return firebase.database.ServerValue.TIMESTAMP;
+        return _firebase.database.ServerValue.TIMESTAMP;
 
       case UIDMethod.LOCAL_TIMESTAMP:
         return moment.currentTime().unix();

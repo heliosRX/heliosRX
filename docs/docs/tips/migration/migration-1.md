@@ -14,6 +14,7 @@
 | `autogenerate_props`      | `_autogenerateProps`
 | `decorate_actions`        | `_decorateActions`
 | `decorate_getters`        | `_decorateGetters`
+| `write()` - Model         | `save()`
 
 ### Schema definition
 

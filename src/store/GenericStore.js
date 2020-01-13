@@ -37,8 +37,9 @@ let _firebase = null; // TODO: Getter with not init warn
 // let genericStoreGlobalState = _Vue.observable({ userId: null })
 let genericStoreGlobalState = { userId: null }
 
-export function setup( Vue, firebase ) {
+export function setup({ Vue, firebase }) {
   _Vue = Vue;
+
   genericStoreGlobalState = _Vue.observable(genericStoreGlobalState)
   /* In Vue 2.x, _Vue.observable directly mutates the object passed to it, so that it
   is equivalent to the object returned, as demonstrated here. In Vue 3.x, a reactive

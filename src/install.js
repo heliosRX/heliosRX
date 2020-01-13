@@ -1,8 +1,12 @@
-// import api from './api/index.js'
+import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
+
 import GenericStore from './store/index.js'
-import registrySetup from './registry/setup.js'
 import { setup as storeSetup } from './store/GenericStore.js'
 import setupExternalDeps from './external-deps'
+import registryModule from './registry/module'
+
+// import registrySetup from './registry/setup.js'
+// import api from './api/index.js'
 
 export let _Vue; // bind on install ( --> MOVE)
 
@@ -36,7 +40,10 @@ export function install (Vue, options) {
   let dbConfig = options.db
   // Checking dbConfig.constructor.name === 'Database' won't work in production
   // Setup generic store
-  storeSetup({ Vue, firebase: options.firebase || null }) // TODO: Figure out from rtdb
+  storeSetup({
+    Vue,
+    firebase: options.firebase || options.db.app.firebase_ // HACK: Figure out from rtdb
+  })
 
   if ( dbConfig.app && dbConfig.app.database ) {
     GenericStore.setDefaultDB( options.db ); // TODO: Move to 'storeSetup'?
@@ -47,13 +54,12 @@ export function install (Vue, options) {
   }
 
   // Setup registry
+  let _registry;
   if ( !options.stateManagement ) {
     // TODO: Get vue from option or from vue instance?
-    // import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
-    const Vuex = import('vuex');
 
     Vue.use( Vuex );
-    let _registry = registrySetup( Vuex )
+    _registry = new Vuex.Store( registryModule( 'heliosRX' ) )
     setupExternalDeps({ Vuex, registry: _registry });
 
     // Initialize registry
@@ -87,5 +93,6 @@ export function install (Vue, options) {
     window.$models = options.models;
     window.$db = options.db
     window.$api = mergedApi;
+    window.$registry = _registry;
   }
 }

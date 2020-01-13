@@ -25,7 +25,7 @@ export default {
 
 ```js
 // file: src/models/example/schema.js
-import moment from 'heliosrx/src/moment'
+import { moment } from 'heliosrx'
 
 export default {
 

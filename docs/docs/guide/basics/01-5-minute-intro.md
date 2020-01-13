@@ -107,7 +107,7 @@ when a new instance of this model is created:
 
 ```js
 // file: src/models/task/schema.js
-import moment from 'heliosrx/src/moment' // This is a enhanced version of moment-js
+import { moment } from 'heliosrx' // This is a enhanced version of moment-js
 
 export default {
   create({ title }) {

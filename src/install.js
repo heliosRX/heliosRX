@@ -1,7 +1,14 @@
+import Vuex from 'vuex'; // TODO: Connect to existint vuex vs create new vue
+
 import api from './api'
 import GenericStore from './store'
+import registrySetup from './registry/setup.js'
+import { setup as storeSetup } from './store/GenericStore.js'
 
-export let _Vue
+export let _Vue; // bind on install
+export let _Vuex; // TODO
+export let _Firebase; // TODO
+export let _registry;
 export let _models = {};
 export let _db = {};
 
@@ -40,6 +47,20 @@ export function install (Vue, options) {
     throw new Error('heliosRX: Invalid configuration for db.')
   }
 
+  // Setup generic store
+  storeSetup( Vue )
+
+  // Setup registry
+  if ( !options.stateManagement ) {
+    // TODO: Get vue from option or from vue instance?
+    Vue.use( Vuex );
+    _registry = registrySetup( Vuex )
+
+    // Initialize registry
+    // let registry = api.get_registry();
+    _registry.commit('INIT_REGISTRY'); // TOOD: module/INIT_REGISTRY
+  }
+
   // Define $models
   Object.defineProperty(Vue.prototype, '$models', {
     get () { return options.models }
@@ -64,8 +85,4 @@ export function install (Vue, options) {
     window.$db = options.db
     window.$api = mergedApi;
   }
-
-  // Initialize registry
-  let registry = api.get_registry();
-  registry.commit('INIT_REGISTRY');
 }

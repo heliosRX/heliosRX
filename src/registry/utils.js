@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { _Vue as Vue } from '../install'
 
 const log = (...args) => {}
 

@@ -1,5 +1,5 @@
 /* momen plugin for helios specific date time conversions */
-// import Vue from 'vue'
+// import { _Vue as Vue } from '../install'
 import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
 // import momentDurationFormatSetup from "moment-duration-format"
 import firebase from "@firebase/app"; // TODO: Remove dependency
@@ -197,7 +197,7 @@ export function enhanceMomentJS( moment ) {
 
   moment.currentTimeServer = ( backend ) => {
     return backend === 'REALTIMEDB'
-           ? firebase.database.ServerValue.TIMESTAMP
+           ? firebase.database.ServerValue.TIMESTAMP // {".sv": "timestamp"}
            : firebase.firestore.FieldValue.serverTimestamp();
   }
 

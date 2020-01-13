@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { _Vue as Vue } from '../install'
 import GenericModel from '../classes/GenericModel'
 import GenericList from '../classes/GenericList'
 

@@ -7,7 +7,7 @@
 import isEqual from 'lodash.isequal'
 import { DeleteMode } from './GenericStore'
 import { _models } from '../install'
-import registry from '../registry/registry'
+import { _registry as registry } from '../install'
 import { parseTpl, analyzeTpl } from '../util/template'
 import { add_custom_actions, make_reactive_model } from '../classes/utils'
 import moment from '../moment'

@@ -1,5 +1,4 @@
 import mutations from './mutations'
-import registry from './registry.js'
 
 export const genericStoreMutations = {}
 
@@ -8,5 +7,3 @@ Object.keys(mutations).forEach(type => {
     mutations[type](state, payload)
   }
 })
-
-export default registry

@@ -4,7 +4,7 @@
 
 *******************************************************************************/
 
-import Vue from 'vue'
+import { _Vue as Vue } from '../install'
 import { isValidId, isFunction } from '../util/types.js'
 import moment from '../moment/moment-enhanced.js'
 import firebase from "@firebase/app" // <<< not node compatible ?
@@ -46,12 +46,17 @@ const subscriptions = new WeakMap()
 let defaultDB = null;
 
 // let _userId = null; // This is not stateless !!! also this is NOT reactive !!!
-let genericStoreGlobalState = Vue.observable({ userId: null })
-/* In Vue 2.x, Vue.observable directly mutates the object passed to it, so that it
-is equivalent to the object returned, as demonstrated here. In Vue 3.x, a reactive
-proxy will be returned instead, leaving the original object non-reactive if mutated
-directly. Therefore, for future compatibility, we recommend always working with the
-object returned by Vue.observable, rather than the object originally passed to it. */
+// let genericStoreGlobalState = Vue.observable({ userId: null })
+let genericStoreGlobalState = { userId: null }
+
+export function setup( Vue ) {
+  genericStoreGlobalState = Vue.observable(genericStoreGlobalState)
+  /* In Vue 2.x, Vue.observable directly mutates the object passed to it, so that it
+  is equivalent to the object returned, as demonstrated here. In Vue 3.x, a reactive
+  proxy will be returned instead, leaving the original object non-reactive if mutated
+  directly. Therefore, for future compatibility, we recommend always working with the
+  object returned by Vue.observable, rather than the object originally passed to it. */
+}
 
 const USE_READ_MIXIN = true;
 const USE_WRITE_MIXIN = true;

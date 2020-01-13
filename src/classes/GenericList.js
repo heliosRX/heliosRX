@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { _Vue as Vue } from '../install'
 import { add_custom_getters } from '../classes/utils'
 
 function sortidx_sorter(a, b) {

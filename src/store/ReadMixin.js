@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-import registry from '../registry'
+import { _registry as registry } from '../install'
 import { _models } from '../install'
 import { walkGet, walkGetObjectSave } from '../registry/utils'
 import joint from '../util/joint'

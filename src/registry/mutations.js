@@ -1,4 +1,6 @@
-import Vue from 'vue';
+// import Vue from 'vue'; // TODO
+import { _Vue as Vue } from '../install'
+
 import {
   VUEXFIRE_INIT_VALUE,
   VUEXFIRE_UNSET_VALUE,

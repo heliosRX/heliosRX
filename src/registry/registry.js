@@ -1,19 +1,13 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-
-// import { genericStoreMutations } from './index.js'
+import { _Vue as Vue } from '../install'
 import genericStoreMutations from './mutations'
+
 // import createPersistedState from 'vuex-persistedstate'
 // import { ENABLE_PERSISTENT_REGISTRY } from '@/features'
-
 // TODO: Replace vuex store with vue instance - maybe
-// TODO: See vuexfire how to pack mutations
 
-Vue.use(Vuex)
-
-const registry = new Vuex.Store({
+export default {
   strict: true,
-  plugins: /* ENABLE_PERSISTENT_REGISTRY ? [ createPersistedState() ] : */ [],
+  // plugins: /* ENABLE_PERSISTENT_REGISTRY ? [ createPersistedState() ] : */ [],
   state: {
     initialized: false,
     res: {},
@@ -75,6 +69,4 @@ const registry = new Vuex.Store({
       Vue.delete(state.ready, name)
     }
   },
-});
-
-export default registry;
+}

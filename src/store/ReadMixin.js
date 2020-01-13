@@ -11,13 +11,13 @@ import { _registry as registry } from '../external-deps' // TODO ???
 import { _models } from '../external-deps'
 import { walkGet, walkGetObjectSave } from '../registry/utils'
 import joint from '../util/joint'
-import { VUEXFIRE_INIT_VALUE,
-         VUEXFIRE_UNSET_VALUE,
-         VUEXFIRE_ARRAY_SET,
-         VUEXFIRE_ARRAY_ADD,
-         VUEXFIRE_ARRAY_REMOVE,
-         VUEXFIRE_SET } from '../registry/types'
-
+// import { UIDMethod, DeleteMode } from './enums'
+import { HELIOSRX_INIT_VALUE,
+         HELIOSRX_UNSET_VALUE,
+         HELIOSRX_ARRAY_SET,
+         HELIOSRX_ARRAY_ADD,
+         HELIOSRX_ARRAY_REMOVE,
+         HELIOSRX_SET } from '../registry/types'
 
 import { add_custom_getters } from '../classes/utils'
 import factory from '../classes/factory'
@@ -175,7 +175,7 @@ export default {
       */
 
       registry.commit(
-        VUEXFIRE_UNSET_VALUE,
+        HELIOSRX_UNSET_VALUE,
         { path: key },
         { root: true }
       );
@@ -211,7 +211,7 @@ export default {
       // TODO: Testen!
       if ( clean_up ) {
         registry.commit(
-          VUEXFIRE_UNSET_VALUE,
+          HELIOSRX_UNSET_VALUE,
           { path: key },
           { root: true }
         );
@@ -269,7 +269,7 @@ export default {
         /* We have to make sure, we don't trigger init here and 'set' of a list at the same time */
         let data = {}
         log2(this.name, '[OPS:INIT (individual)]', data)
-        registry.commit(VUEXFIRE_INIT_VALUE,
+        registry.commit(HELIOSRX_INIT_VALUE,
           { path: this.global_store_path_array[ id ], data },
           { root: true })
         return { target: data }
@@ -280,7 +280,7 @@ export default {
         log2(this.name, '[OPS:SET (individual)]', target, log_stringify(data))
 
         // Check if data[.exists] = false ?
-        registry.commit(VUEXFIRE_SET,
+        registry.commit(HELIOSRX_SET,
           { target, data },
           { root: true })
       }
@@ -339,7 +339,7 @@ export default {
     let ops = {
       init: () => {
         /* This is ANNOTIATION#1, see subscribeNode for more information. */
-        // log2(this.name, "[GENS-ops] init", registry.commit, VUEXFIRE_INIT_VALUE, { path: this.global_store_path, data }, commitOptions);
+        // log2(this.name, "[GENS-ops] init", registry.commit, HELIOSRX_INIT_VALUE, { path: this.global_store_path, data }, commitOptions);
         log2(this.name, '[OPS:INIT]', this.global_store_path, registry.state)
 
         let data = {}
@@ -352,12 +352,12 @@ export default {
         }
 
         log2(this.name, "[OPS:INIT] data", log_stringify(data));
-        registry.commit(VUEXFIRE_INIT_VALUE, { path: this.global_store_path, data }, commitOptions)
+        registry.commit(HELIOSRX_INIT_VALUE, { path: this.global_store_path, data }, commitOptions)
         return { target: data }
       },
       add: (target, newId, data) => {
         log2(this.name, '[OPS:ADD]', target, newId, data, log_stringify(data))
-        registry.commit(VUEXFIRE_ARRAY_ADD, { target, newId, data }, commitOptions)
+        registry.commit(HELIOSRX_ARRAY_ADD, { target, newId, data }, commitOptions)
       },
       remove: (target, oldId) => {
 
@@ -380,18 +380,18 @@ export default {
           }
         }
 
-        registry.commit(VUEXFIRE_ARRAY_REMOVE, { target, oldId }, commitOptions)
+        registry.commit(HELIOSRX_ARRAY_REMOVE, { target, oldId }, commitOptions)
         // return [ target[ oldId ] ]
       },
       set: (target, currentId, data) => {
         log2(this.name, '[OPS:SET]', target, currentId, data)
-        registry.commit(VUEXFIRE_ARRAY_SET, { target, currentId, data }, commitOptions)
+        registry.commit(HELIOSRX_ARRAY_SET, { target, currentId, data }, commitOptions)
       },
       once: (target, data, exists) => {
         log2("[OPS:ONCE]", data, exists)
       }
       // set_sync: (target, path, value ) => {
-      //   registry.commit(VUEXFIRE_SET_SYNC_STATE, { target, path, value }, commitOptions)
+      //   registry.commit(HELIOSRX_SET_SYNC_STATE, { target, path, value }, commitOptions)
       // }
     }
 
@@ -808,7 +808,7 @@ export default {
 
         /* Not 100% clear why we need to update here -
            for some reason dependencies are not triggered when
-           VUEXFIRE_ARRAY_SET is fired.
+           HELIOSRX_ARRAY_SET is fired.
            */
         /* if ( currentId in this._resultInstanceCache ) {
 

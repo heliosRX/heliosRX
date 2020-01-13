@@ -198,10 +198,9 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import GenericStore from 'heliosrx/src/store/GenericStore'
 import generic_store_list from '@/models'
 import db from "heliosrx/src/global_api"; // TODO
-import registry from 'heliosrx/src/registry'
+import { GenericStore, registry } from 'heliosrx'
 
 // import Vue from 'vue'
 // import VueFormGenerator from 'vue-form-generator'

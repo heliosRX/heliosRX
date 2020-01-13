@@ -1,4 +1,4 @@
-import moment from 'heliosrx/src/moment'
+import { moment } from 'heliosrx'
 
 export default {
 

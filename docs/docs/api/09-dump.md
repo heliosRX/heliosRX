@@ -34,11 +34,6 @@ This is a dangerous warning
 This is a details block, which does not work in IE / Edge
 :::
 
-::: tip
-Sync-Implementation is based on
-[vuexfire](https://github.com/vuejs/vuefire/blob/master/packages/vuexfire/src/index.js)
-:::
-
 | Param                     | Type                | Description  |
 | ------------------------- | ------------------- | ------------ |
 | templatePath              | `string`            | Path where the resource is stored.

@@ -36,7 +36,8 @@
     "build": "npm run build:main",
     "build:main": "node build/build.main.js",
     "lint": "eslint src tests",
-    "release": "bash build/release.sh"
+    "release": "bash build/release.sh",
+    "stats": "package-size-analyzer ./dist/heliosrx.js"
   },
   "files": [
     "dist",

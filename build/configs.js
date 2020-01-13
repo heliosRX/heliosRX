@@ -3,6 +3,7 @@ const buble = require('@rollup/plugin-buble')
 const replacePlugin = require('@rollup/plugin-replace')
 const resolvePlugin = require('@rollup/plugin-node-resolve')
 const commonjsPlugin = require('@rollup/plugin-commonjs');
+const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
 
 const version = process.env.VERSION || require('../package.json').version
 const banner =
@@ -64,7 +65,8 @@ function genConfig (opts) {
         resolvePlugin(),
         commonjsPlugin({
           include: 'node_modules/**', // Default: undefined
-        })
+        }),
+        sizeSnapshot(),
       ]
     },
     output: {

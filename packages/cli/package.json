@@ -1,0 +1,38 @@
+{
+  "name": "heliosrx-cli",
+  "version": "0.2.0",
+  "description": "Command line interface for heliosRX development",
+  "bin": {
+    "helios": "bin/helios"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heliosRX/heliosRX.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "heliosrx",
+    "vue",
+    "cli"
+  ],
+  "author": "Thomas Weustenfeld",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heliosrx/heliosrx/issues"
+  },
+  "homepage": "https://heliosrx.github.io/api/07-CLI.html",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "commander": "^4.1.0",
+    "configstore": "^5.0.0",
+    "ejs": "^3.0.1",
+    "esm": "^3.2.25",
+    "vue": "^2.6.11"
+  },
+  "engines": {
+    "node": ">=8.9"
+  }
+}

@@ -6,6 +6,8 @@ run with:
 npm run main db/rules/create_rules.js
 */
 
+import Vue from 'vue'
+
 import fs from "fs"
 import path from "path"
 // import util from "util"
@@ -204,12 +206,13 @@ export async function main( { filename, skipTypes, onlyTypes, genPaths }, enviro
   const detectProjectRoot = require("../lib/detectProjectRoot");
   let rootDir = detectProjectRoot() || process.cwd();
   let configPath = rootDir + "/src/models/config.js"; // TODO
-  let all_stores = require(configPath)
+  const requireES6 = require("esm")(module)
+  let all_stores = requireES6(configPath)
   // TODO !!!
 
   let concat_file_list = [
-    path.join(__dirname, '../../rules/global/', 'global_types.bolt'),
-    path.join(__dirname, '../../rules/global/', 'global_functions.bolt'),
+    path.join(__dirname, '../rules/global/', 'global_types.bolt'),
+    path.join(__dirname, '../rules/global/', 'global_functions.bolt'),
     '<TYPES>',
     path.join(rootDir, 'rules/rules.bolt'),
   ];

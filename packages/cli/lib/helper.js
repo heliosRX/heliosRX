@@ -12,9 +12,9 @@ module.exports = {
     return console;
   },
 
-  getFirebaseProject: function( project_alias = '' ) {
+  getFirebaseProject( project_alias = '' ) {
 
-    if ( project_alias === '') {
+    if ( !project_alias ) {
       let Configstore = require("configstore");
       let conf = new Configstore("firebase-tools");
       let activeProjects = conf.get("activeProjects") || {};
@@ -34,7 +34,7 @@ module.exports = {
     return project;
   },
 
-  readProjectFile: function() {
+  readProjectFile() {
     let config_file = ".firebaserc";
 
     let projectRoot = detectProjectRoot()

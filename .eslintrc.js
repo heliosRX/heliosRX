@@ -83,7 +83,7 @@ const config = {
   }
 }
 
-if ( process.VUE_CLI_SERVICE.pkg.name === 'heliosrx' ) {
+if ( process.VUE_CLI_SERVICE && process.VUE_CLI_SERVICE.pkg.name === 'heliosrx' ) {
    module.exports = config;
 } else {
    module.exports = {}

@@ -1,5 +1,5 @@
 {
-  "name": "example-simple",
+  "name": "heliosrx-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,25 +15,25 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "color": "^3.1.2",
-    "core-js": "^3.6.1",
+    "core-js": "^3.6.4",
     "element-ui": "^2.13.0",
-    "firebase": "^7.6.1",
+    "firebase": "^7.6.2",
     "heliosrx": "file:../..",
     "moment": "^2.24.0",
     "vue": "^2.6.11",
-    "vue-router": "^3.1.3",
+    "vue-router": "^3.1.4",
     "vuex": "^3.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.1",
-    "@vue/cli-plugin-eslint": "^4.1.1",
-    "@vue/cli-service": "^4.1.1",
-    "@vue/eslint-config-standard": "^5.0.1",
+    "@vue/cli-plugin-babel": "^4.1.2",
+    "@vue/cli-plugin-eslint": "^4.1.2",
+    "@vue/cli-service": "^4.1.2",
+    "@vue/eslint-config-standard": "^5.1.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-vue": "^6.0.2",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-vue": "^6.1.2",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

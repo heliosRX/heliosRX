@@ -2,6 +2,7 @@
 
 const chalk = require('chalk')
 const requiredVersion = require('../package.json').engines.node
+const pkgVersion = require('../package.json').version
 const semver = require('semver');
 const program = require('commander');
 const helper = require('../lib/helper')
@@ -81,7 +82,7 @@ function RunWithES6( script, options, args ) {
 
 // ----------------------------------------------------------------------------
 program
-  .version('0.1.0')
+  .version( pkgVersion )
   .option("-d, --dry", "Perform a dry run (nothing is changed)")
   .option("-v, --verbose", "Be verbose")
   .option("-j, --print-json", "Print output as JSON, not pretty tables")

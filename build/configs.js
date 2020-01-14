@@ -4,6 +4,8 @@ const replacePlugin = require('@rollup/plugin-replace')
 const resolvePlugin = require('@rollup/plugin-node-resolve')
 const commonjsPlugin = require('@rollup/plugin-commonjs');
 const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
+// import inject from '@rollup/plugin-inject';
+const ignore = require("rollup-plugin-ignore");
 
 const version = process.env.VERSION || require('../package.json').version
 const banner =
@@ -20,18 +22,21 @@ const configs = {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.js'),
     format: 'umd',
-    env:    'development'
+    env:    'development',
+    // bundleVue: false,
   },
   umdProd: {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.min.js'),
     format: 'umd',
-    env:    'production'
+    env:    'production',
+    // bundleVue: false,
   },
   commonjs: {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.common.js'),
-    format: 'cjs'
+    format: 'cjs',
+    removeImportVue: true,
   },
   esm: {
     input:  resolve('src/index.esm.js'),
@@ -66,7 +71,7 @@ function genConfig (opts) {
         commonjsPlugin({
           include: 'node_modules/**', // Default: undefined
         }),
-        sizeSnapshot(),
+        // sizeSnapshot(),
       ]
     },
     output: {
@@ -75,6 +80,7 @@ function genConfig (opts) {
       format: opts.format,
       name: 'heliosRX',
       globals: {
+        vue: 'Vue',
         vuex: 'Vuex',
       },
     },
@@ -83,8 +89,22 @@ function genConfig (opts) {
 
   if (opts.env) {
     config.input.plugins.unshift(replacePlugin({
-      'process.env.NODE_ENV': JSON.stringify(opts.env)
+      'process.env.NODE_ENV': JSON.stringify( opts.env )
     }))
+  }
+
+  if ( opts.removeImportVue === true ) {
+    // insert at x ?
+    config.input.plugins.push(ignore(
+      [ 'vue', 'vuex' ]
+    ));
+    // inject({
+    //   Vue:  ['vue'],  // import Vue from 'vue'
+    //   Vuex: ['vuex'], // import Vuex from 'vuex'
+    // })
+    // externalGlobals({
+    //   jquery: "$"
+    // })
   }
 
   if (opts.transpile !== false) {

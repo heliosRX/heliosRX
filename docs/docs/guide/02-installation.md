@@ -46,27 +46,31 @@ cd my-heliosrx-project
 
 ### Install with npm or yarn
 
-To install heliosRX and firebase simple run
+To install heliosRX and firebase simple run (depending if you're using yarn or npm);
 
 ```bash
 npm install --save heliosrx
-npm install --save firebase
+yarn add heliosrx
 ```
 
-or, if you're using yarn:
+Also install `firebase` and `vuex`, which are both peer dependencies:
 
 ```bash
-yarn add heliosrx
+# Install peer dependencies
+npm install --save firebase
+npm install --save vuex
+# or
 yarn add firebase
+yarn add vuex
 ```
 
-## Install heliosRX CLI
+### Install heliosRX Command Line Interface
 
 heliosRX comes with a CLI tool, that is required to generate security rules.
 
 ```bash
-npm install -g heliosrx-cli
-yarn add -g heliosrx-cli
+npm install -g heliosrx-cli # -g optional
+yarn add -g heliosrx-cli    # -g optional
 ```
 
 ### Install global peer dependencies
@@ -76,7 +80,6 @@ heliosRX requires the [bolt-compiler](https://github.com/FirebaseExtended/bolt) 
 ```bash
 npm install -g bolt-compiler
 npm install -g firebase-tools
-# npm install -g heliosrx-cli (PLANNED)
 ```
 
 or, if you're using yarn:
@@ -84,7 +87,6 @@ or, if you're using yarn:
 ```bash
 yarn add -g bolt-compiler
 yarn add -g firebase-tools
-# yarn add -g heliosrx-cli (PLANNED)
 ```
 
 <!--

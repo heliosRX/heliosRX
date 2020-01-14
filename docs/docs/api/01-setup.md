@@ -1,4 +1,8 @@
-# Helios setup
+# HeliosRX setup
+
+## Setup Frontend
+
+heliosRX can in integrated as as Vue-Plugin:
 
 ```js
 import Vue from 'vue'
@@ -21,9 +25,7 @@ Vue.use(heliosRX, {
   // useExistingStore
   useExistingStore: null | <VuexStore>,
 })
-````
-
-## Plugin options
+```
 
 ### Generic stores (`models`)
 
@@ -102,5 +104,42 @@ const db = heliosRX.setup({
   debug:       Boolean,
 })
 ```
-
 -->
+
+## Setup Backend (Node.js)
+
+::: warning Work in Progress (11/1/2019)
+This section is still a work in progress. It will be updated soon.
+:::
+
+```js
+import heliosRX from 'heliosRX'
+
+heliosRX.setup({
+
+  //
+  runAsUser: false | null | <String>,
+
+  //
+  firebaseApp: null | <FirebaseApp>,
+
+  // Realtime Databse instance
+  db: <Database>,
+
+  // Disable / Enable development mode
+  devMode: true / false,
+
+  /*
+  // Object that contains all generic stores
+  models: <Models>,
+
+  // User defined API
+  userApi: <UserApi>,
+
+  // useExistingStore
+  useExistingStore: null | <VuexStore>,
+  */
+})
+```
+
+- TODO: Bundle heliosRX + Vue/Vuex + your models as lib

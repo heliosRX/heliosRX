@@ -12,3 +12,5 @@ export const HELIOSRX_RESET_REGISTRY           = 'heliosrx/RESET_REGISTRY'
 export const HELIOSRX_ADD_ENTRY                = 'heliosrx/ADD_ENTRY'
 export const HELIOSRX_SET_ENTRY_STATUS         = 'heliosrx/SET_ENTRY_STATUS'
 export const HELIOSRX_SET_GLOBAL_READY_STATE   = 'heliosrx/SET_GLOBAL_READY_STATE'
+export const HELIOSRX_REM_GLOBAL_READY_STATE   = 'heliosrx/REM_GLOBAL_READY_STATE'
+*/

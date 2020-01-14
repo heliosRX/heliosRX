@@ -17,8 +17,9 @@
   },
   "keywords": [
     "vue",
+    "vuex",
     "firebase",
-    "reactive",
+    "realtime-database",
     "ORM"
   ],
   "license": "MIT",

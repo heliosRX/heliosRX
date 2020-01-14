@@ -44,17 +44,12 @@
     "types/index.d.ts"
   ],
   "dependencies": {
-    "moment": "^2.24.0",
-    "moment-timezone": "^0.5.27",
+    "core-js": "^3.6.3",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
-    "core-js": "^3.6.3",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.27",
     "slugid": "^2.0.0"
-  },
-  "cliDependenceis": {
-    "chalk": "^3.0.0",
-    "commander": "^4.1.0",
-    "configstore": "^5.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.0",
@@ -70,8 +65,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "eslint-plugin-vue-libs": "^4.0.0",
-    "esm": "^3.2.25",
     "rollup": "^1.29.0",
+    "rollup-plugin-ignore": "^1.0.5",
     "rollup-plugin-size-snapshot": "^0.10.0",
     "terser": "^4.6.3"
   },
@@ -80,9 +75,6 @@
     "vuex": ">= 3.0.0",
     "firebase": ">= 7.0.0",
     "firebase-bolt": "=> 0.8.4"
-  },
-  "bin": {
-    "helios": "bin/helios"
   },
   "engines": {
     "node": ">= 6.0.0",

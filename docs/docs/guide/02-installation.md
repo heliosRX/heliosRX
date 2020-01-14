@@ -6,7 +6,34 @@
 ```bash
 yarn add https://github.com/tw00/heliosrx-private.git
 ```
-instead of yarn add heliosrx
+instead of `yarn add heliosrx`.
+
+The CLI **can not** be installed directly, because it's a subdirectory. Please do this instead:
+```bash
+git clone https://github.com/tw00/heliosrx-private.git ~/heliosRX
+
+cd ~/heliosRX/packages/cli  # Go to CLI directory
+yarn link                   # Register package globally as "linkable",
+                            # See "ls -l ~/.config/yarn/link"
+yarn global add .           # Install CLI package globally
+helios --version            # Should display '0.2.0'
+```
+
+For developers it makes sense to also link heliosRX itself:
+
+```bash
+cd ~/heliosRX               # Go to heliosRX repository
+yarn link                   # Register package globally as "linkable"
+cd ~/my-helios-project      # Go to your project
+yarn add ~/heliosRX         # OPTIONAL: If heliosrx is not in package.json yet,
+                            # add from file ("yarn add heliosrx" is fine too)
+yarn link heliosrx          # Link to global package
+                            # (Check with "ls -l ./node_modules/heliosrx")
+
+# Optionally add CLI as devDependency
+yarn add --dev ~/heliosRX/packages/cli
+yarn link heliosrx-cli
+```
 :::
 
 ::: tip
@@ -31,6 +58,15 @@ or, if you're using yarn:
 ```bash
 yarn add heliosrx
 yarn add firebase
+```
+
+## Install heliosRX CLI
+
+heliosRX comes with a CLI tool, that is required to generate security rules.
+
+```bash
+npm install -g heliosrx-cli
+yarn add -g heliosrx-cli
 ```
 
 ### Install global peer dependencies

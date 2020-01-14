@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   root: true,
   parserOptions: {
     parser: 'babel-eslint',
@@ -83,8 +83,8 @@ module.exports = {
   }
 }
 
-/* {
-  "root": true,
-  "extends": [
-  ]
-} */
+if ( process.VUE_CLI_SERVICE.pkg.name === 'heliosrx' ) {
+   module.exports = config;
+} else {
+   module.exports = {}
+}

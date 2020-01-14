@@ -1,6 +1,14 @@
-export let _Vue; // bind on install
-export let _Vuex; // TODO
-export let _Firebase; // TODO
+// These are replaced by {} for commonJS (see rollup config) !!
+// TODO: Make sure it's the same 'Vue'
+// Has to be imported as external dependency!
+
+import Vue from 'vue';
+import Vuex from 'vuex';
+
+// bind on install
+export let _Vue = Vue;
+export let _Vuex = Vuex;
+export let _Firebase;
 export let _registry;
 export let _models = {};
 export let _db = {};
@@ -17,3 +25,4 @@ export default function setup( options ) {
 export function getRegistry() {
   return _registry;
 }
+

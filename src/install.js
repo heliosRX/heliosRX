@@ -1,8 +1,7 @@
-import Vuex from 'vuex'; // TODO: Connect to existing vuex vs create new vue
-
 import GenericStore from './store/index.js'
 import { setup as storeSetup } from './store/GenericStore.js'
-import setupExternalDeps from './external-deps'
+import setupExternalDeps, { _Vuex as Vuex } from './external-deps'
+
 import registryModule from './registry/module'
 
 // import registrySetup from './registry/setup.js'

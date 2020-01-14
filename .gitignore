@@ -24,9 +24,10 @@ package-lock.json
 *.sln
 *-private-key-admin-sdk.json
 *.cache
-/db/keys/*.json
 
 # Sensitive data
+.env.local
+/db/keys/*.json
 *.key
 *.kdbx
 

@@ -11,14 +11,14 @@ import "firebase/database";
 
 // TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA-0-IaxG70yiVkHp7YENQly17xojCrUpY",
-  authDomain: "heliosrx-demo1.firebaseapp.com",
-  databaseURL: "https://heliosrx-demo1.firebaseio.com",
-  projectId: "heliosrx-demo1",
-  storageBucket: "heliosrx-demo1.appspot.com",
-  messagingSenderId: "208675606741",
-  appId: "1:208675606741:web:48f80d31c8ae96b21f125c"
-};
+  apiKey:             process.env.VUE_APP_FIREBASE_API_KEY,
+  authDomain:         process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL:        process.env.VUE_APP_FIREBASE_DATABASE_URL,
+  projectId:          process.env.VUE_APP_FIREBASE_PROJECT_ID,
+  storageBucket:      process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId:  process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId:              process.env.VUE_APP_FIREBASE_APP_ID
+}
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);

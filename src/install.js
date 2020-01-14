@@ -54,8 +54,14 @@ export function install (Vue, options) {
 
   // Setup registry
   let _registry;
-  if ( !options.stateManagement ) {
+  if ( !options.useExistingStore ) {
     // TODO: Get vue from option or from vue instance?
+
+    (Vue._installedPlugins || []).forEach(plugin => {
+      if ( plugin.Store && plugin.mapActions ) {
+         console.warn("Existing Vuex detected. Consider using 'useExistingStore'. See heliosRX documentation.");
+      }
+    })
 
     Vue.use( Vuex );
     _registry = new Vuex.Store( registryModule( 'heliosRX' ) )
@@ -64,7 +70,13 @@ export function install (Vue, options) {
     // Initialize registry
     _registry.commit('INIT_REGISTRY'); // TODO: module/INIT_REGISTRY
   } else {
-    throw new Error('heliosRX: Custom state management not implemented.')
+
+    const store = options.useExistingStore;
+    store.registerModule('heliosrx', registryModule( 'heliosRX' ));
+    setupExternalDeps({ Vuex, registry: store });
+
+    throw new Error('heliosRX: Custom state management not fully implemented.')
+    // TODO: Fix mutations
   }
 
   // Define $models

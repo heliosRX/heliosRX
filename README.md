@@ -12,6 +12,9 @@
   <a href="https://discord.gg/2Hg3eq" alt="Discord">
     <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" />
   </a>
+  <a href="https://twitter.com/intent/follow?screen_name=helios_rx">
+    <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="follow on Twitter">
+  </a>
   <!--
   <a href="https://cdnjs.com/libraries/heliosrx" alt="CDNJS">
     <img src="https://img.shields.io/cdnjs/v/heliosrx.svg" />
@@ -42,12 +45,6 @@
   </a>
   <a href="https://lgtm.com/projects/g/heliosrx/heliosrx/alerts/">
     <img src="https://img.shields.io/lgtm/alerts/g/heliosrx/heliosrx" alt="Total alerts"/>
-  </a>
-  <a href="https://discord.gg/2Hg3eq">
-    <img src="https://img.shields.io/discord/655646290507464743?logo=discord" alt="Chat on Discord">
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=heliosrx">
-    <img src="https://img.shields.io/twitter/follow/heliosrx?style=social&logo=twitter" alt="follow on Twitter">
   </a>
   -->
 </p>
@@ -97,6 +94,14 @@ npm install --save heliosrx
 
 ```bash
 yarn add heliosrx
+```
+
+heliosRX comes with CLI:
+
+```bash
+npm install -g heliosrx-cli
+# - or -
+yarn global add heliosrxc-cli
 ```
 
 heliosRX requires bolt-compiler as a peer dependency, so please run:
@@ -195,7 +200,7 @@ new Vue({
 
 ## Quickstart
 
-This is an example for a simeple To-Do App:
+This is an example for a simple To-Do App:
 
 - [Demo](https://heliosrx-demo1.web.app/)
 

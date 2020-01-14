@@ -76,3 +76,20 @@ const store = new Vuex.Store({
     ...vuexfireMutations,
   },
 })
+```
+
+#### get_registry
+
+```js
+function get_registry()
+```
+
+TODO: Move to $registry
+
+#### get_registry_state
+
+```js
+function get_registry_state()
+```
+
+TODO: Move to $registry

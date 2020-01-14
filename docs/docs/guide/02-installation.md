@@ -70,7 +70,7 @@ heliosRX comes with a CLI tool, that is required to generate security rules.
 
 ```bash
 npm install -g heliosrx-cli # -g optional
-yarn add -g heliosrx-cli    # -g optional
+yarn global add heliosrx-cli    # -g optional
 ```
 
 ### Install global peer dependencies
@@ -85,8 +85,8 @@ npm install -g firebase-tools
 or, if you're using yarn:
 
 ```bash
-yarn add -g bolt-compiler
-yarn add -g firebase-tools
+yarn global add bolt-compiler
+yarn global add firebase-tools
 ```
 
 <!--

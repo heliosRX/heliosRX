@@ -1,43 +1,38 @@
-# Before Release
+# heliosRX 1.0
 
-[ ] Split into helios cli (global) and helios
-[ ] Describe uid handling in docs, include in example
+[X] Split into helios cli (global) and helios
+[X] Describe uid handling in docs, include in example
+[ ] bolt_validation_type -> type
+[ ] Backend support
+[ ] Advanced examples
 
-# After Release
+# heliosRX 2.0
 
+[ ] Redesign API (simplify / more concsistent)
+[ ] Rewrite Import system (with CLI/backend in mind)
+[ ] Real relations management
+[ ] Get rid of momentjs (and other dependencies)
+[ ] Type checking for everything -> how to do that?
 [ ] Auto-Un-Sync
-[ ] Type checking for everything, how to do that?
-[ ] Nuxt / SSR Support
-[ ] real relations management
-
-[ ] Chrome Extension / Dev Tools
 [ ] Scaffold Admin Interface
 
+# heliosRX 3.0
 
-# heliosRX 2
+[ ] Nuxt / SSR Support
+[ ] Chrome Extension / Dev Tools
+[ ] Unit tests
+[ ] Typescript
+[ ] Based on Vue 3 (New observer, native classes as models?)
 
-- [ ] Typescript
-- [ ] Based on Vue 3 (New observer, native classes as models?)
-- [ ] bolt_validation_type -> type
-- [ ]
+# Marketing
+
+- https://news.vuejs.org/submit
+- https://github.com/vuejs/awesome-vue/issues
+- https://github.com/jthegedus/awesome-firebase
+- https://github.com/afonsopacifer/awesome-firebase
+- https://twitter.com/bestoffirebase
 
 
+# Mention
 
-???:
-
-#### get_registry
-
-```js
-function get_registry()
-```
-
-TODO: Move to $registry
-
-#### get_registry_state
-
-```js
-function get_registry_state()
-```
-
-TODO: Move to $registry
-
+- https://github.com/vuex-orm/awesome-vuex-orm

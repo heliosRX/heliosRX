@@ -1,0 +1,16 @@
+path /example {
+  read() { true }
+  write() { true }
+}
+
+path /example/{itemId} is Example {
+  read() { true }
+  write() { true }
+}
+
+/*
+path /example is Example[] {
+  read() { true }
+  write() { true }
+}
+*/

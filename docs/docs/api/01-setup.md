@@ -16,7 +16,10 @@ Vue.use(heliosRX, {
   devMode: true / false,
 
   // User defined API
-  userApi: <UserApi>
+  userApi: <UserApi>,
+
+  // useExistingStore
+  useExistingStore: null | <VuexStore>,
 })
 ````
 
@@ -71,6 +74,16 @@ interface (`this.$api`).
   auth_logout() { ... },
 }
 ```
+
+### Use existing store (`useExistingStore`)
+
+- **useExistingStore:** `null | new Vuex.Store`
+
+heliosRX can use an existing Vuex store for state management. If no existing store is provided,
+helios will create a new Vuex store. Having two stores is also usually not a problem, although
+not recommended according to the Vuex documentation. <!-- ??? -->
+However they only good reasons I can come up with, why you shouldn't not do that, is that
+the Vue Dev tools don't support multiple Vuex stores.
 
 <!--
 ### Ready flags (`readyFlags`)

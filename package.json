@@ -8,6 +8,7 @@
   ],
   "main": "dist/heliosrx.common.js",
   "module": "dist/heliosrx.esm.js",
+  "browser": "dist/heliosrx.min.js",
   "unpkg": "dist/heliosrx.js",
   "jsdelivr": "dist/heliosrx.js",
   "typings": "types/index.d.ts",

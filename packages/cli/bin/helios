@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --preserve-symlinks
 
 const chalk = require('chalk')
 const requiredVersion = require('../package.json').engines.node

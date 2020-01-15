@@ -1,7 +1,7 @@
-// These are replaced by {} for commonJS (see rollup config) !!
 // TODO: Make sure it's the same 'Vue'
 // Has to be imported as external dependency!
 
+// These are replaced by "{}" for commonJS (see rollup config) !!
 import Vue from 'vue';
 import Vuex from 'vuex';
 
@@ -25,4 +25,3 @@ export default function setup( options ) {
 export function getRegistry() {
   return _registry;
 }
-

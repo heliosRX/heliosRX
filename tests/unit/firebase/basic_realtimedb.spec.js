@@ -3,11 +3,11 @@ const { setup_realtimedb,
         teardown,
         expect } = require('./helpers');
 
-describe('Project rules', () => {
+describe.skip('Project rules', () => {
   // let db;
   let projRef;
 
-  afterAll(async () => {
+  afterAll.skip(async () => {
     await teardown();
   });
 

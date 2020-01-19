@@ -5,7 +5,7 @@ echo "Enter heliosRX CLI release version: "
 read VERSION
 
 read -p "Releasing CLI $VERSION - are you sure? (y/n)" -n 1 -r
-echo    # (optional) move to a new line
+echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
   echo "Releasing $VERSION ..."

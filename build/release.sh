@@ -1,9 +1,11 @@
+#!/usr/bin/env bash
+
 set -e
 echo "Enter heliosRX release version: "
 read VERSION
 
 read -p "Releasing $VERSION - are you sure? (y/n)" -n 1 -r
-echo    # (optional) move to a new line
+echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
   echo "Releasing $VERSION ..."
@@ -14,13 +16,25 @@ then
   # build
   VERSION=$VERSION npm run build
 
+  # check if there is uncommitted changes
+  set +e
+  git diff-index --quiet HEAD --
+  if [[ $? -eq 1 ]]
+  then
+    echo "Uncommited changes"
+    exit
+  fi
+  set -e
+
+  # set version
+  npm version $VERSION --message "[release] $VERSION"
+
   # commit
-  git add -A ./dist
+  git add -A package.json ./dist
   git commit -m "[build] $VERSION"
 
   # tag
   git tag -a "v$VERSION" -m "[release] $VERSION"
-  npm version $VERSION --message "[release] $VERSION"
 
   # publish
   git push origin refs/tags/v$VERSION

@@ -19,11 +19,11 @@
     "lodash.isequal": "^4.5.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "parcel-bundler": "^1.12.3",
+    "@babel/core": "^7.8.3",
+    "parcel-bundler": "^1.12.4",
     "parcel-plugin-alias": "git+https://github.com/tw00/parcel-plugin-alias.git"
   },
   "engines": {
-    "node": "~8"
+    "node": "~10"
   }
 }

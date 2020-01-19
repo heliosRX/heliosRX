@@ -50,7 +50,7 @@
 </p>
 
 **heliosRX** is a front-end ORM (Object-Relational Mapping) layer
-for reactive real-time web applications using Firebase Realtime Database.
+for reactive real-time web applications using Firebase Realtime Database and Vue.
 heliosRX allows developers to define `models` based on schema files.
 
 <!--
@@ -64,6 +64,10 @@ JSON-like structure.
 - ⚡ Speeds up development significantly
 - 🔌 Modular architecture (will support other backends in the future)
 - ⏱️ Write fully reactive Realtime Apps
+
+## Documentation
+
+- **[Full Documentation](https://heliosrx.github.io)**
 
 ## When should I use heliosRX?
 
@@ -280,10 +284,6 @@ type Task {
 }
 ...
 ```
-
-## Documentation
-
-- **[Full Documentation](https://heliosrx.github.io)**
 
 <!--
 ## Backers

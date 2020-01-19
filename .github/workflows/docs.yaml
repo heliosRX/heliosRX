@@ -22,7 +22,7 @@ jobs:
     - name: Cache dependencies
       uses: actions/cache@v1
       with:
-        path: ~/docs/.npm
+        path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-

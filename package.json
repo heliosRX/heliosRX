@@ -38,6 +38,7 @@
     "build": "npm run build:main",
     "build:main": "node build/build.main.js",
     "lint": "eslint src tests",
+    "test": "jest",
     "release": "bash build/release.sh",
     "stats": "package-size-analyzer ./dist/heliosrx.js"
   },
@@ -54,12 +55,14 @@
     "slugid": "^2.0.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.8.3",
     "@rollup/plugin-buble": "^0.21.0",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
     "@rollup/plugin-replace": "^2.3.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.20.0",
@@ -67,6 +70,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "eslint-plugin-vue-libs": "^4.0.0",
+    "firebase-server": "^1.0.2",
+    "jest": "^24.9.0",
     "rollup": "^1.29.0",
     "rollup-plugin-ignore": "^1.0.5",
     "rollup-plugin-size-snapshot": "^0.10.0",

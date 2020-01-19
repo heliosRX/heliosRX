@@ -16,15 +16,11 @@ module.exports = {
   env: {
     test: {
       "presets": [
-        [
-          "@babel/preset-env",
-          {
-            "useBuiltIns": "entry"
-          }
-        ]
+        [require('@babel/preset-env'), { 'modules': false }],
+        // [ "@babel/preset-env", { "useBuiltIns": "entry" } ]
       ],
       "plugins": [
-        "transform-es2015-modules-commonjs"
+        // "transform-es2015-modules-commonjs"
       ]
     }
   }

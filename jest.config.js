@@ -2,11 +2,11 @@ module.exports = {
   verbose: false,
   moduleFileExtensions: [
     'js',
-    'jsx',
+    // 'jsx',
     'json',
-    'vue'
+    // 'vue'
   ],
-  moduleDirectories: [ // NEU
+  moduleDirectories: [
     "node_modules",
     "src"
   ],
@@ -14,8 +14,8 @@ module.exports = {
     "<rootDir>/node_modules/(?!flatted)"
   ],
   transform: {
-    '^.+\\.vue$': 'vue-jest',
-    '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
+    // '^.+\\.vue$': 'vue-jest',
+    // '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
     '^.+\\.jsx?$': 'babel-jest',
     "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
   },
@@ -23,10 +23,10 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   snapshotSerializers: [
-    'jest-serializer-vue'
+    // 'jest-serializer-vue'
   ],
   testMatch: [
-    '<rootDir>/test/unit/**/*.spec.(js|jsx|ts|tsx)'
+    '<rootDir>/tests/unit/**/*.spec.(js|jsx|ts|tsx)'
   ],
   testURL: 'http://localhost/',
 }

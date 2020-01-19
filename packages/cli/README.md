@@ -1,4 +1,4 @@
-# @vue/cli
+# heliosrx-cli
 
 ``` sh
 npm install -g heliosrx-cli

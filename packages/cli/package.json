@@ -36,6 +36,9 @@
     "esm": "^3.2.25",
     "vue": "^2.6.11"
   },
+  "peerDependencies": {
+    "heliosrx": "^0.2.0"
+  },
   "engines": {
     "node": ">=8"
   }

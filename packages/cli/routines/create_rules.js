@@ -6,8 +6,6 @@ run with:
 npm run main db/rules/create_rules.js
 */
 
-// import Vue from 'vue'
-
 import fs from "fs"
 import path from "path"
 const chalk = require('chalk');

@@ -5,13 +5,13 @@ function isUser(uid) { auth != null && auth.uid == uid }
 function isSignedIn() { auth != null }
 
 // Check if user has custom claim 'admin' (not to be confused with 'admin sdk' access)
-function isHeliosAdmin() { auth.token.admin === true }
+function isAdmin() { auth.token.admin === true }
 
 // Check if user has custom claim 'admin'
-function isHeliosDeveloper() { auth.token.developer === true || isHeliosAdmin() }
+function isDeveloper() { auth.token.developer === true || isAdmin() }
 
 // Check if user has custom claim 'support'
-function isHeliosSupport() { auth.token.support === true || isHeliosAdmin() || isHeliosDeveloper() }
+function isSupport() { auth.token.support === true || isAdmin() || isDeveloper() }
 
 // Check if user has verified email address
 function emailVerified() { auth.token.email_verified === true }

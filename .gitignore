@@ -27,7 +27,7 @@ package-lock.json
 
 # Sensitive data
 .env.local
-/db/keys/*.json
+/keys/*
 *.key
 *.kdbx
 

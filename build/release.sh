@@ -1,5 +1,5 @@
 set -e
-echo "Enter release version: "
+echo "Enter heliosRX release version: "
 read VERSION
 
 read -p "Releasing $VERSION - are you sure? (y/n)" -n 1 -r
@@ -15,8 +15,11 @@ then
   VERSION=$VERSION npm run build
 
   # commit
-  git add -A
+  git add -A ./dist
   git commit -m "[build] $VERSION"
+
+  # tag
+  git tag -a "$VERSION" -m "[release] $VERSION"
   npm version $VERSION --message "[release] $VERSION"
 
   # publish

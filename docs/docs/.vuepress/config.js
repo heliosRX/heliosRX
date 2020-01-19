@@ -1,7 +1,7 @@
 const version = require("../../../package.json").version;
 const glob = require('glob');
 
-const isTLD = false; // Only private build
+const isTLD = true; // Only private build
 
 function printConfig(config) {
   console.log("config.themeConfig.sidebar =", config.themeConfig.sidebar)

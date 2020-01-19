@@ -39,7 +39,7 @@ jobs:
         EXTERNAL_REPOSITORY: heliosrx/heliosrx.github.io
         ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         PUBLISH_BRANCH: master
-        PUBLISH_DIR: docs/.vuepress/dist
+        PUBLISH_DIR: docs/docs/.vuepress/dist
 
     #   uses: JamesIves/github-pages-deploy-action@master
     #   env:

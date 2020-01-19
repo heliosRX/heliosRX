@@ -1,2 +1,4 @@
+build/
 .babelrc
 .eslintrc.js
+.npmignore

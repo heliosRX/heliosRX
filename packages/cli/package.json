@@ -15,6 +15,10 @@
     "vue",
     "cli"
   ],
+  "scripts": {
+    "build": "node build/build.js",
+    "release": "bash build/release.sh"
+  },
   "author": "Thomas Weustenfeld",
   "license": "MIT",
   "bugs": {

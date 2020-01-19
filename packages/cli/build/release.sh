@@ -15,7 +15,12 @@ then
   VERSION=$VERSION npm run build
 
   # check if there is uncommitted changes
-  git diff-index --quiet HEAD -- || (echo "Uncommited changes"; exit)
+  git diff-index --quiet HEAD --
+  if [ $? -eq 1 ]
+  then
+    echo "Uncommited changes"
+    exit
+  fi
 
   # commit
   # git add -A

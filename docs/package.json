@@ -1,4 +1,5 @@
 {
+  "name": "heliosrx-docs",
   "version": "0.0.1",
   "scripts": {
     "docs:dev": "vuepress dev docs",

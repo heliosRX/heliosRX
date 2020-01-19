@@ -33,7 +33,7 @@
   },
   "private": false,
   "scripts": {
-    "docs": "(cd docs && yarn docs:build && yarn docs:deploy)",
+    "docs": "(cd docs && yarn docs:build)",
     "dev": "rollup -wm -c build/rollup.dev.config.js",
     "build": "npm run build:main",
     "build:main": "node build/build.main.js",

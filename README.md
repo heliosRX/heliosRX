@@ -303,3 +303,9 @@ Run `npx gulp api` which will build the documentation files and place them in th
 ## Pull request
 
 I'd be happy to review any pull requests that may better the heliosRX project, in particular if you have a bug fix, enhancement, or a new shape (see src/shapes for examples). Before doing so, please first make sure that all of the tests pass (gulp lint test).
+
+## License
+
+[MIT License](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2019-present, Thomas Weustenfeld

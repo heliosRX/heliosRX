@@ -8,7 +8,7 @@ process.env.production = true; // HACK
 const models       = require('@/models')
 const api          = require('@/api')
 const setDefaultDB = require('@/generic_api/config').setDefaultDB
-const moment       = require('@/moment-gp');
+const moment       = require('heliosrx').moment;
 
 let pjson = require('./package.json');
 let pversion = pjson.version || 'unknown';

@@ -1,8 +1,23 @@
 # heliosRX 1.0
 
-[X] Split into helios cli (global) and helios
+[ ] Clean up / go through all files [1h]
+[ ] Doppelte Modelle package/ui/src/models* [15min]
+[ ] attachTimezoneWatcher [15min]
+[ ] store mutations einheitlich [15min]
+[ ] GenericStoreDoc löschen [5min]
+[ ] Disalbe Debug output (optionally) [15min]
+[ ] README.md [15min]
+[ ] Go throught entire documentation [30min]
+[ ] Bundle and release on npm (+cli) [30min]
+[ ] bolt_validation_type -> type [15min]
+[ ] Merge request awesome list [30min]
+[ ] Annoucement Blog Post [1h]
+
 [X] Describe uid handling in docs, include in example
-[ ] bolt_validation_type -> type
+[X] Split into helios cli (global) and helios
+
+# heliosRX 1.1
+
 [ ] Backend support
 [ ] Advanced examples
 

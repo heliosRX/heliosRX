@@ -1,5 +1,7 @@
-const version = require("./../../package.json").version;
+const version = require("../../../package.json").version;
 const glob = require('glob');
+
+const isTLD = false; // Only private build
 
 function printConfig(config) {
   console.log("config.themeConfig.sidebar =", config.themeConfig.sidebar)
@@ -7,7 +9,7 @@ function printConfig(config) {
 }
 
 module.exports = printConfig({
-  base: '/heliosrx/', // ONLY BUILD @ tw.de
+  base: isTLD ? '/heliosrx/' : '/',
   configureWebpack: {
     resolve: {
       alias: {
@@ -15,8 +17,8 @@ module.exports = printConfig({
       }
     }
   },
-  // title: `heliosRX ${version}`,
-  title: `heliosRX`,
+  title: `heliosRX (v${version})`,
+  // title: `heliosRX`,
   description: "Examples of useful vuepress code",
   head: [
     ['link', { rel: 'icon', href: '/logo-small.png' }]
@@ -27,66 +29,18 @@ module.exports = printConfig({
     lastUpdated: false,
     logo: '/logo-small.png',
     repo: "heliosRX/heliosRX",
-    repoLabel: "Github",
+    repoLabel: "GitHub",
     displayAllHeaders: true,
-    // sidebar: markdownFiles,
     sidebar: {
       '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials', 'Advanced'),
       '/api/':   getApiSidebar(),
       '/tips/':  getTipsSidebar('Firebase Security Rules', 'Migration'),
-      // '/plugin/': getPluginSidebar('Plugin', 'Introduction', 'Official Plugins'),
-      // '/guide/': {
-      //   title: 'Guide',     // required
-      //   // path: '/guide/',    // optional, which should be a absolute path.
-      //   collapsable: false,  // optional, defaults to true
-      //   sidebarDepth: 2,    // optional, defaults to 1
-      //   children: markdownFiles,
-      // },
     },
-    // ['FOO', 'FOO'],
-    // ['BAR', 'BAR'],
-    // ...markdownFiles
-    /*
-    sidebar: {
-      '/reference/': [
-        '',              // /foo/
-        ['one', 'ONE'],  // /foo/one.html
-        ['two', 'TWO']   // /foo/two.html
-      ],
-      '/guide': {
-        title: 'Group 1',   // required
-        path: '/docs/',      // optional, which should be a absolute path.
-        collapsable: false, // optional, defaults to true
-        sidebarDepth: 1,    // optional, defaults to 1
-        children: [
-          '/'
-        ]
-      },
-    },
-    */
-    /*
-    "A": ["/", "Home"],
-    "A": ["/docs/homepage/", "A Homepage Fit for Heroes"],
-    "A": "/docs/foo",
-    "A": "/docs/extending/",
-
-    sidebar: [
-      {
-       title: 'Group 1',   // required
-       path: '/docs/',      // optional, which should be a absolute path.
-       collapsable: false, // optional, defaults to true
-       sidebarDepth: 1,    // optional, defaults to 1
-       children: [
-         '/'
-       ]
-      },
-    ], */
     nav: [
-      { text: 'Home',  link: '/' },
       { text: 'Guide', link: '/guide/01-intro' },
       { text: 'API',   link: '/api/' },
       { text: 'Tips', link: '/tips/01-designing-good-security-rules' },
-      // { text: 'External', link: 'https://google.com' }
+      // { text: 'GitHub', link: 'https://github.com/heliosRX/heliosRX' }
     ],
   },
   extendMarkdown(md) {

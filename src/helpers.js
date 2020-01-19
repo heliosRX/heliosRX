@@ -4,15 +4,6 @@ import StoreManager from './manager'
 // TODO: Load models based on path
 // TODO: Move to generic api folder?
 
-/*
-import * as MyGenericStores from './config.js'
-for ( let storeName in MyGenericStores ) {
-  // eslint-disable-next-line import/namespace
-  MyGenericStores[ storeName ].setName( storeName )
-}
-export default MyGenericStores;
-*/
-
 export function setDefaultDB(db) {
   GenericStore.setDefaultDB(db)
 }

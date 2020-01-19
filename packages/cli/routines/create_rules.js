@@ -6,11 +6,10 @@ run with:
 npm run main db/rules/create_rules.js
 */
 
-import Vue from 'vue'
+// import Vue from 'vue'
 
 import fs from "fs"
 import path from "path"
-// import util from "util"
 const chalk = require('chalk');
 
 // TODO: Match rules path with stores !!

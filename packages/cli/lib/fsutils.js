@@ -1,4 +1,4 @@
-// TAKEN FROM
+// Based on:
 // https://github.com/firebase/firebase-tools/blob/master/lib/fsutils.js
 
 "use strict";

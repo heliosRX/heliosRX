@@ -22,7 +22,7 @@ Don't forget to also create a database for your project in the Firebase console.
 
 ### Create folder structure and configuration files
 
-Next create the following folder structure:
+Next, create the following folder structure:
 
 ```bash
 mkdir -p rules

@@ -13,7 +13,7 @@ Options:
 
 Commands:
   rules|r [options]          Generate rules
-  check|c [options]          Check schema for errros
+  check|c [options]          Check schema for errors
   init|i                     Initialize helios config
   gen-model|m <name>         Generate a new model
 ```
@@ -26,13 +26,13 @@ This section is still a work in progress. It will be updated soon.
 
 ## helios check
 
-Automatically checks all model definitios for errors
+Automatically checks all model definitions for errors
 
 ```
 helios check --models <model-path>
 ```
 
-You might want to an aliases to your `package.json`
+You might want to add an aliases to your `package.json`
 
 ```js
 "scripts": {

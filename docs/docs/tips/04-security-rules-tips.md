@@ -7,7 +7,7 @@ then it can and should not be defined via path `/path/to/child`
 
 ::: tip Tip 02
 read/write rules can also be defined in `schema.bolt`.
-In some cases this might even be necessary! (see sequence)
+In some cases, this might even be necessary! (see sequence)
 :::
 
 ::: tip Tip 03
@@ -57,7 +57,7 @@ Map types can be empty collections (they don't have to contain any child keys).
 :::
 
 ::: tip Tip 14
-First letter of type definitons must be **uppercase** and should be **singular**.
+First letters of type definitions must be **uppercase** and should be **singular**.
 :::
 
 ::: tip Tip 15
@@ -170,4 +170,3 @@ read or write privilege.
 :::
 
 For more information see: [https://github.com/FirebaseExtended/bolt/blob/master/docs/language.md](https://github.com/FirebaseExtended/bolt/blob/master/docs/language.md).
-

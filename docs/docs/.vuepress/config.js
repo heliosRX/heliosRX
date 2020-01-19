@@ -62,6 +62,7 @@ function readFileList( name ) {
     .sync('docs/guide/' + name + '/*.md')
     .map(f => f.substr(5+6))
     .filter(f => !f.includes('README.md'))
+    .filter(f => !f.includes('99-'))
     .sort()
 }
 
@@ -107,6 +108,7 @@ function getTipsSidebar (groupA, groupB) {
     .sync('docs/tips/*.md')
     .map(f => f.substr(5+5))
     .filter(f => !f.includes('README.md'))
+    .filter(f => !f.includes('99-'))
     .sort()
 
   let markdownFilesMigration = glob

@@ -1,10 +1,9 @@
 # Designing Good Security Rules
 
-Let's say we want to save messages in groups. There is different ways how this can be archived with Firebase Realtime Database.
-The following list gives an overview of the pro's and con's of each approach.
+Let's say we want to save messages in groups. There are different ways how this can be archived with Firebase Realtime Database. The following list gives an overview of the pros and cons of each approach.
 
 Good Design requires that you think about how your data will be used in advance!
-Each apprach has different pro's and con's regarding flexbility, security rules, amount of data traffic, amount of stored data,
+Each approach has different pros and cons regarding flexibility, security rules, amount of data traffic, amount of stored data,
 complexity of client, sharding.
 
 <!-- ANALOGIE: 2 slots für suche -->
@@ -47,7 +46,7 @@ complexity of client, sharding.
 
 **Disadvantage**:
 - We have to do a `subscribeQuery`
-- We'll loose one sort key, filtering by another criteria is not possible anymore (e.g. give me all messages from group X, that are also newer then date Y).
+- We'll lose one sort key, filtering by another criterion is not possible anymore (e.g. give me all messages from group X, that are also newer than date Y).
 
 ## Multi-ID-Key
 
@@ -56,7 +55,7 @@ complexity of client, sharding.
 ```
 
 **Advantage**:
-- Multiple sort keys possible (more then 2)
+- Multiple sort keys possible (more than 2)
 
 **Disadvantage**:
 - Sorting must be defined a priori

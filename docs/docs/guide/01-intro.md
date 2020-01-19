@@ -44,18 +44,18 @@ other backend integrations might get implemented in the future (e.g. GraphQL).
 
 ## When should I use heliosRX?
 
-If your using Firebase as your backend and if you're building an SPA that
-is a little bit more complex then a simple todo list, then heliosRX is
+If your using Firebase as your backend and if you're building a SPA that
+is a little bit more complex then a simple to-do list, then heliosRX is
 probably very useful for you. Some benefits of using heliosRX over
 just Firebase Client API are:
 
 - ➡️ Easy, straight forward API based on model definitions/schemata
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
-- ➡️ Automatically generate Security Rules based on schema
+- ➡️ Automatically generate Security Rules based on schemata
 - ➡️ Allows easy sorting of objects
 - ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ Additional layer of abstraction and therefor less vendor lock-in
+- ➡️ Additional layer of abstraction and therefore less vendor lock-in
 - ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
 - ➡️ Write significantly less code
 

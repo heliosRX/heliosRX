@@ -116,7 +116,7 @@ program
 // ----------------------------------------------------------------------------
 program
   .command('check').alias("c")
-  .description('Check schema for errros')
+  .description('Check schema for errors')
   .option("-f, --file <filename>", "Config file")
   .action((options) => {
 

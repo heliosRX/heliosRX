@@ -19,8 +19,8 @@ this.$models.task
   })
 ```
 
-The `userId` is automatically infered from the currently authenticated user,
-if not given. So the example above is the same as (assumg the current user is
+The `userId` is automatically inferred from the currently authenticated user,
+if not given. So the example above is the same as (assuming the current user is
   `Qz3p2fpvTyeje5As3WDfgQtTCEK2`)
 
 

@@ -1,13 +1,13 @@
 # Defining a Model
 
-Models are defined by a schema, getters and actions. While the schema describes
-which fields the model have, which type they have, if they're required or not,
-actions and getters are optional extensions of the models capabilities.
+Models are defined by a schema, getters, and actions. While the schema describes
+which fields the model has, which type they have, if they're required or not,
+actions and getters are optional extensions of the model's capabilities.
 You may define as many models as your application requires.
 
 To define a model, you have to do the following steps:
 
-1. Create `schema.js` in `src/models` which exports an model definition
+1. Create `schema.js` in `src/models` which exports a model definition
 2. Create a `GenericStore` from the model definition in `src/models/config.js`
 3. Update `rules.bolt` to grant access to the path, where the data is stored
 4. Generate and deploy security rules
@@ -19,7 +19,7 @@ There are two ways to create a new model:
 
 ### Automatically creating a new model
 
-First create a new model with the CLI tool
+First, create a new model with the CLI tool
 
 ```bash
 helios gen-model <mymodel>
@@ -29,13 +29,13 @@ next edit `src/models/<mymodel>/schema.js`.
 
 ### Manually creating a new model
 
-First create a new folder for the model definition:
+First, create a new folder for the model definition:
 
 ```bash
 mkdir -p src/models/example/
 ```
 
-Then add a `index.js`:
+Then add an `index.js`:
 
 ```js
 // file: src/models/example/index.js
@@ -85,7 +85,7 @@ placeholder which can be set with `with({ userId: ... })`.
 The asterisk `*` is a placeholder for the **primary key**.
 `[DB1]:` is optional and can be used for database sharding.
 If only one database is configured, it can be omitted,
-otherwise it refers to the identifier of the database as
+otherwise, it refers to the identifier of the database as
 configured when setting up heliosRX with `Vue.use(heliosRX, { ... })`.
 
 The second argument is the model definition as defined in the previous section.

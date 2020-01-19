@@ -67,18 +67,18 @@ JSON-like structure.
 
 ## When should I use heliosRX?
 
-If your using Firebase as your backend and if you're building an SPA that
-is a little bit more complex then a simple todo list, then heliosRX is
+If your using Firebase as your backend and if you're building a SPA that
+is a little bit more complex then a simple to-do list, then heliosRX is
 probably very useful for you. Some benefits of using heliosRX over
 just Firebase Client API are:
 
 - ➡️ Easy, straight forward API based on model definitions/schemata
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
-- ➡️ Automatically generate Security Rules based on schema
+- ➡️ Automatically generate Security Rules based on schemata
 - ➡️ Allows easy sorting of objects
 - ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ Additional layer of abstraction and therefor less vendor lock-in
+- ➡️ Additional layer of abstraction and therefore less vendor lock-in
 - ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
 - ➡️ Write significantly less code
 
@@ -115,7 +115,7 @@ yarn add -g bolt-compiler
 ## Configuration
 
 Before you can start using heliosRX, you have to configure Firebase and heliosRX.
-Usually this should be very simple.
+Usually, this should be very simple.
 
 ### Configure Firebase Realtime Database
 
@@ -157,7 +157,7 @@ which is why we're exporting it here.
 
 ### Create folder structure and configuration files
 
-Next create the following folder structure:
+Next, create the following folder structure:
 
 ```
 └── rules
@@ -200,7 +200,7 @@ new Vue({
 
 ## Quickstart
 
-This is an example for a simple To-Do App:
+This is an example on a simple To-Do App:
 
 - [Demo](https://heliosrx-demo1.web.app/)
 
@@ -281,7 +281,7 @@ type Task {
 ...
 ```
 
-## Documention
+## Documentation
 
 - **[Full Documentation](https://heliosrx.github.io)**
 
@@ -302,7 +302,7 @@ Run `npx gulp api` which will build the documentation files and place them in th
 
 ## Pull request
 
-I'd be happy to review any pull requests that may better the heliosRX project, in particular if you have a bug fix, enhancement, or a new shape (see src/shapes for examples). Before doing so, please first make sure that all of the tests pass (gulp lint test).
+I'd be happy to review any pull requests that may better the heliosRX project, in particular, if you have a bug fix or enhancement. Before doing so, please first make sure that all of the tests pass (yarn test).
 
 ## License
 

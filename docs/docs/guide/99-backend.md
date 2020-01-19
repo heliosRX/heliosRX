@@ -2,4 +2,4 @@
 
 - Compile
 - Shims / Fakes
-- Connect Admin SDK vs. Client SDK (pro's and con's)
+- Connect Admin SDK vs. Client SDK (pros and cons)

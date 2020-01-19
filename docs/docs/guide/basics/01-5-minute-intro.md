@@ -10,13 +10,13 @@ A working demo of what we're going to build can be found here:
 :::
 
 Before you start, you probably want to create a new Firebase project in the
-[Firebase console](https://console.firebase.google.com/). Also go to `Database`
+[Firebase console](https://console.firebase.google.com/). Also, go to `Database`
 and create a new *Realtime Database* with "Start in **production mode**" security rules. before you start please consult the [configuration guide](../03-configuration)
 in order to setup heliosRX and Firebase.
 
 ## Step 1: Create a Model
 
-First let's create a new model in `src/models/task/` for tasks:
+First, let's create a new model in `src/models/task/` for tasks:
 
 ```touch
 mkdir -p src/models/task
@@ -25,7 +25,7 @@ touch src/models/task/index.js
 ```
 
 The model has three fields. A `title`, a creation date `createdAt` and a flag
-`isDone` that indicates wether the task is finished or not. Let's create a
+`isDone` that indicates whether the task is finished or not. Let's create a
 model definition first:
 
 ```js
@@ -51,10 +51,10 @@ export default {
 ```
 
 This defines a model with a required field `title` and two optional fields.
-Next we create a `GenericStore`, which gives us access to data stored in
-realtime db through a object oriented interface. A `GenericStore` serves
+Next, we create a `GenericStore`, which gives us access to data stored in
+realtime DB through a object-oriented interface. A `GenericStore` serves
 as a factory class, that will spawn model instances and lists of model models
-instances. More an that later. First edit `src/models/config.js` like this:
+instances. More on that later. First, edit `src/models/config.js` like this:
 
 ```js
 // file: src/models/config.js
@@ -77,7 +77,7 @@ data to realtime database it should correspond to something like this:
 
 ![Screenshot Firebase 1](./img/screenshot-firebase-01.png)
 
-Next we create a security rule `db/rules/rules.bolt` that allow everybody read and write access to the path:
+Next, we create a security rule `db/rules/rules.bolt` that allow everybody read and write access to the path:
 
 ```
 // file: db/rules/rules.bolt
@@ -99,8 +99,8 @@ otherwise the whole internet can read and write to your project. Probably not wa
 :::
 
 If you're not familiar with this, this is the [bolt syntax](https://github.com/FirebaseExtended/bolt).
-heliosRX automatically generate bolt files, which are compiled to security rules
-using the `bolt-compiler`. Lean more [here](./01-intro).
+heliosRX automatically generates bolt files, which are compiled to security rules
+using the `bolt-compiler`. Learn more [here](./01-intro).
 
 Now let's also add a `create` function, which (if present) will set default values,
 when a new instance of this model is created:
@@ -131,7 +131,7 @@ If we forget to provide it when creating a new task instance, we'll get an error
 `moment.currentTimeServer` is a helper function that creates a special field,
 which will be replaced with the current timestamp on the server.
 
-Next we generate and deploy the security rules. heliosRX will automatically
+Next, we generate and deploy the security rules. heliosRX will automatically
 generate a `.bolt` file for every model and merge it with `rules.bolt` into
 `/database.bolt` which is then compiled to `/database.json`.
 
@@ -158,7 +158,7 @@ You might want to add a few aliases to your `package.json`
 
 Create a new `.vue` component anywhere you want. Let's have a look at how we
 can use the model to fetch data or subscribe to data (keep data synced, when
-it changes on the server). First, let's look at a example, where we are
+it changes on the server). First, let's look at an example, where we are
 syncing all data in `/tasks/*` as a list of `GenericModels`:
 
 ```js
@@ -223,7 +223,7 @@ export default {
 This will automatically re-render the template if the data changes on the server.
 `GenricList` and `GenericModel` are fully reactive. Another reactive
 "magic property" that `GenericModel` provides is `$ready` which will become
-`true` as soon as the data is loaded and the pushe to the local state.
+`true` as soon as the data is loaded and then pushed to the local state.
 
 If you're not interested in subsequent updates and only want to fetch the data
 once, you can use ```fetchList``` and ```fetchNode``` with the exact same syntax.
@@ -231,10 +231,10 @@ once, you can use ```fetchList``` and ```fetchNode``` with the exact same syntax
 ## Step 3: Write data
 
 Ok, we now know how to subscribe to data and render it, in other words how
-information flows from the server to the client. Next we have a look how data
+information flows from the server to the client. Next, we have a look at how data
 flows in the opposite direction.
 
-First let's create a new task. The easiest way to do so is by calling the `add`
+First, let's create a new task. The easiest way to do so is by calling the `add`
 method of the GenericStore.
 
 ```js
@@ -267,8 +267,8 @@ then write it to the database.
 
 ::: tip
 Firebase (and heliosRX) will update the local state in the client. This means
-that the template will update and show the new data. However if the data can
-not be written, for example because the client does not have permission.
+that the template will update and show the new data. However, if the data can
+not be written, for example, because the client does not have permission.
 Firebase will trigger a second local state update which basically reverses
 the initial change.
 
@@ -305,7 +305,7 @@ export default {
 ```
 
 This is especially useful, when the component has a modal / form characteristics.
-Also heliosRX will provide client side validation:
+Also heliosRX will provide client-side validation:
 
 ```js
 <template>
@@ -361,23 +361,22 @@ ex.$promise.then(() => {
 })
 ```
 
-- heliosRX supports different validation methods, which can be configured. By
-default validations are derived from the datatype, but additional validation
+- heliosRX supports different validation methods, which can be configured. By default, validations are derived from the data type, but additional validation
 rules can be configured (e.g. "string must not exceed 30 characters").
 
-- heliosRX automatically convert all datatypes containing `"Timeststamp"` to
+- heliosRX automatically convert all data types containing `"Timestamp"` to
 [moment objects](http://momentjs.com/), also whenever a field is set to a
 moment object it will automatically convert it to a timestamp. This makes dealing
 with timestamps very convenient compared to standard firebase.
 
-- In development mode you can access `$models` and `$api` in the console. This
+- In development mode, you can access `$models` and `$api` in the console. This
 gives you a pretty powerful tool to change data from your browser.
 
 - `GenericModel`'s provide many other useful "magic properties", such as `$dirty` for all fields that have been changed by the user or `$noaccess`, which will be
 set to `true` if the client does not have access to the requested data.
 
 - heliosRX does NOT automatically infer local validation rules from firebase
- server validation rules, however both client and server rules can be defined
+ server validation rules, however, both client and server rules can be defined
  in ONE PLACE, which makes it very easy to ensure consistency between server and client.
 
 - One of the strengths of heliosRX is dealing with **nested data**. We didn't cover

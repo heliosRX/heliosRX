@@ -12,6 +12,7 @@
 [ ] bolt_validation_type -> type [15min]
 [ ] Merge request awesome list [30min]
 [ ] Annoucement Blog Post [1h]
+[ ] include src in package
 
 [X] Describe uid handling in docs, include in example
 [X] Split into helios cli (global) and helios

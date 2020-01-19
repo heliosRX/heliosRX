@@ -2,7 +2,7 @@
 
 ## Setup Frontend
 
-heliosRX can in integrated as as Vue-Plugin:
+heliosRX can be used as a Vue plugin:
 
 ```js
 import Vue from 'vue'
@@ -84,7 +84,7 @@ interface (`this.$api`).
 heliosRX can use an existing Vuex store for state management. If no existing store is provided,
 helios will create a new Vuex store. Having two stores is also usually not a problem, although
 not recommended according to the Vuex documentation. <!-- ??? -->
-However they only good reasons I can come up with, why you shouldn't not do that, is that
+However, the only good reason I can come up with, why you shouldn't do that, is that
 the Vue Dev tools don't support multiple Vuex stores.
 
 <!--

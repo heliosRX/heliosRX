@@ -104,7 +104,7 @@ and adding type defintions to this file. Learn more about the bolt model languag
 
 - **`validate: function`**
 
-A validation function used for client side validation.
+A validation function used for client-side validation.
 
 ### required (optional)
 

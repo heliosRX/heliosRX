@@ -1,41 +1,5 @@
 # Installation
 
-::: warning Preview version
-
-**Please use this version fow now** (@sc85)
-```bash
-yarn add https://github.com/tw00/heliosrx-private.git
-```
-instead of `yarn add heliosrx`.
-
-The CLI **can not** be installed directly, because it's a subdirectory. Please do this instead:
-```bash
-git clone https://github.com/tw00/heliosrx-private.git ~/heliosRX
-
-cd ~/heliosRX/packages/cli  # Go to CLI directory
-yarn link                   # Register package globally as "linkable",
-                            # See "ls -l ~/.config/yarn/link"
-yarn global add .           # Install CLI package globally
-helios --version            # Should display '0.2.0'
-```
-
-For developers it makes sense to also link heliosRX itself:
-
-```bash
-cd ~/heliosRX               # Go to heliosRX repository
-yarn link                   # Register package globally as "linkable"
-cd ~/my-helios-project      # Go to your project
-yarn add ~/heliosRX         # OPTIONAL: If heliosrx is not in package.json yet,
-                            # add from file ("yarn add heliosrx" is fine too)
-yarn link heliosrx          # Link to global package
-                            # (Check with "ls -l ./node_modules/heliosrx")
-
-# Optionally add CLI as devDependency
-yarn add --dev ~/heliosRX/packages/cli
-yarn link heliosrx-cli
-```
-:::
-
 ::: tip
 If you haven't already done so, create a new vue project with `vue create`.
 ```bash
@@ -117,3 +81,53 @@ TODO
 TODO
 how to install helios cli globally
 -->
+
+### Developer installation
+
+::: warning Developer version
+
+<!--
+**Please use this version fow now** (@sc85)
+# yarn add https://github.com/tw00/heliosrx-private.git
+# git clone https://github.com/tw00/heliosrx-private.git ~/heliosRX
+yarn add https://github.com/heliosRX/heliosRX.git
+First install heliosRX with instead of `yarn add heliosrx`.
+-->
+
+**If you plan to make changes to heliosRX, consider installing it locally.**
+
+First clone the heliosRX repository with:
+
+```bash
+git clone https://github.com/heliosRX/heliosRX.git ~/heliosRX
+```
+
+For development it makes sense to link heliosRX:
+
+```bash
+cd ~/heliosRX               # Go to heliosRX repository
+yarn link                   # Register package globally as "linkable"
+cd ~/my-helios-project      # Go to your project
+yarn add ~/heliosRX         # OPTIONAL: If heliosrx is not in package.json yet,
+                            # add from file ("yarn add heliosrx" is fine too)
+yarn link heliosrx          # Link to global package
+                            # (Check with "ls -l ./node_modules/heliosrx")
+```
+
+The CLI **can not** be installed directly, because it's a subdirectory. Please do this instead:
+
+```bash
+cd ~/heliosRX/packages/cli  # Go to CLI directory
+yarn link                   # Register package globally as "linkable",
+                            # See "ls -l ~/.config/yarn/link"
+yarn global add .           # Install CLI package globally
+helios --version            # Should display '0.2.0'
+```
+
+Optionally add CLI as devDependency
+
+```bash
+yarn add --dev ~/heliosRX/packages/cli
+yarn link heliosrx-cli
+```
+:::

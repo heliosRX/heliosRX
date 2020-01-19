@@ -40,10 +40,3 @@ jobs:
         ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         PUBLISH_BRANCH: master
         PUBLISH_DIR: docs/docs/.vuepress/dist
-
-    #   uses: JamesIves/github-pages-deploy-action@master
-    #   env:
-    #     ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-    #     BRANCH: gh-pages
-    #     FOLDER: .vuepress/dist
-    #     BUILD_SCRIPT: npm install && npm run docs

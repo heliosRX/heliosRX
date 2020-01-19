@@ -22,10 +22,13 @@ jobs:
     - name: Cache dependencies
       uses: actions/cache@v1
       with:
-        path: ~/.npm
+        path: ~/docs/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
+
+    - name: Install
+      run: cd docs && npm install
 
     - name: Build
       run: npm run docs
@@ -38,3 +41,9 @@ jobs:
         PUBLISH_BRANCH: master
         PUBLISH_DIR: docs/.vuepress/dist
 
+    #   uses: JamesIves/github-pages-deploy-action@master
+    #   env:
+    #     ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    #     BRANCH: gh-pages
+    #     FOLDER: .vuepress/dist
+    #     BUILD_SCRIPT: npm install && npm run docs

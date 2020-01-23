@@ -463,7 +463,7 @@ export default class GenericStore {
   }
 
   /**
-   * get parentRef - Returns reference to a specific child of the collection
+   * childRef(id) - Returns reference to a specific child of the collection
    */
   childRef(id) {
     /* replace {id} with id */

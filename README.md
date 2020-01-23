@@ -71,7 +71,7 @@ JSON-like structure.
 
 ## When should I use heliosRX?
 
-If your using Firebase as your backend and if you're building a SPA that
+If you're using Firebase as your backend and if you're building a SPA that
 is a little bit more complex then a simple to-do list, then heliosRX is
 probably very useful for you. Some benefits of using heliosRX over
 just Firebase Client API are:

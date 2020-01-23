@@ -113,7 +113,7 @@ export function rtdbBindAsArray ({ collection, ops, resolve, reject }) {
     reject
   )
 
-  const childMoved = collection.on( // ACHTUNG: Das wird auch für orderByChild genutzt
+  const childMoved = collection.on( // ATTENTION: This is also used for orderByChild
     'child_moved',
     (snapshot, prevKey) => {
       // const index = indexForKey(target, snapshot.key)

@@ -1,19 +1,17 @@
 # heliosRX 1.0
 
-[ ] Clean up / go through all files [1h]
-[ ] Doppelte Modelle package/ui/src/models* [15min]
+[ ] Dublicated models in package/ui/src/models* [15min]
 [ ] attachTimezoneWatcher [15min]
-[ ] store mutations einheitlich [15min]
-[ ] GenericStoreDoc löschen [5min]
+[ ] store mutations unified [15min]
+[ ] delete GenericStoreDoc [5min]
 [ ] Disalbe Debug output (optionally) [15min]
 [ ] README.md [15min]
 [ ] Go throught entire documentation [30min]
-[ ] Bundle and release on npm (+cli) [30min]
 [ ] bolt_validation_type -> type [15min]
-[ ] Merge request awesome list [30min]
-[ ] Annoucement Blog Post [1h]
-[ ] include src in package
 
+[X] Clean up / go through all files [1h]
+[X] include src in package
+[X] Bundle and release on npm (+cli) [30min]
 [X] Describe uid handling in docs, include in example
 [X] Split into helios cli (global) and helios
 
@@ -23,6 +21,9 @@
 [ ] Advanced examples
 
 # heliosRX 2.0
+
+[ ] Remove Vuex! Why not store stuff directly in models? This might also take
+    care of auto-unsubscribe
 
 [ ] Redesign API (simplify / more concsistent)
 [ ] Rewrite Import system (with CLI/backend in mind)

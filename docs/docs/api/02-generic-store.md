@@ -25,7 +25,7 @@ const post = new GenericStore(
 
 - type: `string`
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -33,7 +33,7 @@ This section is still a work in progress. It will be updated soon.
 
 - type: `Object (ModelDefinition)`
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -41,7 +41,7 @@ This section is still a work in progress. It will be updated soon.
 
 - type: `Object`
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -511,7 +511,7 @@ _convert_moment_objects( payload )
 ### subscribeList
 - **`subscribeList( <idList: array<string>> <, option:object>) ⇒ GenericList`**
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -534,7 +534,7 @@ $models.example.subscribeList(idList = [], {
 ### subscribeNode
 - **`subscribeNode( <id: string> <, option:object>) ⇒ GenericModel`**
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -642,7 +642,7 @@ let obj = $models.example.getData('234')
 ### exists
 - **`exists( <id:string> ) ⇒ boolean`**
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -653,14 +653,14 @@ exists(id = null)
 ### getRegistryState
 - **`getRegistryState() => object`**
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
 ### getAllSyncedPaths
 - **`getAllSyncedPaths() => object<string:string>`**
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 

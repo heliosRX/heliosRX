@@ -13,7 +13,7 @@ Vue.use(heliosRX, {
   // Object that contains all generic stores
   models: <Models>,
 
-  // Realtime Databse instance
+  // Realtime Database instance
   db: <Database>,
 
   // Disable / Enable development mode
@@ -40,7 +40,7 @@ Object that contains all generic stores
 }
 ```
 
-### Realtime Databse instance (`db`)
+### Realtime Database instance (`db`)
 
 - **db:** `Object { string: Database } | Database`
 
@@ -108,7 +108,7 @@ const db = heliosRX.setup({
 
 ## Setup Backend (Node.js)
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -123,7 +123,7 @@ heliosRX.setup({
   //
   firebaseApp: null | <FirebaseApp>,
 
-  // Realtime Databse instance
+  // Realtime Database instance
   db: <Database>,
 
   // Disable / Enable development mode

@@ -106,7 +106,7 @@ import "firebase/database";
 const firebaseConfig = {
   apiKey:            "<YOUR API KEY>",
   authDomain:        "<YOUR AUTH DOMAIN>",
-  databaseURL:       "<YOUR DATABSE URL>",
+  databaseURL:       "<YOUR DATABASE URL>",
   projectId:         "<YOUR PROJECT ID>",
   storageBucket:     "<YOUR STORAGE BUCKET>",
   messagingSenderId: "<YOUR MESSAING SENDER ID>",

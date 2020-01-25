@@ -122,18 +122,18 @@ If the schema is defined as an object, it will be ignored.
 
 ## Store Getters and Actions
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
 ## Model Getters and Actions
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
 ## List Getters and actions
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::

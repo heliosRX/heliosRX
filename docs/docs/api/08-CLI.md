@@ -20,7 +20,7 @@ Commands:
 
 ## helios init
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::
 
@@ -68,6 +68,6 @@ You might want to add a few aliases to your `package.json`
 
 ## helios gen-model
 
-::: warning Work in Progress (11/1/2019)
+::: warning Work in Progress (20/1/2020)
 This section is still a work in progress. It will be updated soon.
 :::

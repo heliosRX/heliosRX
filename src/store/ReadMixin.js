@@ -795,8 +795,8 @@ export default {
           _resultInstanceCache.set(child_entry_name, item)
         }
       },
-      init: (data) => {
-        log1(this.name, "subscribeList:init", data)
+      init: () => {
+        log1(this.name, "subscribeList:init")
         return {}
       },
       remove: (target, oldId) => {

@@ -9,6 +9,12 @@ export default {
   shard() {
     return 'DB1'
   },
+  rules: `
+    // read() { isSignedIn() }
+    // write() { isSignedIn() }
+    read() { true }
+    write() { true }
+  `,
   fields: {
     title:     { validate_bolt_type: 'String', required: true },
     createdAt: { validate_bolt_type: 'ServerTimestamp' },

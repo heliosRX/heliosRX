@@ -17,16 +17,13 @@ then
   VERSION=$VERSION npm run build
 
   # check if there is uncommitted changes
-  set +e
-  git diff-index --quiet HEAD --
-  if [[ $? -eq 1 ]]
+  if [[ $( git diff-index HEAD | grep -v "dist/" | wc -c ) -ne 0 ]]
   then
     echo
     echo
     echo "Uncommited changes!"
     exit
   fi
-  set -e
 
   # set version
   npm version $VERSION --message "[release] $VERSION"

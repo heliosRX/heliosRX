@@ -167,6 +167,11 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
+  get $exists() {
+    return this.$state[ '.exists' ] !== false;
+  }
+
+  // ---------------------------------------------------------------------------
   autogenerate_props( schema, data, is_dirty = false ) { // TODO: move to util
 
     if ( !Array.isArray( schema ) ) {

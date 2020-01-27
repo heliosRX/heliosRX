@@ -163,7 +163,7 @@ export default class GenericStore {
       */
 
       this.isSuffixed = ( templatePath.indexOf('*') !== templatePath.length - 1 );
-        // this.isSuffixed = this.path.substr(-1) !== '*';
+      // this.isSuffixed = this.path.substr(-1) !== '*';
 
       if ( isFunction( options.uidMethod ) ) {
         this.uidMethod = UIDMethod.CUSTOM;
@@ -173,7 +173,9 @@ export default class GenericStore {
       }
       this.additionalProps = options.additionalProps || [];
 
-      this.defaultDeleteMode = options.defaultDeleteMode || DeleteMode.HARD;
+      this.defaultDeleteMode = 'defaultDeleteMode' in options
+        ? options.defaultDeleteMode
+        : DeleteMode.HARD;
     }
 
     this.enableTypeValidation = 'enableTypeValidation' in options

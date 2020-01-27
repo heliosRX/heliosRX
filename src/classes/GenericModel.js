@@ -205,7 +205,7 @@ export default class GenericModel {
 
       if ( propName.includes('/') || propName.includes('.') ) {
         prop_path = propName.replace(/\//g, '.')
-        let prop_keys = propName.split('/')
+        let prop_keys = prop_path.split('.')
         let prop_last_key = prop_keys.pop()
         prop_keys = prop_keys.join('.')
 
@@ -351,7 +351,7 @@ export default class GenericModel {
     }
 
     let is_update = true;
-    let temp_id  = this.$id;
+    let temp_id = this.$id;
     if ( !temp_id ) {
       temp_id = model._get_uid();
       is_update = false;

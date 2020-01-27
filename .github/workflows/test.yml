@@ -1,5 +1,13 @@
 name: CI
-on: [push]
+
+on:
+  push:
+    paths:
+    - 'src/**'
+    - 'tests/**'
+    branches:
+    - master
+
 jobs:
   build:
     name: Test

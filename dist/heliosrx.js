@@ -14,15 +14,39 @@
 
   function isValidId( id ) {
     // length slugid = 22, length pushid = 20
-    return this.isString( id ) && id.length && id.length >= 20;
+    return isString( id ) && id.length && id.length >= 20;
+  }
+
+  function isString (obj) {
+    return (Object.prototype.toString.call(obj) === '[object String]');
+  }
+
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  }
+
+  function isValue(v) {
+    return /* !isNaN(v) && */ v !== undefined && v !== null
   }
 
   function isFunction(f) {
     return (typeof f === "function");
   }
 
+  function isObject(o) {
+    return typeof o === 'object' && o !== null;
+  }
+
+  function isArray(a) {
+    return Array.isArray( a );
+  }
+
   function matchUserInputDuration(str) {
     return null // TODO
+  }
+
+  function isBoolean(v) {
+    return v === true || v === false;
   }
 
   var firebase = {
@@ -574,7 +598,7 @@
           data = { '.exists': false };
         }
 
-        ops.set( target, data );
+        ops.set( target, data ); // Pass exists?
         resolve( data ); // Only one argument allowed!
       }, function (err) {
         if ( err ) {
@@ -602,7 +626,7 @@
     // TODO: Handle snapshot.exists
 
     collection.once('value', function (snapshot) {
-      ops.once(target, snapshot.val(), snapshot.exists());
+      ops.once(target, snapshot.val(), snapshot.exists()); // unused!
       resolve();
     }, function (err) {
       if ( err ) {
@@ -636,7 +660,7 @@
       reject
     );
 
-    var childMoved = collection.on( // ACHTUNG: Das wird auch für orderByChild genutzt
+    var childMoved = collection.on( // ATTENTION: This is also used for orderByChild
       'child_moved',
       function (snapshot, prevKey) {
         // const index = indexForKey(target, snapshot.key)
@@ -713,6 +737,8 @@
         reactive_list.$readyAll = true;
         reactive_list.$numReady = Object.keys( dataList ).length;
       }
+
+      // TODO: Custom global actions / getters
 
       if ( modelDefinition.listActions ) {
         reactive_list.decorate_actions( modelDefinition.listActions, context );
@@ -2649,7 +2675,7 @@
    * @param {any} o
    * @returns {boolean}
    */
-  function isObject (o) {
+  function isObject$1 (o) {
     return o && typeof o === 'object' && !Array.isArray(o);
   }
 
@@ -2768,10 +2794,10 @@
       var target_is_object = null;
       var source_is_object = null;
       if (target) {
-        target_is_object = isObject(target[ prop ]);
+        target_is_object = isObject$1(target[ prop ]);
       }
       if (data) {
-        source_is_object = isObject(data[ prop ]);
+        source_is_object = isObject$1(data[ prop ]);
       }
 
       if ( target_is_object && source_is_object ) {
@@ -2848,13 +2874,14 @@
     this.$idx       = null;
     this.$noaccess  = null;
     this._store_name= name;
+    // this._validation_behaviour = 'WARNING';
 
     _Vue.observable( this.$state ); // TODO: Check if we get an error here
     // Vue.observable( this.$ready );
     // this.$state = Vue.oberservable({});
   };
 
-  var prototypeAccessors = { $key: { configurable: true },$vm: { configurable: true },$model: { configurable: true } };
+  var prototypeAccessors = { $key: { configurable: true },$vm: { configurable: true },$model: { configurable: true },$exists: { configurable: true } };
 
   // ---------------------------------------------------------------------------
   GenericModel.prototype._update_data = function _update_data ( data, schema, make_dirty ) {
@@ -2924,7 +2951,7 @@
       return
     }
 
-    if ( !field.validate ) {
+    if ( !field.validator ) {
       /* No validate callback found */
 
       /* Fixes bug where non existing fields are assigned */
@@ -2936,7 +2963,9 @@
       return
     }
 
-    if ( field.validate( value ) ) {
+    // TODO: bolt type validation
+
+    if ( field.validator( value ) ) {
       // this._write_field( propName, value );
       // this.$state[ propName ] = value;
       delete this.$invalid[ propName ];
@@ -2986,6 +3015,11 @@
   };
 
   // ---------------------------------------------------------------------------
+  prototypeAccessors.$exists.get = function () {
+    return this.$state[ '.exists' ] !== false;
+  };
+
+  // ---------------------------------------------------------------------------
   GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema, data, is_dirty ) {
       var this$1 = this;
       if ( is_dirty === void 0 ) is_dirty = false;
@@ -3022,7 +3056,7 @@
 
       if ( propName.includes('/') || propName.includes('.') ) {
         prop_path = propName.replace(/\//g, '.');
-        var prop_keys = propName.split('/');
+        var prop_keys = prop_path.split('.');
         var prop_last_key = prop_keys.pop();
         prop_keys = prop_keys.join('.');
 
@@ -3174,7 +3208,7 @@
     }
 
     var is_update = true;
-    var temp_id= this.$id;
+    var temp_id = this.$id;
     if ( !temp_id ) {
       temp_id = model._get_uid();
       is_update = false;
@@ -3198,7 +3232,7 @@
   };
 
   /* ------------------------------------------------------------------------ */
-  GenericModel.prototype._get_modal_for_write = function _get_modal_for_write () {
+  GenericModel.prototype._get_model_for_write = function _get_model_for_write () {
     if ( !this.$id ) {
       throw new Error('Write operations are not allowed for new models.');
     }
@@ -3214,7 +3248,7 @@
   GenericModel.prototype.update = function update ( payload ) {
       var this$1 = this;
 
-    var model = this._get_modal_for_write();
+    var model = this._get_model_for_write();
     return model.update( this.$id, payload ).then(function () {
       for ( var propName in payload ) {
         delete this$1.$dirty[ propName ];
@@ -3228,7 +3262,7 @@
       var this$1 = this;
       if ( soft_delete === void 0 ) soft_delete = true;
 
-    var model = this._get_modal_for_write();
+    var model = this._get_model_for_write();
     return model.remove( this.$id, soft_delete ).then(function () {
       if ( soft_delete ) {
         delete this$1.$dirty[ 'deleted' ]; // ?
@@ -3241,7 +3275,7 @@
   GenericModel.prototype.restore = function restore () {
       var this$1 = this;
 
-    var model = this._get_modal_for_write();
+    var model = this._get_model_for_write();
     return model.restore( this.$id ).then(function () {
       delete this$1.$dirty[ 'deleted' ]; // ?
     })
@@ -3317,7 +3351,7 @@
   GenericList.prototype._add_child = function _add_child ( id, child ) {
     // TODO: Check if this.items is an array
     this.$readySome = true;
-    this.$lastUpdate = Date.now();
+    this.$lastUpdate = Date.now(); // ???
     _Vue.set( this.items, id, child );
     this.$numChildren += 1;
     this.items[ id ].$idx = this.$numChildren;
@@ -4294,7 +4328,7 @@
           return list;
         } else {
           // TODO: This warning should also show, when using subscribeList to return a cached node
-          console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() instead! Sync path:", entry_name);
+          console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
         }
       }
 
@@ -4380,7 +4414,7 @@
             _resultInstanceCache.set(child_entry_name, item);
           }
         },
-        init: function (data) {
+        init: function () {
           log1(this$1.name);
           return {}
         },
@@ -4771,7 +4805,7 @@
       */
 
       var customOps = {
-        init: function (data) {
+        init: function () {
           log3(this$1.name);
           return {}
         },
@@ -7530,7 +7564,7 @@
       */
 
       this.isSuffixed = ( templatePath.indexOf('*') !== templatePath.length - 1 );
-        // this.isSuffixed = this.path.substr(-1) !== '*';
+      // this.isSuffixed = this.path.substr(-1) !== '*';
 
       if ( isFunction( options.uidMethod ) ) {
         this.uidMethod = UIDMethod.CUSTOM;
@@ -7540,8 +7574,14 @@
       }
       this.additionalProps = options.additionalProps || [];
 
-      this.defaultDeleteMode = options.defaultDeleteMode || DeleteMode.HARD;
+      this.defaultDeleteMode = 'defaultDeleteMode' in options
+        ? options.defaultDeleteMode
+        : DeleteMode.HARD;
     }
+
+    this.enableTypeValidation = 'enableTypeValidation' in options
+      ? options.enableTypeValidation
+      : true;
 
     this.isReadonly = options.isReadonly;
     this.templatePath = templatePath;
@@ -7839,7 +7879,7 @@
   };
 
   /**
-   * get parentRef - Returns reference to a specific child of the collection
+   * childRef(id) - Returns reference to a specific child of the collection
    */
   GenericStore.prototype.childRef = function childRef (id) {
     /* replace {id} with id */
@@ -8038,6 +8078,10 @@
         */
       }
 
+      // Regexes to match special bolt types
+      var mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
+      var typeRegex = /(?<val>\w+)\s*\[\]/;
+
       /* Check 2: Are provided fields within schema? */
       var allowed_field_names = this.schema_all_fields;
       var allowed_field_regex = [];
@@ -8054,12 +8098,26 @@
           }
           return ( obj = {}, obj[k] = this$1._schema_fields[i], obj )
         }));
+
+        Object.keys(allowed_field_map).forEach(function (key, i) {
+
+          var type = allowed_field_map[ key ].validate_bolt_type || '';
+
+          if ( mapRegex.test( type ) ) {
+            // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
+            var regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
+            allowed_field_regex.push( regex );
+            allowed_field_map[ regex ] = this$1._schema_fields[i];
+          }
+        });
       }
+
+      // TODO: Cache everything above this point
 
       Object.keys( data ).forEach(function (key) {
 
         var matchedRegex = allowed_field_regex.find(function (regex) {
-          var flags = 'u'; // Unicode
+          var flags = regex.includes('\\u00') ? '' : 'u'; // Unicode
           var rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags );
           return rx.test( key )
         });
@@ -8069,23 +8127,109 @@
         }
 
         /* Check 3: Execute validator if present */
-        var field = allowed_field_map[ matchedRegex || key ];
+        var field = allowed_field_map[ matchedRegex || key ]; // WHY?
         if ( field.validator ) {
+
+          // TODO: Try-catch
           // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
           var result = field.validator(
             /* value */ data[ key ],
             /* field */ field,
             /* model */ null
           );
-          if ( !result || ( result.length && result.length === 0 ) ) {
-            throw new Error('Schema validation failed for key <' + key + '> with error: ' + result)
-          }
 
-          // TODO: Also check validate_bolt_type
+          if ( !result || ( result.length && result.length === 0 ) ) {
+            throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
+          }
+        }
+
+        if ( this$1.enableTypeValidation ) {
+
+          // TODO: Also support Generic types (MyTime<A,B>)
+
+          var type_list = (field.validate_bolt_type || "").split("|");
+          var check = type_list.some(function (typeRaw) {
+
+            var type = typeRaw.trim();
+            var typeInfo = {};
+
+            if ( typeRegex.test( type ) ) {
+              typeInfo = typeRegex.exec( type ).groups;
+              type = 'Array';
+            }
+
+            if ( mapRegex.test( type ) ) {
+              typeInfo = mapRegex.exec( type ).groups;
+              type = 'Map';
+            }
+
+            return this$1._validate_bolt_type(
+              data[ key ],
+              type,
+              typeInfo
+            );
+          });
+
+          if ( !check ) {
+            throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
+          }
         }
       });
     } else {
+      // TODO: REMOVE
       throw new Error('No schema found for "' + this.name + '", please provide one.')
+    }
+  };
+
+  /**
+   * _validate_bolt_type - Returns true if the value is a valid type of a give type
+   *
+   * @return {boolean} is value of type 'type'?
+   */
+  GenericStore.prototype._validate_bolt_type = function _validate_bolt_type ( value, type, typeInfo ) {
+      var this$1 = this;
+      if ( typeInfo === void 0 ) typeInfo = {};
+
+    switch ( type.toLowerCase() ) {
+      case 'string':return isString( value );
+      case 'number':return isNumeric( value );
+      case 'boolean': return isBoolean( value );
+      case 'object':return isValue( value ) && isObject( value ) && !isArray( value );
+      case 'any':   return isValue( value );
+      case 'null':  return value === null;
+      case 'map':
+        // Map<Key, Value> -> Map + { key, val }
+        return isObject( value )
+          && !isArray( value )
+          && Object.entries( value ).every(function (ref) {
+              var k = ref[0];
+              var v = ref[1];
+
+
+            // JS-Array keys are always strings!
+            var hasValidKey = isString( k );
+            var hasValidValue = this$1._validate_bolt_type( v, typeInfo.val );
+            // let hasValidKey = this._validate_bolt_type( k, typeInfo.key );
+
+            return hasValidKey && hasValidValue;
+          });
+      case 'array':
+        // Type[] = Map<Number, Type>
+        var entries = [];
+        if ( isArray( value ) ) {
+          entries = value;
+        } else if ( isObject( value ) ) {
+          entries = Object.values( value );
+        } else {
+          return false;
+        }
+        return entries.every( function (v) {
+          var hasValidType = this$1._validate_bolt_type( v, typeInfo.val );
+          return hasValidType;
+        });
+      default:
+        console.warn("Can not validate type '" + type + "'");
+        return true;
     }
   };
 
@@ -8202,7 +8346,7 @@
       // TODO: Allow to set blur
       rules[ field.model ] = [{
         validator: function (rule, value, callback) {
-          if ( field.validate( value ) ) {
+          if ( field.validator( value ) ) {
             callback();
           } else {
             callback(new Error('Invalid input'));
@@ -8362,6 +8506,18 @@
     return registryModule;
   }
 
+  /*
+  const myPlugin = store => {
+    // called when the store is initialized
+    store.subscribe((mutation, state) => {
+      // called after every mutation.
+      // The mutation comes in the format of `{ type, payload }`.
+    })
+  }
+
+  export default myPlugin;
+  */
+
   // import registrySetup from './registry/setup.js'
   // import api from './api/index.js'
 
@@ -8468,6 +8624,8 @@
 
   // StoreManager
 
+  // TODO: heliosRX v2.0
+
   var StoreManager = {
 
     /*
@@ -8559,6 +8717,11 @@
 
   heliosRX.install = function install () {};
 
+  function setup$3( ) {
+    // TODO: Setup heliosRX without Vue?
+  }
+
+  heliosRX.setup = setup$3;
   heliosRX.version = version;
   heliosRX.install = install;
   heliosRX.getRegistry = getRegistry;

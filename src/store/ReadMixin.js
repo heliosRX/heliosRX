@@ -707,7 +707,7 @@ export default {
         return list;
       } else {
         // TODO: This warning should also show, when using subscribeList to return a cached node
-        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() instead! Sync path:", entry_name);
+        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
       }
     }
 

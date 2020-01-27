@@ -26,7 +26,7 @@ then
   fi
 
   # set version
-  npm version $VERSION --message "[release] $VERSION"
+  npm version $VERSION --force --allow-same-version --message "[release] $VERSION"
 
   # commit
   git add -A package.json ./dist

@@ -36,7 +36,9 @@ then
   git tag -a "v$VERSION" -m "[release] $VERSION"
 
   # publish
-  git push origin refs/tags/v$VERSION
-  git push
+  # git push origin refs/tags/v$VERSION
+  # git push
+  git push github --tags
+  git push github
   npm publish
 fi

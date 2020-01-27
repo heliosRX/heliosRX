@@ -40,6 +40,15 @@ function buildEntry ({ input, output }) {
           output: {
             ascii_only: true
           },
+          mangle: {
+            keep_classnames: true,
+            reserved: [
+              "GenericStore",
+              "GenericList",
+              "GenericModel",
+              "heliosRX",
+            ]
+          },
           compress: {
             // pure_funcs: ['makeMap']
           }

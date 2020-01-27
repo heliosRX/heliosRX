@@ -9,7 +9,7 @@ export function isValidDate(dateString) {
 
 export function isValidId( id ) {
   // length slugid = 22, length pushid = 20
-  return this.isString( id ) && id.length && id.length >= 20;
+  return isString( id ) && id.length && id.length >= 20;
 }
 
 export function isString (obj) {

@@ -3,20 +3,23 @@
 ![heliosRX](./docs/docs/.vuepress/public/helios-rx.png)
 
 <p align="center">
-  <a href="http://badge.fury.io/js/heliosrx" alt="NPM">
-    <img src="https://badge.fury.io/js/heliosrx.svg" />
+  <a href="http://badge.fury.io/js/heliosrx">
+    <img src="https://badge.fury.io/js/heliosrx.svg" alt="NPM" />
   </a>
-  <a href="https://github.com/heliosrx/heliosrx/pulse" alt="Activity">
-    <img src="https://img.shields.io/github/commit-activity/m/heliosrx/heliosrx" />
+  <a href="https://github.com/heliosrx/heliosrx/pulse">
+    <img src="https://img.shields.io/github/commit-activity/m/heliosrx/heliosrx" alt="Activity" />
   </a>
-  <a href="https://github.com/heliosRX/heliosRX/actions?query=workflow%3ACI" alt="CI">
-    <img src="https://github.com/heliosRX/heliosRX/workflows/CI/badge.svg?branch=master" />
+  <a href="https://github.com/heliosRX/heliosRX/actions?query=workflow%3ACI" >
+    <img src="https://github.com/heliosRX/heliosRX/workflows/CI/badge.svg?branch=master" alt="CI" />
   </a>
-  <a href="https://discord.gg/2Hg3eq" alt="Discord">
-    <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" />
+  <a href="https://codecov.io/gh/heliosRX/heliosRX" alt="Codecov">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/gh/heliosrx/heliosrx">
+  </a>
+  <a href="https://discord.gg/2Hg3eq">
+    <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" alt="Discord"/>
   </a>
   <a href="https://twitter.com/intent/follow?screen_name=helios_rx">
-    <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="follow on Twitter">
+    <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="Follow on Twitter">
   </a>
   <!--
   <a href="https://cdnjs.com/libraries/heliosrx" alt="CDNJS">
@@ -33,18 +36,6 @@
   </a>
   <a href="https://github.com/heliosrx/heliosrx/compare/dev...master">
     <img src="https://img.shields.io/github/commits-since/heliosrx/heliosrx/dev?label=commits%20to%20be%20deployed" alt="commits to be deployed">
-  </a>
-  <a href="https://circleci.com/gh/heliosrx/heliosrx/tree/master">
-    <img src="https://img.shields.io/circleci/project/github/heliosrx/heliosrx/master" alt="build status" />
-  </a>
-  <a href="https://circleci.com/gh/heliosrx/daily-tests">
-    <img src="https://img.shields.io/circleci/project/github/heliosrx/daily-tests?label=service%20tests" alt="service-test status">
-  </a>
-  <a href="https://travis-ci.org/heliosrx/heliosrx" alt="Travis CI">
-    <img src="https://travis-ci.org/heliosrx/heliosrx.png" />
-  </a>
-  <a href="https://coveralls.io/github/heliosrx/heliosrx">
-    <img src="https://img.shields.io/coveralls/github/heliosrx/heliosrx" alt="coverage">
   </a>
   <a href="https://lgtm.com/projects/g/heliosrx/heliosrx/alerts/">
     <img src="https://img.shields.io/lgtm/alerts/g/heliosrx/heliosrx" alt="Total alerts"/>

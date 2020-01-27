@@ -21,7 +21,9 @@ then
   git diff-index --quiet HEAD --
   if [[ $? -eq 1 ]]
   then
-    echo "Uncommited changes"
+    echo
+    echo
+    echo "Uncommited changes!"
     exit
   fi
   set -e

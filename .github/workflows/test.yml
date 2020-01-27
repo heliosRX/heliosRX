@@ -6,20 +6,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: borales/actions-yarn@v2.0.0
+      - name: yarn install
+        uses: borales/actions-yarn@v2.0.0
         with:
           cmd: install # will run `yarn install` command
       - name: Install peer dependencies
         run: |
           chmod +x ./tests/prepare-dev.sh
           ./tests/prepare-dev.sh
-      - uses: borales/actions-yarn@v2.0.0
+      - name: Rebuilding firebase
+        run: npm rebuild && npm run prepare --if-present
+      - name: yarn build
+        uses: borales/actions-yarn@v2.0.0
         with:
           cmd: build # will run `yarn build` command
-      - uses: borales/actions-yarn@v2.0.0
+      - name: yarn test
+        uses: borales/actions-yarn@v2.0.0
         with:
           cmd: test # will run `yarn test` command
-      - uses: codecov/codecov-action@v1
+      - name: Coverage
+        uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} #required
           file: ./coverage/clover.xml #optional

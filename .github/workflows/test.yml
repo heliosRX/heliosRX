@@ -12,9 +12,7 @@ jobs:
           node-version: '10'
           registry-url: 'https://registry.npmjs.org'
       - name: yarn install
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: install # will run `yarn install` command
+        run: yarn install
       - name: Install peer dependencies
         run: |
           chmod +x ./tests/prepare-dev.sh
@@ -22,16 +20,12 @@ jobs:
       - name: Rebuilding firebase
         run: npm rebuild && npm run prepare --if-present
       - name: yarn build
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: build # will run `yarn build` command
+        run: yarn build
       - name: yarn test
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: test # will run `yarn test` command
+        run: yarn yarn
       - name: Coverage
         uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} #required
-          file: ./coverage/clover.xml #optional
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/clover.xml
           fail_ci_if_error: false

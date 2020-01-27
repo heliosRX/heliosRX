@@ -22,3 +22,8 @@ jobs:
       - uses: borales/actions-yarn@v2.0.0
         with:
           cmd: test # will run `yarn test` command
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} #required
+          file: ./coverage/clover.xml #optional
+          fail_ci_if_error: false

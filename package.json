@@ -38,7 +38,7 @@
     "build": "npm run build:main",
     "build:main": "node build/build.main.js",
     "lint": "eslint src tests",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:e2e": "node tests/e2e",
     "test:dev": "jest --coverage --watch",
     "test:dev-prepare": "./tests/prepare-dev.sh",

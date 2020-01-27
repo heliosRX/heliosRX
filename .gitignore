@@ -26,6 +26,7 @@ pnpm-debug.log
 /keys/*
 *.key
 *.kdbx
+.cc_token
 
 # Firebase
 firebase-debug.log

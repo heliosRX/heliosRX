@@ -9,6 +9,9 @@
   <a href="https://github.com/heliosrx/heliosrx/pulse" alt="Activity">
     <img src="https://img.shields.io/github/commit-activity/m/heliosrx/heliosrx" />
   </a>
+  <a href="https://github.com/heliosRX/heliosRX/actions?query=workflow%3ACI" alt="CI">
+    <img src="https://github.com/heliosRX/heliosRX/workflows/CI/badge.svg?branch=master" />
+  </a>
   <a href="https://discord.gg/2Hg3eq" alt="Discord">
     <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" />
   </a>

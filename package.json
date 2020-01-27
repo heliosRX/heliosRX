@@ -42,6 +42,7 @@
     "test:e2e": "node tests/e2e",
     "test:dev": "jest --coverage --watch",
     "test:dev-prepare": "./tests/prepare-dev.sh",
+    "test:codecov": "./tests/upload-codecov.sh",
     "release": "bash build/release.sh",
     "stats": "package-size-analyzer ./dist/heliosrx.js"
   },

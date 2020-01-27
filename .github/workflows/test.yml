@@ -22,7 +22,7 @@ jobs:
       - name: yarn build
         run: yarn build
       - name: yarn test
-        run: yarn yarn
+        run: yarn test
       - name: Coverage
         uses: codecov/codecov-action@v1
         with:

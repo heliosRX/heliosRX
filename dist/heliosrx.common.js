@@ -1,5 +1,5 @@
 /**
- * heliosRX v0.2.1
+ * heliosRX v0.2.2
  * (c) 2020 Thomas Weustenfeld
  * @license MIT
  */
@@ -596,7 +596,7 @@ function rtdbBindAsObject (ref) {
         data = { '.exists': false };
       }
 
-      ops.set( target, data ); // Pass exists?
+      ops.set( target, data );
       resolve( data ); // Only one argument allowed!
     }, function (err) {
       if ( err ) {
@@ -624,7 +624,7 @@ function rtdbBindAsArray (ref) {
   // TODO: Handle snapshot.exists
 
   collection.once('value', function (snapshot) {
-    ops.once(target, snapshot.val(), snapshot.exists()); // unused!
+    ops.once(target, snapshot.val(), snapshot.exists());
     resolve();
   }, function (err) {
     if ( err ) {
@@ -735,8 +735,6 @@ var factory = {
       reactive_list.$readyAll = true;
       reactive_list.$numReady = Object.keys( dataList ).length;
     }
-
-    // TODO: Custom global actions / getters
 
     if ( modelDefinition.listActions ) {
       reactive_list.decorate_actions( modelDefinition.listActions, context );
@@ -2872,7 +2870,6 @@ var GenericModel = function GenericModel( schema, data, name ) {
   this.$idx       = null;
   this.$noaccess  = null;
   this._store_name= name;
-  // this._validation_behaviour = 'WARNING';
 
   _Vue.observable( this.$state ); // TODO: Check if we get an error here
   // Vue.observable( this.$ready );
@@ -3349,7 +3346,7 @@ GenericList.prototype._clone = function _clone () {
 GenericList.prototype._add_child = function _add_child ( id, child ) {
   // TODO: Check if this.items is an array
   this.$readySome = true;
-  this.$lastUpdate = Date.now(); // ???
+  this.$lastUpdate = Date.now();
   _Vue.set( this.items, id, child );
   this.$numChildren += 1;
   this.items[ id ].$idx = this.$numChildren;
@@ -8110,8 +8107,6 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
       });
     }
 
-    // TODO: Cache everything above this point
-
     Object.keys( data ).forEach(function (key) {
 
       var matchedRegex = allowed_field_regex.find(function (regex) {
@@ -8125,7 +8120,7 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
       }
 
       /* Check 3: Execute validator if present */
-      var field = allowed_field_map[ matchedRegex || key ]; // WHY?
+      var field = allowed_field_map[ matchedRegex || key ];
       if ( field.validator ) {
 
         // TODO: Try-catch
@@ -8174,7 +8169,6 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
       }
     });
   } else {
-    // TODO: REMOVE
     throw new Error('No schema found for "' + this.name + '", please provide one.')
   }
 };
@@ -8504,18 +8498,6 @@ function setup$2( name ) {
   return registryModule;
 }
 
-/*
-const myPlugin = store => {
-  // called when the store is initialized
-  store.subscribe((mutation, state) => {
-    // called after every mutation.
-    // The mutation comes in the format of `{ type, payload }`.
-  })
-}
-
-export default myPlugin;
-*/
-
 // import registrySetup from './registry/setup.js'
 // import api from './api/index.js'
 
@@ -8622,8 +8604,6 @@ function install (Vue, options) {
 
 // StoreManager
 
-// TODO: heliosRX v2.0
-
 var StoreManager = {
 
   /*
@@ -8709,17 +8689,12 @@ function resetGenericStores( unsubscribe ) {
   for ( var key in stores ) loop( key );
 }
 
-var version = '0.2.1';
+var version = '0.2.2';
 
 var heliosRX = function heliosRX () {};
 
 heliosRX.install = function install () {};
 
-function setup$3( ) {
-  // TODO: Setup heliosRX without Vue?
-}
-
-heliosRX.setup = setup$3;
 heliosRX.version = version;
 heliosRX.install = install;
 heliosRX.getRegistry = getRegistry;

@@ -1,5 +1,5 @@
 /**
- * heliosRX v0.2.1
+ * heliosRX v0.2.2
  * (c) 2020 Thomas Weustenfeld
  * @license MIT
  */
@@ -562,7 +562,7 @@ function rtdbBindAsObject ({ document, ops, resolve, reject }) {
         data = { '.exists': false };
       }
 
-      ops.set( target, data ); // Pass exists?
+      ops.set( target, data );
       resolve( data ); // Only one argument allowed!
     }, err => {
       if ( err ) {
@@ -584,7 +584,7 @@ function rtdbBindAsArray ({ collection, ops, resolve, reject }) {
   // TODO: Handle snapshot.exists
 
   collection.once('value', snapshot => {
-    ops.once(target, snapshot.val(), snapshot.exists()); // unused!
+    ops.once(target, snapshot.val(), snapshot.exists());
     resolve();
   }, err => {
     if ( err ) {
@@ -690,8 +690,6 @@ var factory = {
       reactive_list.$readyAll = true;
       reactive_list.$numReady = Object.keys( dataList ).length;
     }
-
-    // TODO: Custom global actions / getters
 
     if ( modelDefinition.listActions ) {
       reactive_list.decorate_actions( modelDefinition.listActions, context );
@@ -2805,7 +2803,6 @@ class GenericModel {
     this.$idx         = null;
     this.$noaccess    = null;
     this._store_name  = name;
-    // this._validation_behaviour = 'WARNING';
 
     _Vue.observable( this.$state ); // TODO: Check if we get an error here
     // Vue.observable( this.$ready );
@@ -3267,7 +3264,7 @@ class GenericList {
   _add_child( id, child ) {
     // TODO: Check if this.items is an array
     this.$readySome = true;
-    this.$lastUpdate = Date.now(); // ???
+    this.$lastUpdate = Date.now();
     _Vue.set( this.items, id, child );
     this.$numChildren += 1;
     this.items[ id ].$idx = this.$numChildren;
@@ -7976,8 +7973,6 @@ class GenericStore {
         });
       }
 
-      // TODO: Cache everything above this point
-
       Object.keys( data ).forEach(key => {
 
         let matchedRegex = allowed_field_regex.find(regex => {
@@ -7991,7 +7986,7 @@ class GenericStore {
         }
 
         /* Check 3: Execute validator if present */
-        let field = allowed_field_map[ matchedRegex || key ]; // WHY?
+        let field = allowed_field_map[ matchedRegex || key ];
         if ( field.validator ) {
 
           // TODO: Try-catch
@@ -8040,7 +8035,6 @@ class GenericStore {
         }
       });
     } else {
-      // TODO: REMOVE
       throw new Error('No schema found for "' + this.name + '", please provide one.')
     }
   }
@@ -8323,18 +8317,6 @@ function setup$2( name ) {
   return registryModule;
 }
 
-/*
-const myPlugin = store => {
-  // called when the store is initialized
-  store.subscribe((mutation, state) => {
-    // called after every mutation.
-    // The mutation comes in the format of `{ type, payload }`.
-  })
-}
-
-export default myPlugin;
-*/
-
 // import registrySetup from './registry/setup.js'
 // import api from './api/index.js'
 
@@ -8441,8 +8423,6 @@ function install (Vue, options) {
 
 // StoreManager
 
-// TODO: heliosRX v2.0
-
 var StoreManager = {
 
   /*
@@ -8524,7 +8504,7 @@ function resetGenericStores( unsubscribe = true ) {
   }
 }
 
-const version = '0.2.1';
+const version = '0.2.2';
 
 class heliosRX {
   static install() {}

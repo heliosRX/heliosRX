@@ -808,7 +808,7 @@ export default class GenericStore {
       // TODO: Allow to set blur
       rules[ field.model ] = [{
         validator: (rule, value, callback) => {
-          if ( field.validate( value ) ) {
+          if ( field.validator( value ) ) {
             callback();
           } else {
             callback(new Error('Invalid input'));

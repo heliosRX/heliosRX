@@ -12,7 +12,7 @@ export default {
       let schema = store.modelDefinition.schema.fields;
       let rules = {};
       schema.forEach(field => {
-        rules[ field.model ] = { validator: field.validate, trigger: 'blur' };
+        rules[ field.model ] = { validator: field.validator, trigger: 'blur' };
       });
       return rules;
     },

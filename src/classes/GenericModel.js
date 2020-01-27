@@ -100,7 +100,7 @@ export default class GenericModel {
       return
     }
 
-    if ( !field.validate ) {
+    if ( !field.validator ) {
       /* No validate callback found */
 
       /* Fixes bug where non existing fields are assigned */
@@ -112,7 +112,9 @@ export default class GenericModel {
       return
     }
 
-    if ( field.validate( value ) ) {
+    // TODO: bolt type validation
+
+    if ( field.validator( value ) ) {
       // this._write_field( propName, value );
       // this.$state[ propName ] = value;
       delete this.$invalid[ propName ];

@@ -31,7 +31,7 @@ function make_reactive_model( schema, is_dirty = false ) {
        */
       let rules = {};
       schema.forEach(field => {
-        rules[ field.name ] = { validator: field.validate, trigger: 'blur' };
+        rules[ field.name ] = { validator: field.validator, trigger: 'blur' };
       });
       return rules;
     },
@@ -53,7 +53,7 @@ function make_reactive_model( schema, is_dirty = false ) {
 
     Object.defineProperty(load_result, field.name, {
       set: function( value ) {
-        if ( field.validate && field.validate( value ) ) {
+        if ( field.validator && field.validator( value ) ) {
           delete this.$invalid[ field.name ];
           this._update_field( field.name, value );
         } else {
@@ -78,9 +78,9 @@ function make_reactive_model( schema, is_dirty = false ) {
 
 // TODO: Nested data
 const fake_schema = [
-  { name: 'name', placeholder: 'Name', validate: () => true },
-  { name: 'a',    placeholder: 'X',    validate: v => v.length < 30 },
-  { name: 'b',    placeholder: 0,      validate: () => true }
+  { name: 'name', placeholder: 'Name', validator: () => true },
+  { name: 'a',    placeholder: 'X',    validator: v => v.length < 30 },
+  { name: 'b',    placeholder: 0,      validator: () => true }
 ]
 
 const fake_models = {

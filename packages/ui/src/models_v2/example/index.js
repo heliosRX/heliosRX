@@ -44,7 +44,7 @@ class ExampleModel extends Model {
         type: 'String',
         required: true,
         identifier: 'f',
-        validate: () => true,
+        validator: () => true,
         dbIndex: true,
       },
       field: {

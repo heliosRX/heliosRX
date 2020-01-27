@@ -21,7 +21,7 @@ export default {
       validate_bolt_type: 'ServerTimestamp',
     },
     name: {
-      validate: () => true,
+      validator: () => true,
       validate_bolt_type: 'String',
       required: true,
       abbrv: 'n'
@@ -32,19 +32,19 @@ export default {
     },
     b: {
       validate_bolt_type: 'Boolean',
-      validate: () => true
+      validator: () => true
     },
     someNumber: {
       validate_bolt_type: 'Number',
-      validate: () => true
+      validator: () => true
     },
     created: {
       validate_bolt_type: 'InitialTimestamp',
-      validate: () => true
+      validator: () => true
     },
     modified: {
       validate_bolt_type: 'CurrentTimestamp',
-      validate: () => true
+      validator: () => true
     }
   },
 };

@@ -27,7 +27,7 @@ export default {
 
   fields: {
     'name': {
-      validate: () => true,
+      validator: () => true,
       validate_bolt_type: 'String',
       required: true,
       db_identifier: 'n',
@@ -44,7 +44,7 @@ export default {
       validate_bolt_type: 'String',
     },
     'b': {
-      validate: () => true,
+      validator: () => true,
       validate_bolt_type: 'Boolean',
     },
     'nestedA': {
@@ -95,17 +95,17 @@ export default {
 
     'someNumber': {
       validate_bolt_type: 'Number',
-      validate: () => true
+      validator: () => true
     },
     'created': {
       validate_bolt_type: 'InitialTimestamp',
-      validate: () => true
+      validator: () => true
     },
     'modified': {
       validate_bolt_type: 'CurrentTimestamp',
-      validate: () => true
+      validator: () => true
     }
   },
 
-  unsafe_disable_validation: true, // entfällt später
+  unsafe_disable_validation: true,
 };

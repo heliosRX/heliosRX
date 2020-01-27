@@ -28,7 +28,7 @@ export default {
     },
     {
       model: 'name',
-      validate: () => true,
+      validator: () => true,
       validate_bolt_type: 'String',
       required: true,
       abbrv: 'n'
@@ -41,24 +41,24 @@ export default {
     {
       model: 'b',
       validate_bolt_type: 'Boolean',
-      validate: () => true
+      validator: () => true
     },
     {
       model: 'someNumber',
       validate_bolt_type: 'Number',
-      validate: () => true
+      validator: () => true
     },
     {
       model: 'created',
       validate_bolt_type: 'InitialTimestamp',
-      validate: () => true
+      validator: () => true
     },
     {
       model: 'modified',
       validate_bolt_type: 'CurrentTimestamp',
-      validate: () => true
+      validator: () => true
     }
   ],
 
-  // unsafe_disable_validation: true, // entfällt später
+  // unsafe_disable_validation: true,
 };

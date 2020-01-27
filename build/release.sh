@@ -25,12 +25,12 @@ then
     exit
   fi
 
-  # set version
-  npm version $VERSION --force --allow-same-version --message "[release] $VERSION"
-
   # commit
-  git add -A package.json ./dist
+  git add -A ./dist
   git commit -m "[build] $VERSION"
+
+  # set version
+  npm version $VERSION --message "[release] $VERSION"
 
   # tag
   git tag -a "v$VERSION" -m "[release] $VERSION"

@@ -44,3 +44,7 @@ export function isArray(a) {
 export function matchUserInputDuration(str) {
   return null // TODO
 }
+
+export function isBoolean(v) {
+  return v === true || v === false;
+}

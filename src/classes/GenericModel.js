@@ -368,7 +368,7 @@ export default class GenericModel {
   }
 
   /* ------------------------------------------------------------------------ */
-  _get_modal_for_write() {
+  _get_model_for_write() {
     if ( !this.$id ) {
       throw new Error('Write operations are not allowed for new models.');
     }
@@ -382,7 +382,7 @@ export default class GenericModel {
 
   /* ------------------------------------------------------------------------ */
   update( payload ) {
-    let model = this._get_modal_for_write();
+    let model = this._get_model_for_write();
     return model.update( this.$id, payload ).then(() => {
       for ( var propName in payload ) {
         delete this.$dirty[ propName ]
@@ -393,7 +393,7 @@ export default class GenericModel {
 
   /* ------------------------------------------------------------------------ */
   remove(soft_delete = true) {
-    let model = this._get_modal_for_write();
+    let model = this._get_model_for_write();
     return model.remove( this.$id, soft_delete ).then(() => {
       if ( soft_delete ) {
         delete this.$dirty[ 'deleted' ] // ?
@@ -404,7 +404,7 @@ export default class GenericModel {
 
   /* ------------------------------------------------------------------------ */
   restore() {
-    let model = this._get_modal_for_write();
+    let model = this._get_model_for_write();
     return model.restore( this.$id ).then(() => {
       delete this.$dirty[ 'deleted' ] // ?
     })

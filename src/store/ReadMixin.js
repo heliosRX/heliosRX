@@ -1178,9 +1178,8 @@ export default {
     */
 
     const customOps = {
-      init: (data) => {
-        // TODO: data will not be passed here!!!
-        log3(this.name, "fetchNode:init", data)
+      init: () => {
+        log3(this.name, "fetchNode:init")
         return {}
       },
 

@@ -4,6 +4,7 @@
 
 # Package managers
 node_modules
+peers/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -30,3 +31,6 @@ pnpm-debug.log
 firebase-debug.log
 .runtimeconfig.json
 webpack-assets.json
+
+# Coverage
+/coverage

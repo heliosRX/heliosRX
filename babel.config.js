@@ -17,7 +17,7 @@ module.exports = {
         [require('@babel/preset-env'), {
           'useBuiltIns': 'entry',
           'corejs': 3,
-          'modules': false,
+          'modules': 'auto',
           'targets': { 'node': 'current' }
         }],
       ],

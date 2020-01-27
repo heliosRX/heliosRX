@@ -39,6 +39,9 @@
     "build:main": "node build/build.main.js",
     "lint": "eslint src tests",
     "test": "jest",
+    "test:e2e": "node tests/e2e",
+    "test:dev": "jest --coverage --watch",
+    "test:dev-prepare": "./tests/prepare-dev.sh",
     "release": "bash build/release.sh",
     "stats": "package-size-analyzer ./dist/heliosrx.js"
   },
@@ -93,5 +96,11 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "_moduleAliases": {
+    "@": "./src",
+    "vue": "./peers/node_modules/vue",
+    "vuex": "./peers/node_modules/vuex",
+    "firebase": "./peers/node_modules/firebase"
+  }
 }

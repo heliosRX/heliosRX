@@ -60,7 +60,7 @@ export const task = new GenericStore( '/user/{userId}/task/*', taskModelDefiniti
     <li v-for="task in tasks.items" :key="task.$key">
       <input type="checkbox" @input="onCheckTask( task )">
       {{task.title}}
-      <a href="#" @click.prevent="onDeleteTask( task )" />
+      <a href="#" @click.prevent="onDeleteTask( task )">del</a>
     </li>
     <input v-model="title" />
     <button @click="onAddTask" />

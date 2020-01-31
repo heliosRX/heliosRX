@@ -70,6 +70,8 @@ is a little bit more complex then a simple to-do list, then heliosRX is
 probably very useful for you. Some benefits of using heliosRX over
 just Firebase Client API are:
 
+You can read more about it in the [announcement post](https://tw00.dev/post/heliosrx/annoucement/).
+
 - ➡️ Easy, straight forward API based on model definitions/schemata
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
@@ -227,7 +229,7 @@ export const task = new GenericStore( '/user/{userId}/task/*', taskModelDefiniti
     <li v-for="task in tasks.items" :key="task.$key">
       <input type="checkbox" @input="onCheckTask( task )">
       {{task.title}}
-      <a href="#" @click.prevent="onDeleteTask( task )" />
+      <a href="#" @click.prevent="onDeleteTask( task )">del</a>
     </li>
     <input v-model="title" />
     <button @click="onAddTask" />

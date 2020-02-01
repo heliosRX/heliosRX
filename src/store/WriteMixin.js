@@ -474,24 +474,24 @@ export default {
   },
 
   /**
-   * new_from_template - Create empty model from create function
+   * newFromTemplate - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromTemplate + write = add
    *
    * @return {type}  description
    */
-  new_from_template( data = {}, optional_data = null ) {
+  newFromTemplate( data = {}, optional_data = null ) {
     let generated_data = this.empty( data, optional_data )
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     model._update_data( generated_data, null, true ); // doppelt
     return model
   },
   /**
-   * new_from_template - Create empty model from create function
+   * newFromData - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromData + write = add
    */
-  new_from_data( data = {}, make_dirty = false ) {
+  newFromData( data = {}, make_dirty = false ) {
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     // model._update_data( generated_data, null, true );
     return model
@@ -500,7 +500,7 @@ export default {
   /**
    * empty - Create empty payload from schema.create()
    *         This method WILL only create an JS-Object, not a GenericModel
-   *         In most cases, you want to use new_from_template_instead
+   *         In most cases, you want to use newFromTemplate instead
    */
   empty( data = {}, optional_data = null ) {
     if ( !this.modelDefinition ) {

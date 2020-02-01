@@ -15,10 +15,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- `schema_required_fields` is now called `schemaRequiredFields` (GenricStore)
-- `schema_optional_fields` is now called `schemaOptionalFields` (GenricStore)
-- `schema_all_fields` is now called `schemaAllFields` (GenricStore)
-- `validate_bolt_type` is now called `type` (Model Definition)
+- :boom: `new_from_template` is now called `newFromTemplate`
+- :boom: `new_from_data` is now called `newFromData`
+- :boom: `schema_required_fields` is now called `schemaRequiredFields` (GenricStore)
+- :boom: `schema_optional_fields` is now called `schemaOptionalFields` (GenricStore)
+- :boom: `schema_all_fields` is now called `schemaAllFields` (GenricStore)
+- :boom: `validate_bolt_type` is now called `type` (Model Definition)
 - Removed all debug output and introduced a log-level system (based on `ulog`)
 
 ### Removed

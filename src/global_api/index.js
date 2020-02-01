@@ -46,9 +46,9 @@ export default {
   },
 
   /* ------------------------------------------------------------------------ */
-  new_from_template( model, ...args ) {
+  newFromTemplate( model, ...args ) {
     check_model( model )
-    return model.new_from_template(...args);
+    return model.newFromTemplate(...args);
   },
 
   /* ------------------------------------------------------------------------ */

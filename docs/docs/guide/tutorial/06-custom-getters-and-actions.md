@@ -185,7 +185,7 @@ export default {
 
       // - or -
 
-      let goal = this.$models.goal_meta.new_from_template()
+      let goal = this.$models.goal_meta.newFromTemplate()
       goal.doSomethingFancy() // custom action
       goal.write() // write to DB
     },

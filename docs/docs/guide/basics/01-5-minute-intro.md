@@ -279,7 +279,7 @@ a write process.
 There are also a two factory methods, which can create a new `GenericModel`:
 
 - `new()` - Create empty model from schema (without calling create function)
-- `new_from_template( data )` - Create empty model using create function
+- `newFromTemplate( data )` - Create empty model using create function
 
 ```js
 <template>
@@ -293,7 +293,7 @@ There are also a two factory methods, which can create a new `GenericModel`:
 export default {
   methods: {
     addItem() {
-      let task = this.$models.task.new_from_template({ title: "Foobar" })
+      let task = this.$models.task.newFromTemplate({ title: "Foobar" })
       task.title = 'My updated title';
       task.isDone = true;
 
@@ -320,7 +320,7 @@ Also heliosRX will provide client-side validation:
 export default {
   created() {
     // Create empty task when component is created
-    this.task = this.$models.add.new_from_template({ title: "Foobar" });
+    this.task = this.$models.add.newFromTemplate({ title: "Foobar" });
   }
   methods: {
     addItem() {

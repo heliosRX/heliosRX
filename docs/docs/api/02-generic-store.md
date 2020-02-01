@@ -480,14 +480,14 @@ $models.example.transaction( id, 'coins', 'inc' ) // default: increment by 1
 Create empty model from schema (without calling create function)
 <!-- new + write = new_id + update -->
 
-### new_from_template
-- **`new_from_template( data: object<string:any> <, optional_data<string:any>> ) ⇒ GenericModel`**
+### newFromTemplate
+- **`newFromTemplate( data: object<string:any> <, optional_data<string:any>> ) ⇒ GenericModel`**
 
 Create empty model from create function
-<!-- new_from_template + write = add -->
+<!-- newFromTemplate + write = add -->
 
-### new_from_data (INTERNAL)
-- **`new_from_data( data: object<string:any> <, make_dirty:boolean> ) ⇒ GenericModel`**
+### newFromData (INTERNAL)
+- **`newFromData( data: object<string:any> <, make_dirty:boolean> ) ⇒ GenericModel`**
 
 <!-- TODO: make_dirty: default: false -->
 
@@ -496,7 +496,7 @@ Create empty model from create function
 
 Create empty payload from `schema.create()`. This method WILL only create
 an Object, not a GenericModel. In most cases, you want to use
-`new_from_template` instead
+`newFromTemplate` instead
 
 <!--
 ### Internal

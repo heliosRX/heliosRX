@@ -1,6 +1,6 @@
 # Migrating from v0.2.0 to v1.0.0
 
-### Property and method names
+### Property and method names (v0.2.3)
 
 | before                    | after                     | version
 |---------------------------|---------------------------|----------
@@ -27,15 +27,16 @@
 | `unsync_all`              | `unsyncAll`               | v0.2.3
 | `queryHash`               | `_query_hash`             | v0.2.3
 | `reset_global_instance_cache`|`resetGlobalInstanceCache`| v0.2.3
+| `_schema_fields`          | `schemaFields`            | v0.2.3
+| `_define`                 | removed                   | v0.2.3
+| `$id_list`                | `$idList`                 | v0.2.3
 
+### Property and method names (v0.2.4) ?
 
 | before                    | after                     | version
 |---------------------------|---------------------------|----------
 | `write()` - Model         | `save()`                  |
 | `create` - Schema         | `template`                |
-| `_schema_fields`          | `schemaFields`            |
-| `$id_list`                | `$idList`                 |
-| `_define`                 | `define`                  |
 
 ### Schema definition
 

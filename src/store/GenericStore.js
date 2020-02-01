@@ -234,7 +234,7 @@ export default class GenericStore {
     // - Only because they are not in the prototype
     // get _db
     // get _template_path_field_names
-    // get _schema_fields
+    // get schemaFields
     // get path
     // get parentRef
     // get rootRef
@@ -515,7 +515,7 @@ export default class GenericStore {
    *
    * @returns {nothing}
    */
-  _define( target, props ) {
+  define( target, props ) {
     /* Merge new props with previous props */
     target.definedProps = Object.assign({}, this.definedProps, props)
 
@@ -528,14 +528,10 @@ export default class GenericStore {
     return target; // Allow chaining
   }
 
-  define( props ) {
-    return this._define( this, props );
-  }
-
   with( props ) {
     // Synax: store.with({ prop1: 'value' }).add({...}) - store is not mutated
     let new_this = this._clone();
-    return this._define( new_this, props );
+    return this.define( new_this, props );
   }
 
   /**
@@ -570,7 +566,7 @@ export default class GenericStore {
   /**
    *
    */
-  get _schema_fields() {
+  get schemaFields() {
     let schema = ( ( this.modelDefinition || {} ).schema || {} ).fields
     if ( typeof schema === 'undefined' ) {
       return [];
@@ -589,7 +585,7 @@ export default class GenericStore {
    * @return {type}  description
    */
   get schemaRequiredFields() {
-    return this._schema_fields
+    return this.schemaFields
           .filter( field => field.required )
           .map( field => field.model );
   }
@@ -600,7 +596,7 @@ export default class GenericStore {
    * @return {type}  description
    */
   get schemaOptionalFields() {
-    return this._schema_fields
+    return this.schemaFields
           .filter( field => !( field.required || false )  )
           .map( field => field.model );
   }
@@ -611,7 +607,7 @@ export default class GenericStore {
    * @return {type}  description
    */
   get schemaAllFields() {
-    return this._schema_fields.map( field => field.model );
+    return this.schemaFields.map( field => field.model );
   }
 
   /**
@@ -658,7 +654,7 @@ export default class GenericStore {
     }
 
     // TODO: Convert object to array
-    let schema = this._schema_fields
+    let schema = this.schemaFields
     if ( schema && schema.length >= 0 ) {
       /* Check 1: Are required fields present (Disabled for updates) */
       if ( !is_update ) {
@@ -688,7 +684,7 @@ export default class GenericStore {
           if ( k.startsWith('/') && k.endsWith('/') ) {
             allowed_field_regex.push( k )
           }
-          return { [k]: this._schema_fields[i] }
+          return { [k]: this.schemaFields[i] }
         }));
 
         Object.keys(allowed_field_map).forEach((key, i) => {
@@ -699,7 +695,7 @@ export default class GenericStore {
             // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
             let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
             allowed_field_regex.push( regex )
-            allowed_field_map[ regex ] = this._schema_fields[i];
+            allowed_field_map[ regex ] = this.schemaFields[i];
           }
         })
       }

@@ -21,10 +21,10 @@ _store_name  = name;
 
 ## Getters
 
-#### $id_list
+#### $idList
 - **`TODO`**
 ```js
-get $id_list()
+get $idList()
 ```
 
 #### itemsSorted

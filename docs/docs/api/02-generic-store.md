@@ -202,7 +202,7 @@ get _db()
 get _template_path_field_names()
 * get _template_path_field_names - Returns all fields in the template path that need to be defined
 
-get _schema_fields()
+get schemaFields()
 -->
 
 ## Instance Methods
@@ -272,8 +272,8 @@ _define_user()
 previewPath( id )
  * previewPath - Generate a path preview for a given it
 
-_define( target, props )
-* _define - Defines id's in the template string (INTERNAL)
+define( target, props )
+* define - Defines id's in the template string (INTERNAL)
 
 * @param {GenericStore} target - Target of replacement (usually this)
 * @param {object} props - Id's that should be replaced.

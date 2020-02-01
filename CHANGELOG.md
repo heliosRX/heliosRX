@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Documentation: Added more information how to retrieve data
 - Documentation: Added more information how to write data and how to use `reorder()`
 - New method `previewPath` (GenericStore)
+- New getter `schemaFields` (GenericStore)
 
 ### Changed
 
@@ -23,6 +24,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - :boom: `schema_all_fields` is now called `schemaAllFields` (GenricStore)
 - :boom: `unsync_all` is now called `unsyncAll` (GenericStore)
 - :boom: `reset_global_instance_cache` is now called `resetGlobalInstanceCache` (GenericStore)
+- :boom: `$id_list` is now called `$idList` (GenericList)
 - :boom: `validate_bolt_type` is now called `type` (Model Definition)
 - Removed all debug output and introduced a log-level system (based on `ulog`)
 

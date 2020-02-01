@@ -200,7 +200,7 @@ export default {
     // TODO: Testen!
     if ( clean_up && _resultListCache.has( this.path ) ) {
       let list = _resultListCache.get( this.path );
-      list.$id_list.forEach(id => list._rem_child( id ));
+      list.$idList.forEach(id => list._rem_child( id ));
       list.reset(); // ?/
     }
 
@@ -644,7 +644,7 @@ export default {
 
             if ( new_value === undefined || new_value === null ) {
               /* This means the list was deleted */
-              list.$id_list.forEach(old_id => {
+              list.$idList.forEach(old_id => {
                 log4(this.name, "[Watcher]  -- ELIMINATIING LIST", old_id)
                 list._rem_child( old_id );
               })
@@ -658,7 +658,7 @@ export default {
 
             let ids_new = Object.keys( new_value )
             let ids_old_via_watcher = old_value ? Object.keys( old_value ) : []
-            let ids_old = list.$id_list;
+            let ids_old = list.$idList;
 
             if ( ids_new.toString() === ids_old_via_watcher.toString() ) {
               log4(this.name, "[Watcher] Watcher values are the same? WHY? ", ids_new, ids_old_via_watcher);
@@ -858,7 +858,7 @@ export default {
         result.$noaccess = true;
 
         /* TODO ? -> probably not
-        result.$id_list.forEach(old_id => {
+        result.$idList.forEach(old_id => {
           registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' })
           let data_reactive = this.getData( id );
           data_reactive[ '.noaccess' ] = true;

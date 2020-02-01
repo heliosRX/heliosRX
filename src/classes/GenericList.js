@@ -200,7 +200,7 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  get $id_list() {
+  get $idList() {
     // TODO: Here or static in $models.example?
     return Object.keys( this.items );
   }

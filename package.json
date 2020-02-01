@@ -60,8 +60,8 @@
     "slugid": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.8.3",
-    "@firebase/testing": "^0.16.6",
+    "@babel/preset-env": "^7.8.4",
+    "@firebase/testing": "^0.16.7",
     "@rollup/plugin-buble": "^0.21.0",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
@@ -80,7 +80,7 @@
     "firebase-server": "^1.0.2",
     "jest": "^25.1.0",
     "module-alias": "^2.2.2",
-    "rollup": "^1.30.0",
+    "rollup": "^1.31.0",
     "rollup-plugin-ignore": "^1.0.5",
     "rollup-plugin-size-snapshot": "^0.10.0",
     "terser": "^4.6.3"

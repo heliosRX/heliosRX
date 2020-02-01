@@ -110,7 +110,7 @@ export default class GenericStore {
    *
    * Retrieving data:
    *
-   * challenge.sync_list( target )
+   * challenge._syncList( target )
    * challenge.unsync()
    * challenge.once( target )
    *

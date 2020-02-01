@@ -221,13 +221,13 @@ export default {
 
   // ---------------------------------------------------------------------------
   /**
-   * fetch_individual - fetch an individual item of the collection
+   * _fetchIndividual - fetch an individual item of the collection
    *
    * @param  {type} id                            description
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_individual( id, { overwriteKey = false, customOps = {} } = {} ) {
-    return this.sync_individual(id, { overwriteKey, customOps, fetchOnce: true })
+  _fetchIndividual( id, { overwriteKey = false, customOps = {} } = {} ) {
+    return this._syncIndividual(id, { overwriteKey, customOps, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
@@ -236,19 +236,19 @@ export default {
    *
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} ) {
-    return this.sync_list({ overwriteKey, customOps, customRef, fetchOnce: true })
+  _fetchList( { overwriteKey = false, customOps = {}, customRef = null } = {} ) {
+    return this._syncList({ overwriteKey, customOps, customRef, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
   /**
-   * sync_individual - sync an individual item of the collection
+   * _syncIndividual - sync an individual item of the collection
    *
    * @param  {type} id                        description
    * @param  {type} { overwriteKey = false    description
    * @param  {type} fetchOnce = false }  = {} description
    */
-  sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} ) {
+  _syncIndividual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} ) {
     if ( !this.isSuffixed && !fetchOnce && SHOW_SYNCING_INDIVIDUAL_WARNING ) {
       console.warn("Syncing individually in " + this.name + ", even though list would be supported");
     }
@@ -259,7 +259,7 @@ export default {
 
     this.global_store_path_array[ id ] = key;
 
-    log1(this.name, "sync_individual:", this.name, key, overwriteKey, fetchOnce);
+    log1(this.name, "_syncIndividual:", this.name, key, overwriteKey, fetchOnce);
     log2(this.name, "[GENS] - sync ref", ref.path.toString());
     log2(this.name, "[GENS] - sync key", key);
     log2(this.name, "[GENS] - sync target", this.global_store_path_array[ id ]);
@@ -319,7 +319,7 @@ export default {
    *  Returns a promise, that will resolve, when all items are ready
    *
    */
-  sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} ) {
+  _syncList( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} ) {
 
     if ( this.isSuffixed ) {
       throw new Error('Suffixed store does not support bind to array')
@@ -344,7 +344,7 @@ export default {
 
         let data = {}
 
-        /* Check if there is existing data, if yes it means sync_individual already synced data, which we should keep. */
+        /* Check if there is existing data, if yes it means _syncIndividual already synced data, which we should keep. */
         let existing_data = walkGetObjectSave( registry.state, this.global_store_path )
         if ( Object.keys(existing_data).length > 0 ) {
           log2(this.name, "[OPS:INIT] existing_data", existing_data);
@@ -780,7 +780,7 @@ export default {
           /* It is possible, that the node was already synced and is now waiting for results (see ANNOTATION#1).
              This means, subscribeList is now responsible */
 
-          /* This will not happen! If a sub-node is already synced via sync_individual, child_added for this node
+          /* This will not happen! If a sub-node is already synced via _syncIndividual, child_added for this node
              will NOT be called. */
 
           /*
@@ -839,7 +839,7 @@ export default {
       },
     }
 
-    this.sync_list({ customOps, customRef }).then(() => {
+    this._syncList({ customOps, customRef }).then(() => {
       /* This promise is resolved when data is first fetched */
       result.$readyAll = true;
       result.$promise.resolve(true);
@@ -1009,7 +1009,7 @@ export default {
     }
 
     /* 4. Start syncing */
-    this.sync_individual( id, { customOps } ).then( (data) => {
+    this._syncIndividual( id, { customOps } ).then( (data) => {
 
       let data_reactive = this.getData( id );
       log1(this.name, "subscribeNode - data ready", entry_name_child, data, data_reactive);
@@ -1019,7 +1019,7 @@ export default {
         /* In some cases, when a node is subscribing and while waiting for the results the list,
            that contains the node is synced as well, it can happen that the list is resetted
            in $registry.state.res (See. ANNOTIATION#1 ) */
-        console.warn(this.name, "subscribeNode - subscribeList took over, while waiting for sync_individual. subscribeList will handle instance now.")
+        console.warn(this.name, "subscribeNode - subscribeList took over, while waiting for _syncIndividual. subscribeList will handle instance now.")
 
         /* We need to wait now, until the list is synced, so we can return reactive data. This
            is (hopefully) handled by subscribe List, when picking up 'load_result' from the instance cache */
@@ -1188,7 +1188,7 @@ export default {
       },
     }
 
-    this.fetch_individual( id, { customOps } ).then( data => {
+    this._fetchIndividual( id, { customOps } ).then( data => {
       log3(this.name, "fetchNode - data ready", data);
       // TODO: make data reactive
       load_result._update_data( data, this.modelDefinition.schema.fields )
@@ -1234,7 +1234,7 @@ export default {
     }
 
     /* 2. Start fetching and update list when data is ready */
-    this.fetch_list({ customOps, customRef }).then(data => {
+    this._fetchList({ customOps, customRef }).then(data => {
       log3(this.name, "fetchList:resolve", data)
 
       let id_list = Object.keys( data || [] )

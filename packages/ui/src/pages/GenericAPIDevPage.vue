@@ -300,12 +300,12 @@ export default {
     },
 
     onListSync( fetchOnce ) {
-      this.gens_selected.sync_list({ fetchOnce }); // fetchOnce  // TODO!!
+      this.gens_selected._syncList({ fetchOnce }); // fetchOnce  // TODO!!
       this.onUpdateStore();
     },
 
     onIndividualSync( id, fetchOnce ) {
-      this.gens_selected.sync_individual( id, { fetchOnce }); // TODO!!
+      this.gens_selected._syncIndividual( id, { fetchOnce }); // TODO!!
       this.onUpdateStore();
     },
 

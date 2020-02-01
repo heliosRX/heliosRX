@@ -694,15 +694,15 @@ unsync_all({ clean_up = false } = {})
 * @param {{ clean_up }} obj
 * @param {Boolean} obj.clean_up - Clean up?
 
-fetch_individual( id, { overwriteKey = false, customOps = {} } = {} )
-* fetch_individual - fetch an individual item of the collection
+_fetchIndividual( id, { overwriteKey = false, customOps = {} } = {} )
+* _fetchIndividual - fetch an individual item of the collection
 *
 * @param  {uuid} id                            description
 * @param  {{ overwriteKey, customOps }} obj
 * @param  {Boolean} obj.overwriteKey - description
 * @param  {Object} obj.customOps - description
 
-fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} )
+_fetchList( { overwriteKey = false, customOps = {}, customRef = null } = {} )
 * fetch - fetch all items in this collection
 *
 * @param  {{ overwriteKey, customOps, customRef }} obj - description
@@ -710,16 +710,16 @@ fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} )
 * @param  {Object} obj.customOps - description
 * @param  {Object} obj.customRef - null
 
-sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} )
-* sync_individual - sync an individual item of the collection
+_syncIndividual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} )
+* _syncIndividual - sync an individual item of the collection
 * @param  {type} id - id of node
 * @param  {{ overwriteKey, fetchOnce, customOps obj
 * @param  {Boolean} obj.overwriteKey - description
 * @param  {Boolean} obj.fetchOnce - description
 * @param  {Object} obj.customOps - description
 
-sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} )
-* sync_list - sync entire collection (also track child added, child removed)
+_syncList( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} )
+* _syncList - sync entire collection (also track child added, child removed)
 *
 * @param  {{ overwriteKey, fetchOnce, customOps, customRef }} obj
 * @param  {Boolean} obj.overwriteKey  - false

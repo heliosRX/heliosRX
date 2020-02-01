@@ -325,7 +325,7 @@ export default {
   methods: {
     addItem() {
       // Check if all task fields have valid values
-      if ( this.task.$isValid() ) {
+      if ( this.task.$isValid ) {
         // Write task to db ()
         this.task.save();
       } else {

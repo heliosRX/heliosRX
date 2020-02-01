@@ -147,7 +147,7 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  $isValid() {
+  get $isValid() {
     return Object.keys( this.$invalid ).length === 0;
   }
 

@@ -76,7 +76,7 @@ describe('GenericModel', () => {
     expect(model.$id).toBe("id1")
     expect(model.$idx).toBe(null)
     expect(model.$invalid).toMatchObject({})
-    expect(model.$isValid()).toBe(true)
+    expect(model.$isValid).toBe(true)
 
     expect(model.$key).toBe("KEY-teststore-id1")
     expect(model._store_name).toBe("teststore")

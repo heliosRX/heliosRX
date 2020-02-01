@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - :boom: `unsync_all` is now called `unsyncAll` (GenericStore)
 - :boom: `reset_global_instance_cache` is now called `resetGlobalInstanceCache` (GenericStore)
 - :boom: `$id_list` is now called `$idList` (GenericList)
+- :boom: `$isValid` is now a getter (GenericModel)
 - :boom: `validate_bolt_type` is now called `type` (Model Definition)
 - Removed all debug output and introduced a log-level system (based on `ulog`)
 

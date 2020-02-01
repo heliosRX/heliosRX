@@ -25,7 +25,7 @@
 
           a (validation: length &leq; 30): <el-input v-model="new_goal.a" />
           b: <el-input v-model="new_goal.b" />
-          <el-button @click="onAddData" :disabled="!new_goal.$isValid()">Add data</el-button>
+          <el-button @click="onAddData" :disabled="!new_goal.$isValid">Add data</el-button>
           <pre>new_goal: {{new_goal}}</pre>
 
         </el-col>

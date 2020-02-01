@@ -376,7 +376,7 @@ export default {
         return this.$message.error('Error in JSON: ' + e);
       }
 
-      let required_arguments = this.gens_selected.schema_required_fields;
+      let required_arguments = this.gens_selected.schemaRequiredFields;
 
       let ok = required_arguments.every(arg => ( arg in required_input_json ) )
       if (!ok) {
@@ -395,8 +395,8 @@ export default {
     },
 
     onCreateTemplate() {
-      let required_arguments = this.gens_selected.schema_required_fields;
-      let optional_arguments = this.gens_selected.schema_optional_fields;
+      let required_arguments = this.gens_selected.schemaRequiredFields;
+      let optional_arguments = this.gens_selected.schemaOptionalFields;
 
       this.required_input_json = JSON.stringify(
         required_arguments.reduce(array_to_obj_reducer, {}),
@@ -410,7 +410,7 @@ export default {
     },
 
     onCreateTemplateUpdate() {
-      let all_arguments = this.gens_selected.schema_all_fields;
+      let all_arguments = this.gens_selected.schemaAllFields;
 
       // TODO: Insert current value!
       this.update_input_json = JSON.stringify(

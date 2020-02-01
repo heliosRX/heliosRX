@@ -238,9 +238,9 @@ export default class GenericStore {
     // get path
     // get parentRef
     // get rootRef
-    // get schema_required_fields
-    // get schema_optional_fields
-    // get schema_all_fields
+    // get schemaRequiredFields
+    // get schemaOptionalFields
+    // get schemaAllFields
     // get subscriptions
     // get rules
 
@@ -584,33 +584,33 @@ export default class GenericStore {
   }
 
   /**
-   * get schema_optional_fields - Returns all required fields defined in the schema
+   * get schemaOptionalFields - Returns all required fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_required_fields() {
+  get schemaRequiredFields() {
     return this._schema_fields
           .filter( field => field.required )
           .map( field => field.model );
   }
 
   /**
-   * get schema_optional_fields - Returns all optional fields defined in the schema
+   * get schemaOptionalFields - Returns all optional fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_optional_fields() {
+  get schemaOptionalFields() {
     return this._schema_fields
           .filter( field => !( field.required || false )  )
           .map( field => field.model );
   }
 
   /**
-   * get schema_all_fields - Returns all fields that are defined in the schema
+   * get schemaAllFields - Returns all fields that are defined in the schema
    *
    * @return {type}  description
    */
-  get schema_all_fields() {
+  get schemaAllFields() {
     return this._schema_fields.map( field => field.model );
   }
 
@@ -620,7 +620,7 @@ export default class GenericStore {
    * @param  {type} data data to check
    */
   _check_required_fields( data ) {
-    this.schema_required_fields.forEach(required_field => {
+    this.schemaRequiredFields.forEach(required_field => {
       if ( !( required_field in data ) ) {
         throw new Error('Required field <' + required_field + '> not present.')
       }
@@ -677,7 +677,7 @@ export default class GenericStore {
       const typeRegex = /(?<val>\w+)\s*\[\]/;
 
       /* Check 2: Are provided fields within schema? */
-      let allowed_field_names = this.schema_all_fields;
+      let allowed_field_names = this.schemaAllFields;
       let allowed_field_regex = [];
       let allowed_field_map = {}
 

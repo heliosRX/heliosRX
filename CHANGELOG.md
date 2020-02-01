@@ -15,7 +15,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- `validate_bolt_type` is now called `type`
+- `schema_required_fields` is now called `schemaRequiredFields` (GenricStore)
+- `schema_optional_fields` is now called `schemaOptionalFields` (GenricStore)
+- `schema_all_fields` is now called `schemaAllFields` (GenricStore)
+- `validate_bolt_type` is now called `type` (Model Definition)
 - Removed all debug output and introduced a log-level system (based on `ulog`)
 
 ### Removed

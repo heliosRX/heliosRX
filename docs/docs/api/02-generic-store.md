@@ -166,18 +166,18 @@ Return Firebase Database Reference to root of database.
 
 Returns Firebase Realtime Database Reference to child with given `id`.
 
-### schema_required_fields
-- **`get schema_required_fields() ⇒ array<string>`**
+### schemaRequiredFields
+- **`get schemaRequiredFields() ⇒ array<string>`**
 
 Returns all required fields defined in the schema.
 
-### schema_optional_fields
-- **`get schema_optional_fields() ⇒ array<string>`**
+### schemaOptionalFields
+- **`get schemaOptionalFields() ⇒ array<string>`**
 
 Returns all required fields defined in the schema.
 
-### schema_all_fields
-- **`get schema_all_fields() ⇒ array<string>`**
+### schemaAllFields
+- **`get schemaAllFields() ⇒ array<string>`**
 
 Returns all fields that are defined in the schema.
 

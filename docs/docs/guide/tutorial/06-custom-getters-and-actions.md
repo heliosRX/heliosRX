@@ -46,7 +46,7 @@ export default {
   },
 
   fields: [
-    { model: 'a', validate_bolt_type: 'Number' },
+    { model: 'a', type: 'Number' },
     { model: 'b', required: true },
     { model: 'long_name',  abbrv: 'ln' },
     { model: 'short_name', abbrv: 'sn' }
@@ -57,24 +57,24 @@ export default {
 
   fields: {
     createdAt: {
-      validate_bolt_type: 'ServerTimestamp',
+      type: 'ServerTimestamp',
     },
     name: {
       validator: () => true,
-      validate_bolt_type: 'String',
+      type: 'String',
       required: true,
       abbrv: 'n'
     },
     a: {
-      validate_bolt_type: 'String',
+      type: 'String',
       validate: v => v.length < 30
     },
     b: {
-      validate_bolt_type: 'Boolean',
+      type: 'Boolean',
       validator: () => true
     },
     someNumber: {
-      validate_bolt_type: 'Number',
+      type: 'Number',
       validator: () => true
     },
   },

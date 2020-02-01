@@ -41,9 +41,9 @@ for reactive real-time web applications using Firebase Realtime Database.
 const taskModelDefinition = {
   schema: {
     fields: {
-      title:     { validate_bolt_type: 'String', required: true },
-      createdAt: { validate_bolt_type: 'ServerTimestamp' },
-      isDone:    { validate_bolt_type: 'Boolean' },
+      title:     { type: 'String', required: true },
+      createdAt: { type: 'ServerTimestamp' },
+      isDone:    { type: 'Boolean' },
     }
   }
 };

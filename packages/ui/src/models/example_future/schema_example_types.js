@@ -26,11 +26,11 @@ export default {
   },
 
   fields: {
-    'a': { validate_bolt_type: 'String' },
-    'b': { validate_bolt_type: 'String', subtype: 'TypeA' },
-    'c': { validate_bolt_type: 'String', subtype: 'TypeA' },
-    'x': { validate_bolt_type: 'String', subtype: 'TypeB' },
-    'y': { validate_bolt_type: 'String', subtype: 'TypeB' },
+    'a': { type: 'String' },
+    'b': { type: 'String', subtype: 'TypeA' },
+    'c': { type: 'String', subtype: 'TypeA' },
+    'x': { type: 'String', subtype: 'TypeB' },
+    'y': { type: 'String', subtype: 'TypeB' },
   }
 };
 

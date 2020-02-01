@@ -223,7 +223,7 @@ export default class GenericModel {
         field.is_nested = false
       }
 
-      if ( field.validate_bolt_type ) {
+      if ( field.type ) {
 
         const validate_timestamp = (value, moment_conversion_func, min_date, max_date) => {
           if ( value === 0 || value === null ) {
@@ -242,7 +242,7 @@ export default class GenericModel {
 
         let prop_getter_original = prop_getter;
 
-        if ( field.validate_bolt_type === 'Timestamp' ) {
+        if ( field.type === 'Timestamp' ) {
 
           prop_getter = () => {
             const min_date =   200000000 // '1976-05-03'
@@ -253,7 +253,7 @@ export default class GenericModel {
               min_date,
               max_date)
           }
-        } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.validate_bolt_type ) ) {
+        } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.type ) ) {
           prop_getter = () => {
             const min_date =   200000000 * 1000 // '1976-05-03'
             const max_date = 30000000000 * 1000 // '2065-01-24'
@@ -263,10 +263,10 @@ export default class GenericModel {
               min_date,
               max_date)
           }
-        } else if ( field.validate_bolt_type.includes( 'Timestamp' ) ) {
+        } else if ( field.type.includes( 'Timestamp' ) ) {
           console.warn(
             "Found validation type that contains 'Timestamp' but is not recognized:",
-            field.validate_bolt_type
+            field.type
           );
         }
 

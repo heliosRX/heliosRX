@@ -5,18 +5,18 @@ const store = new GenericStore(
   {
     schema: {
       fields: {
-        // createdAt: { validate_bolt_type: 'ServerTimestamp' },
-        // created:  { validate_bolt_type: 'InitialTimestamp' },
-        // modified: { validate_bolt_type: 'CurrentTimestamp' },
-        timestampField: { validate_bolt_type: 'Timestamp' },
-        strField: { validate_bolt_type: 'String' },
-        boolField: { validate_bolt_type: 'Boolean' },
-        numField: { validate_bolt_type: 'Number' },
-        mapField: { validate_bolt_type: 'Map<String, String>' },
-        arrField: { validate_bolt_type: 'String[]' },
-        "/dynField[0-9]+/": { validate_bolt_type: "String" },
+        // createdAt: { type: 'ServerTimestamp' },
+        // created:  { type: 'InitialTimestamp' },
+        // modified: { type: 'CurrentTimestamp' },
+        timestampField: { type: 'Timestamp' },
+        strField: { type: 'String' },
+        boolField: { type: 'Boolean' },
+        numField: { type: 'Number' },
+        mapField: { type: 'Map<String, String>' },
+        arrField: { type: 'String[]' },
+        "/dynField[0-9]+/": { type: "String" },
         custValidatorField: {
-          validate_bolt_type: 'String',
+          type: 'String',
           validator: (s) => s.length < 5
         },
       },
@@ -30,8 +30,8 @@ const storeWithReqField = new GenericStore(
   {
     schema: {
       fields: {
-        strField: { validate_bolt_type: 'String' },
-        reqField: { validate_bolt_type: 'String', required: true },
+        strField: { type: 'String' },
+        reqField: { type: 'String', required: true },
       },
     }
   },

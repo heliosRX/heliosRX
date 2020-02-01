@@ -18,32 +18,32 @@ export default {
 
   fields: {
     createdAt: {
-      validate_bolt_type: 'ServerTimestamp',
+      type: 'ServerTimestamp',
     },
     name: {
       validator: () => true,
-      validate_bolt_type: 'String',
+      type: 'String',
       required: true,
       abbrv: 'n'
     },
     a: {
-      validate_bolt_type: 'String',
+      type: 'String',
       validate: v => v.length < 30
     },
     b: {
-      validate_bolt_type: 'Boolean',
+      type: 'Boolean',
       validator: () => true
     },
     someNumber: {
-      validate_bolt_type: 'Number',
+      type: 'Number',
       validator: () => true
     },
     created: {
-      validate_bolt_type: 'InitialTimestamp',
+      type: 'InitialTimestamp',
       validator: () => true
     },
     modified: {
-      validate_bolt_type: 'CurrentTimestamp',
+      type: 'CurrentTimestamp',
       validator: () => true
     }
   },

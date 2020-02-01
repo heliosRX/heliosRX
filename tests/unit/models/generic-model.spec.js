@@ -29,18 +29,18 @@ describe('GenericModel', () => {
     },
     schema: {
       fields: {
-        serverField: { validate_bolt_type: 'ServerTimestamp' },
-        tsField: { validate_bolt_type: 'Timestamp' },
-        strField: { validate_bolt_type: 'String' },
-        boolField: { validate_bolt_type: 'Boolean' },
-        numField: { validate_bolt_type: 'Number' },
-        numField2: { validate_bolt_type: 'Number' },
+        serverField: { type: 'ServerTimestamp' },
+        tsField: { type: 'Timestamp' },
+        strField: { type: 'String' },
+        boolField: { type: 'Boolean' },
+        numField: { type: 'Number' },
+        numField2: { type: 'Number' },
         custValidatorField: {
-          validate_bolt_type: 'String',
+          type: 'String',
           validator: (s) => s.length < 5
         },
-        'x/y': { validate_bolt_type: 'Boolean' },
-        'x.z': { validate_bolt_type: 'Boolean' },
+        'x/y': { type: 'Boolean' },
+        'x.z': { type: 'Boolean' },
       },
     }
   }

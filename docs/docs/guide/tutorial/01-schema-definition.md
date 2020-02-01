@@ -60,9 +60,9 @@ export default {
     };
   },
   fields: {
-    createdAt: { validate_bolt_type: 'ServerTimestamp' },
-    title:     { validate_bolt_type: 'String', required: true },
-    isDone:    { validate_bolt_type: 'Boolean' },
+    createdAt: { type: 'ServerTimestamp' },
+    title:     { type: 'String', required: true },
+    isDone:    { type: 'Boolean' },
   },
 };
 ```

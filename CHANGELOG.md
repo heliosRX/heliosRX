@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- `validate_bolt_type` is not just called `type`
+- `validate_bolt_type` is now called `type`
 - Removed all debug output and introduced a log-level system (based on `ulog`)
 
 ### Removed

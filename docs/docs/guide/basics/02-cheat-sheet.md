@@ -46,15 +46,15 @@ export default {
 
   fields: [
     createdAt: {
-      validate_bolt_type: 'ServerTimestamp',
+      type: 'ServerTimestamp',
     },
     name: {
-      validate_bolt_type: 'String', // server side validation
+      type: 'String', // server side validation
       required: true,
       validate: v => v.length < 30, // client side validation
     },
     someNumber: {
-      validate_bolt_type: 'Number',
+      type: 'Number',
     },
   ],
 };
@@ -98,7 +98,7 @@ type Example {
 }
 ```
 
-#### Data types (`validate_bolt_type`)
+#### Data types (`type`)
 
 - **Default bolt type:**
 

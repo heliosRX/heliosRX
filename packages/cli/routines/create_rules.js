@@ -112,12 +112,12 @@ function read_types_from_stores(all_stores, generate_path_file) {
       if ( !field.model ) {
         console.log(chalk.red("Invalid field. Skipping."), field)
         return
-      } else if ( !field.validate_bolt_type ) {
+      } else if ( !field.type ) {
         if ( field.validator ) {
-          field.validate_bolt_type = map_vfg_validator_to_bolt_type( field.validator );
+          field.type = map_vfg_validator_to_bolt_type( field.validator );
         } else {
-          console.log(chalk.yellow("Missing validate_bolt_type or VFG-validator"), field, chalk.yellow('using Any'))
-          field.validate_bolt_type = 'Any'
+          console.log(chalk.yellow("Missing type or VFG-validator"), field, chalk.yellow('using Any'))
+          field.type = 'Any'
         }
       }
 
@@ -140,7 +140,7 @@ function read_types_from_stores(all_stores, generate_path_file) {
       }
 
       return "\t" + field.model.toString()
-           + ': ' + field.validate_bolt_type.toString()
+           + ': ' + field.type.toString()
            + defaultNull
     }).filter(e => e)
 

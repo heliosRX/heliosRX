@@ -11,8 +11,8 @@ export default {
   },
   <% } %>
   fields: {
-    createdAt: { validate_bolt_type: 'ServerTimestamp' },
-    userId:    { validate_bolt_type: 'UserID' },
-    value:     { validate_bolt_type: 'Number' },
+    createdAt: { type: 'ServerTimestamp' },
+    userId:    { type: 'UserID' },
+    value:     { type: 'Number' },
   },
 };

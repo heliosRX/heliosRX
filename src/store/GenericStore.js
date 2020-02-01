@@ -693,7 +693,7 @@ export default class GenericStore {
 
         Object.keys(allowed_field_map).forEach((key, i) => {
 
-          let type = allowed_field_map[ key ].validate_bolt_type || ''
+          let type = allowed_field_map[ key ].type || ''
 
           if ( mapRegex.test( type ) ) {
             // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
@@ -737,7 +737,7 @@ export default class GenericStore {
 
           // TODO: Also support Generic types (MyTime<A,B>)
 
-          let type_list = (field.validate_bolt_type || "").split("|");
+          let type_list = (field.type || "").split("|");
           let check = type_list.some(typeRaw => {
 
             let type = typeRaw.trim()

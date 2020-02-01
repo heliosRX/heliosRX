@@ -20,7 +20,7 @@ const log = (...args) => { console.log(...args) };
 export default {
 
   // ---------------------------------------------------------------------------
-  write_mixin_init( reset = false ) {
+  _write_mixin_init( reset = false ) {
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticActions ) {
 
@@ -60,7 +60,7 @@ export default {
       new_id = this._get_uid();
     }
 
-    if ( !new_id['.sv'] && !this._validateId( new_id ) ) { // only validate if not a server variable
+    if ( !new_id['.sv'] && !this._validate_id( new_id ) ) { // only validate if not a server variable
       throw new Error('Got invalid id:' + new_id)
     }
 
@@ -104,7 +104,7 @@ export default {
 
     this._convert_moment_objects( payload )
 
-    log("[GENS] Creating at", this._previewPath(new_id), "with payload", payload);
+    log("[GENS] Creating at", this.previewPath(new_id), "with payload", payload);
     // return this.ref.set(payload).then(() => new_id);
     // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
     // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
@@ -143,7 +143,7 @@ export default {
       throw new Error('Either id or data is missing.')
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
         console.warn("Got invalid id <" + id + ">, but validation is disabled.");
       } else {
@@ -163,7 +163,7 @@ export default {
     let payload = data;
     this._convert_moment_objects( payload )
 
-    log("[GENS] Updating at", this._previewPath(id), "with payload", payload);
+    log("[GENS] Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -210,7 +210,7 @@ export default {
         throw new Error("Got invalid sortidx", sortidx);
       }
 
-      if (!this._validateId(item.id)) {
+      if (!this._validate_id(item.id)) {
         throw new Error("Got invalid id", item.id);
       }
 
@@ -226,13 +226,13 @@ export default {
         // data[path + '/' + subset_name + '/' + id + '/' + prop] = data[prop];
         // "/goal/{goalId}/user_list/{uid}/task_names/"
 
-        payload[ this._previewPath(id) + '/' + prop ] = data[prop];
+        payload[ this.previewPath(id) + '/' + prop ] = data[prop];
       })
     });
 
     // TODO: Check schema if sortidx is allowed
 
-    log("[GENS] update at", this._previewPath(), "with payload", payload);
+    log("[GENS] update at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -259,7 +259,7 @@ export default {
       const id_list = id;
       const payload = {};
       id_list.forEach(id => {
-        if ( !this._validateId(id) ) {
+        if ( !this._validate_id(id) ) {
           throw new Error('Got invalid id in remove')
         }
 
@@ -274,7 +274,7 @@ export default {
       return this.parentRef.update(payload);
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -340,7 +340,7 @@ export default {
       // TODO: It probably does - test and remove this check
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -428,7 +428,7 @@ export default {
   */
   transaction( id, prop, transaction, value = 1 ) {
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 

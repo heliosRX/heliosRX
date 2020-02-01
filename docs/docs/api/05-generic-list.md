@@ -54,19 +54,19 @@ clone()
 $isValid()
 ```
 
-#### autogenerate_props
+#### _autogenerate_props
 ```js
-autogenerate_props( schema, data, is_dirty = false )
+_autogenerate_props( schema, data, is_dirty = false )
 ```
 
-#### decorate_actions
+#### _decorate_actions
 ```js
-decorate_actions( modelActions, context )
+_decorate_actions( modelActions, context )
 ```
 
-#### decorate_getters
+#### _decorate_getters
 ```js
-decorate_getters( modelGetters, context )
+_decorate_getters( modelGetters, context )
 ```
 
 #### write

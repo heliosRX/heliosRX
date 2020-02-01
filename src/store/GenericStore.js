@@ -110,7 +110,7 @@ export default class GenericStore {
    *
    * Retrieving data:
    *
-   * challenge._syncList( target )
+   * challenge._sync_list( target )
    * challenge.unsync()
    * challenge.once( target )
    *
@@ -199,26 +199,26 @@ export default class GenericStore {
 
       // Only execute mixin inits, but don't attach methods
       Object.assign(this, {
-        read_mixin_init: ReadMixin.read_mixin_init,
-        write_mixin_init: WriteMixin.write_mixin_init
+        _read_mixin_init: ReadMixin._read_mixin_init,
+        _write_mixin_init: WriteMixin._write_mixin_init
       });
-      this.read_mixin_init();
-      this.write_mixin_init();
+      this._read_mixin_init();
+      this._write_mixin_init();
 
     } else {
       if ( USE_READ_MIXIN ) {
         Object.assign(this, ReadMixin);
-        this.read_mixin_init();
+        this._read_mixin_init();
       }
 
       if ( USE_WRITE_MIXIN && !this.isReadonly ) {
         Object.assign(this, WriteMixin);
-        this.write_mixin_init();
+        this._write_mixin_init();
       }
     }
 
-    // delete this.read_mixin_init
-    // delete this.write_mixin_init
+    // delete this._read_mixin_init
+    // delete this._write_mixin_init
   }
 
   /**
@@ -256,11 +256,11 @@ export default class GenericStore {
     if ( REDEFINE_GETTERS_AFTER_CLONE ) {
       delete clone.getters
       delete clone._vm // !!!
-      clone.read_mixin_init();
+      clone._read_mixin_init();
     }
 
     if ( !this.isReadonly && REDEFINE_ACTIONS_AFTER_CLONE ) {
-      clone.write_mixin_init(true);
+      clone._write_mixin_init(true);
     }
 
     // Keep track of clones
@@ -355,11 +355,11 @@ export default class GenericStore {
   }
 
   /**
-   * _validateId - Checks if a given id is valid
+   * _validate_id - Checks if a given id is valid
    *
    * @return {type}    true or false
    */
-  _validateId( id ) {
+  _validate_id( id ) {
     if ( this.uidMethod === UIDMethod.SLUGID ) {
       if ( !isValidId(id) ) {
         return false;
@@ -372,9 +372,9 @@ export default class GenericStore {
   }
 
   /**
-   * _defineUser - Define user (userId/uid) based on default value
+   * _define_user - Define user (userId/uid) based on default value
    */
-  _defineUser() {
+  _define_user() {
     if ( GenericStore.defaultUserId ) {
       this.definedProps[ 'uid' ] = GenericStore.defaultUserId;
     }
@@ -432,7 +432,7 @@ export default class GenericStore {
   get path() { // TODO: rename this to path and this.path to this.uninterpolatedPath
 
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps)
@@ -456,15 +456,15 @@ export default class GenericStore {
   }
 
   /**
-   * _previewPath - Generate a path preview for a given it
+   * previewPath - Generate a path preview for a given it
    *
    * @param  {type} id description
    */
-  _previewPath( id ) {
+  previewPath( id ) {
 
     // TODO: Should this be called during preview?
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps)

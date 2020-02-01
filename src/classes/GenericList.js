@@ -71,7 +71,7 @@ export default class GenericList {
   _rem_child( id ) {
     // TODO: Check if this.items is an array
     if ( id in this.items ) {
-      this.items[ id ]._onRemove();
+      this.items[ id ]._on_remove();
     }
     Vue.delete( this.items, id );
     this.$numChildren -= 1;
@@ -83,7 +83,7 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  decorate_actions( listActions, context ) { // TODO: move to util
+  _decorate_actions( listActions, context ) { // TODO: move to util
     if ( !listActions ) {
       return
     }
@@ -99,7 +99,7 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  decorate_getters( listGetters, context ) { // TODO: move to util
+  _decorate_getters( listGetters, context ) { // TODO: move to util
     if ( !listGetters ) {
       return
     }

@@ -168,8 +168,8 @@ function read_types_from_stores(all_stores, generate_path_file) {
 
       let store_name_capitalized = store.charAt(0).toUpperCase() + store.slice(1);
 
-      // boltText = boltText.replace(/\{PATH_PLACEHOLDER\}/g, all_stores[store]._previewPath( '{id}' ) )
-      boltText = boltText.replace(/\{PATH_PLACEHOLDER\}/g, all_stores[store]._previewPath( '' ) )
+      // boltText = boltText.replace(/\{PATH_PLACEHOLDER\}/g, all_stores[store].previewPath( '{id}' ) )
+      boltText = boltText.replace(/\{PATH_PLACEHOLDER\}/g, all_stores[store].previewPath( '' ) )
       boltText = boltText.replace(/\{NAME_PLACEHOLDER\}/g, store_name_capitalized);
       boltText = boltText.replace(/(\s*)\{FIELDS_PLACEHOLDER\}/g, "\n" + boltFields.join("\n"));
 

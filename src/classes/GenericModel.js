@@ -60,7 +60,7 @@ export default class GenericModel {
     copy.$state = clonedeep( copy.$state );
     copy.$dirty = clonedeep( copy.$dirty );
     copy.$invalid = clonedeep( copy.$invalid );
-    copy.autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false )
+    copy._autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false )
     copy._set_generic_store( this.$model )
     externalVMStore.set( copy, this.$vm );
     return copy;
@@ -140,7 +140,7 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  _onRemove() {
+  _on_remove() {
     this.$deleted = true; // TODO
     // This is called when the item is going to be removed
     //  - maybe allow subscribers and call them here
@@ -172,7 +172,7 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  autogenerate_props( schema, data, is_dirty = false ) { // TODO: move to util
+  _autogenerate_props( schema, data, is_dirty = false ) { // TODO: move to util
 
     if ( !Array.isArray( schema ) ) {
       schema = Object.keys(schema).map(key => {
@@ -182,7 +182,7 @@ export default class GenericModel {
 
     schema.forEach(field => {
       let propName = field.model;
-      // console.log("[autogenerate_props]", field, propName, data)
+      // console.log("[_autogenerate_props]", field, propName, data)
 
       if ( data && propName in data ) {
         this.$state[ propName ] = data[ propName ];
@@ -281,7 +281,7 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  decorate_actions( modelActions, context ) { // TODO: move to util
+  _decorate_actions( modelActions, context ) { // TODO: move to util
     if ( !modelActions ) {
       return
     }
@@ -297,7 +297,7 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  decorate_getters( modelGetters, context ) { // TODO: move to util
+  _decorate_getters( modelGetters, context ) { // TODO: move to util
     if ( !modelGetters ) {
       return
     }

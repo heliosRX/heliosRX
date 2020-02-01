@@ -42,7 +42,7 @@ export const testCases = {
     })
     assert( test_store.isSuffixed === true );
     assert( test_store.path === '/goal/A1/user_list/U1/task_details/{id}/task_subscription');
-    assert( test_store._previewPath( 'ID1' ) === '/goal/A1/user_list/U1/task_details/ID1/task_subscription');
+    assert( test_store.previewPath( 'ID1' ) === '/goal/A1/user_list/U1/task_details/ID1/task_subscription');
   },
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

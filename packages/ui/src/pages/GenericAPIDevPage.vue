@@ -259,7 +259,7 @@ export default {
     ]),
     path_preview() {
       return this.gens_selected
-              ? this.gens_selected._previewPath( this.individual_child_id || '*' )
+              ? this.gens_selected.previewPath( this.individual_child_id || '*' )
               : '';
     },
     schema_for_selected_gens() {
@@ -300,19 +300,19 @@ export default {
     },
 
     onListSync( fetchOnce ) {
-      this.gens_selected._syncList({ fetchOnce }); // fetchOnce  // TODO!!
+      this.gens_selected._sync_list({ fetchOnce }); // fetchOnce  // TODO!!
       this.onUpdateStore();
     },
 
     onIndividualSync( id, fetchOnce ) {
-      this.gens_selected._syncIndividual( id, { fetchOnce }); // TODO!!
+      this.gens_selected._sync_individual( id, { fetchOnce }); // TODO!!
       this.onUpdateStore();
     },
 
     onUnsubscribe(store, id) {
       store = typeof store === 'string' ? this.generic_store_list[ store ] : store;
       if ( id === undefined ) {
-        store.unsync_all()
+        store.unsyncAll()
         // store.unsync()
       } else {
         store.unsync( id );
@@ -323,7 +323,7 @@ export default {
     onUpdateStore() {
       // "Manual reactivity"
       if (!this.gens_selected) return;
-      this.info.preview_path = this.gens_selected._previewPath('<ID>'); // ??
+      this.info.preview_path = this.gens_selected.previewPath('<ID>'); // ??
       // this.info.subscriptions = this.gens_selected.subscriptions;
       setTimeout(() => {
         this.info.subscriptions = this.$db.getGlobalSubscriptionList();

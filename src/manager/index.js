@@ -33,6 +33,6 @@ export default {
   // setDefaultDB
   // getRegistryState
   // getAllSyncedPaths
-  // reset_global_instance_cache
+  // resetGlobalInstanceCache
   // get subscriptions()
 }

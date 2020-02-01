@@ -141,8 +141,8 @@ test('create substore with "with"', () => {
   expect(store.isSuffixed).toBe(true)
   expect(newStore.definedProps['itemId']).toBe(1)
   expect(newStore.path).toBe("/foo/1/bar/{id}/sub")
-  expect(newStore._previewPath(5)).toBe("/foo/1/bar/5/sub")
-  expect(newStore._previewPath()).toBe("/foo/1/bar/{id}/sub")
+  expect(newStore.previewPath(5)).toBe("/foo/1/bar/5/sub")
+  expect(newStore.previewPath()).toBe("/foo/1/bar/{id}/sub")
 })
 
 test('reset store', () => {

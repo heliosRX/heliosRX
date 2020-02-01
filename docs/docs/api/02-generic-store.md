@@ -263,14 +263,14 @@ _clone()
 _get_uid()
 * _get_uid - Generates a new unique identifier based on the selected method in the constructor
 
-_validateId( id )
-* _validateId - Checks if a given id is valid
+_validate_id( id )
+* _validate_id - Checks if a given id is valid
 
-_defineUser()
-* _defineUser - Define user (userId/uid) based on default value
+_define_user()
+* _define_user - Define user (userId/uid) based on default value
 
-_previewPath( id )
- * _previewPath - Generate a path preview for a given it
+previewPath( id )
+ * previewPath - Generate a path preview for a given it
 
 _define( target, props )
 * _define - Defines id's in the template string (INTERNAL)
@@ -501,7 +501,7 @@ an Object, not a GenericModel. In most cases, you want to use
 <!--
 ### Internal
 ```js
-_write_mixin_init( reset = false )
+__write_mixin_init( reset = false )
 _convert_moment_objects( payload )
 ```
 -->
@@ -688,21 +688,21 @@ unsync( id = null, { clean_up = false } = {} )
 * @param {{ clean_up }} obj  description
 * @param {Boolean} obj.clean_up - Clean up?
 
-unsync_all({ clean_up = false } = {})
-* unsync_all - Stop sycning all subscriptions of this store.
+unsyncAll({ clean_up = false } = {})
+* unsyncAll - Stop sycning all subscriptions of this store.
 *
 * @param {{ clean_up }} obj
 * @param {Boolean} obj.clean_up - Clean up?
 
-_fetchIndividual( id, { overwriteKey = false, customOps = {} } = {} )
-* _fetchIndividual - fetch an individual item of the collection
+_fetch_individual( id, { overwriteKey = false, customOps = {} } = {} )
+* _fetch_individual - fetch an individual item of the collection
 *
 * @param  {uuid} id                            description
 * @param  {{ overwriteKey, customOps }} obj
 * @param  {Boolean} obj.overwriteKey - description
 * @param  {Object} obj.customOps - description
 
-_fetchList( { overwriteKey = false, customOps = {}, customRef = null } = {} )
+_fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} )
 * fetch - fetch all items in this collection
 *
 * @param  {{ overwriteKey, customOps, customRef }} obj - description
@@ -710,16 +710,16 @@ _fetchList( { overwriteKey = false, customOps = {}, customRef = null } = {} )
 * @param  {Object} obj.customOps - description
 * @param  {Object} obj.customRef - null
 
-_syncIndividual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} )
-* _syncIndividual - sync an individual item of the collection
+_sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} )
+* _sync_individual - sync an individual item of the collection
 * @param  {type} id - id of node
 * @param  {{ overwriteKey, fetchOnce, customOps obj
 * @param  {Boolean} obj.overwriteKey - description
 * @param  {Boolean} obj.fetchOnce - description
 * @param  {Object} obj.customOps - description
 
-_syncList( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} )
-* _syncList - sync entire collection (also track child added, child removed)
+_sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} )
+* _sync_list - sync entire collection (also track child added, child removed)
 *
 * @param  {{ overwriteKey, fetchOnce, customOps, customRef }} obj
 * @param  {Boolean} obj.overwriteKey  - false
@@ -729,14 +729,14 @@ _syncList( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef 
 *
 *  Returns a promise, that will resolve, when all items are ready
 
-reset_global_instance_cache()
+resetGlobalInstanceCache()
 ```
 -->
 
 
 <!--
 ```js
-read_mixin_init()
+_read_mixin_init()
 _infer_local_path_from_ref( ref )
 * _infer_local_path_from_ref - Converts a firebase ref into a "walkable" path
 *
@@ -754,7 +754,7 @@ _infer_local_path_from_ref( ref )
 *   TODO:
 *   state.res.goal[ goalId ].children.user_list[ uid ].children.task_details[ ].task_subscription.data
 
-_itemMatchesQuery(query, item)
+_item_matches_query(query, item)
 _create_context()
 _match_all_existing_synced_queries( requested_path, only_active = true )
 _match_existing_synced_nodes( requested_path, subnodes_can_match_lists = false)

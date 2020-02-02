@@ -8,6 +8,8 @@ import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/
 const externalVMStore = new WeakMap(); // Exclude vm from instance, so it can be serialized
 const externalModelStore = new WeakMap(); // Stores generic store references
 
+import { DeleteMode } from '../store/enums'
+
 const SERVER_TIMESTAMP_ALIASES = [
   'ServerTimestamp',
   'CurrentTimestamp',
@@ -409,8 +411,11 @@ export default class GenericModel {
   }
 
   /* ------------------------------------------------------------------------ */
-  remove(soft_delete = true) {
+  remove( soft_delete = null ) {
     let model = this._get_model_for_write();
+    if ( soft_delete == null ) {
+      soft_delete = model.defaultDeleteMode === DeleteMode.SOFT;
+    }
     return model.remove( this.$id, soft_delete ).then(() => {
       if ( soft_delete ) {
         delete this.$dirty[ 'deleted' ] // ?

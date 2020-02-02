@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Removed all debug output and introduced a log-level system (based on `ulog`)
+- `task.remove()` now doesnt use soft_delete = true as default anymore
 
 ### Removed
 

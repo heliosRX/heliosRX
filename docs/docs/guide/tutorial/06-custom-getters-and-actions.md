@@ -11,8 +11,8 @@ This section is still a work in progress. It will be updated soon.
 └── models
     └── tasks
         ├── schema.js   -
-        ├── getters.js  -
-        └── actions.js  -
+        ├── getters.js  -
+        └── actions.js  -
 ```
 
 ### src/model/taskSession/index.js
@@ -48,7 +48,7 @@ export default {
   fields: [
     { model: 'a', type: 'Number' },
     { model: 'b', required: true },
-    { model: 'long_name',  abbrv: 'ln' },
+    { model: 'long_name',  abbrv: 'ln' },
     { model: 'short_name', abbrv: 'sn' }
     ...
   ],
@@ -300,7 +300,7 @@ export default {
       goal.write({ debounce: 600 })
     },
 
-    onMove() {
+    onMove() {
       this.$models.goal_meta.move({ goalId: 1 }, { uid: A }, { uid: B })
     },
   }

@@ -2,8 +2,8 @@ const path = require('path')
 const buble = require('@rollup/plugin-buble')
 const replacePlugin = require('@rollup/plugin-replace')
 const resolvePlugin = require('@rollup/plugin-node-resolve')
-const commonjsPlugin = require('@rollup/plugin-commonjs');
-const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
+const commonjsPlugin = require('@rollup/plugin-commonjs')
+// const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
 // const ignorePlugin = require("rollup-plugin-ignore");
 
 const version = process.env.VERSION || require('../package.json').version
@@ -123,6 +123,7 @@ function mapValues (obj, fn) {
   return res
 }
 
+// eslint-disable-next-line
 function print( obj ) {
   console.log("---------------------------------------------------------------")
   console.log(obj)

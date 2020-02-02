@@ -100,7 +100,7 @@ export default {
       let r4 = this.$models2.magic_store.dynamic_custom_getter;
       return r1 + r2 + r3 + r4;
     },
-    myMagicGetter() {
+    myMagicGetter() {
       return this.$models2.magic_store.dynamic_custom_getter;
     }
   },

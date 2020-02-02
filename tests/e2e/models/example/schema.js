@@ -1,4 +1,4 @@
-import { moment } from 'heliosrx'
+import { moment } from '@/index.esm.js'
 
 export default {
 

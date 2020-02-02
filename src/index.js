@@ -26,4 +26,3 @@ heliosRX.setDefaultUser = setDefaultUser;
 heliosRX.resetGenericStores = resetGenericStores;
 
 export default heliosRX;
-

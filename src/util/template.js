@@ -48,7 +48,7 @@ export function parseTpl(template, map, fallback) {
 
 /* Example:
   analyzeTpl(parseTpl("/test/${test}/${uid}/ABC/${abc}", {abc: 1}))
-  (2) ["test", "uid"]
+  (2) ["test", "uid"]
 */
 
 export function analyzeTpl(template) {

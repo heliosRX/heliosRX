@@ -57,8 +57,8 @@ test('writing map', () => {
   expect(() => {
     store._validate_schema({
       mapField: {
-        "foo": "bar",
-        "bar": "foo",
+        foo: "bar",
+        bar: "foo",
       },
     }, false)
   }).not.toThrow();

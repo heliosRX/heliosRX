@@ -325,12 +325,13 @@ export default class GenericStore {
         // TODO: let key = btoa(email)
         throw new Error('Only email addresses allowed as key')
 
-      case UIDMethod.CUSTOM:
+      case UIDMethod.CUSTOM: {
         let customId = this.uidMethodCallback( this.definedProps )
         if ( !customId ) {
           throw new Error( 'An ID was not defined. Check custom UID Callback.' );
         }
         return customId
+      }
 
       default: throw new Error('Unknown UID Method: ' + this.uidMethod)
     }
@@ -341,7 +342,7 @@ export default class GenericStore {
    *
    * @param  {type} db description
    */
-  static setDefaultDB( db ) {
+  static setDefaultDB( db ) {
     defaultDB = db;
   }
 
@@ -799,7 +800,7 @@ export default class GenericStore {
 
             return hasValidKey && hasValidValue;
           });
-      case 'array':
+      case 'array': {
         // Type[] = Map<Number, Type>
         let entries = [];
         if ( isArray( value ) ) {
@@ -813,6 +814,7 @@ export default class GenericStore {
           let hasValidType = this._validate_bolt_type( v, typeInfo.val );
           return hasValidType;
         });
+      }
       default:
         console.warn("Can not validate type '" + type + "'");
         return true;

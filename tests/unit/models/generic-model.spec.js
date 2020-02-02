@@ -1,9 +1,11 @@
+// eslint-disable-next-line import/no-unresolved
+import Vue from 'vue'
+
 import GenericModel from '@/classes/GenericModel'
 import GenericList from '@/classes/GenericList'
 import factory from '@/classes/factory'
 import { create_context } from './mock-context';
 import moment from '@/moment'
-import Vue from 'vue'
 
 const DISABLE_WARNINGS = true;
 
@@ -235,8 +237,8 @@ describe('GenericModel', () => {
 
     model['x.z'] = true
 
-    expect(model.hasOwnProperty('x.z')).toBe(true)
-    expect(model.hasOwnProperty('x/z')).toBe(false)
+    expect(Object.hasOwnProperty.call(model, 'x.z')).toBe(true)
+    expect(Object.hasOwnProperty.call(model, 'x/z')).toBe(false)
 
     expect(model['x.z']).toBe(true)
     expect(model.$state.x.z).toBe(true)
@@ -290,7 +292,7 @@ describe('GenericModel', () => {
 
     model.write().then(id => {
       expect(id).toBe('abc');
-      expect(context.model.update).toHaveBeenCalledWith("abc", {"numField": 1, "strField": "test"})
+      expect(context.model.update).toHaveBeenCalledWith("abc", {numField: 1, strField: "test"})
     });
   });
 
@@ -307,7 +309,7 @@ describe('GenericModel', () => {
     model.update({ numField: 2 }).then(id => {
       expect(model.$id).toBe('xyz');
       expect(id).toBe('xyz');
-      expect(context.model.update).toHaveBeenCalledWith("xyz", { "numField": 2 })
+      expect(context.model.update).toHaveBeenCalledWith("xyz", { numField: 2 })
     })
 
     model.remove().then(() => {

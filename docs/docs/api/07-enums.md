@@ -48,7 +48,7 @@ The default unique Id method can be configured when a new Generic Store is defin
 const post = new GenericStore(
   '/post/*',
   postModelDefinition,
-  { uidMethod: UIDMethod.TIMESTAMP }
+  { uidMethod: UIDMethod.TIMESTAMP }
 );
 ```
 

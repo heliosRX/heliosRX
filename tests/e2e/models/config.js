@@ -1,4 +1,5 @@
-import { GenericStore, UIDMethod } from '@'
+// import GenericStore from '@/store'
+import { GenericStore, UIDMethod } from '@/index.esm.js'
 
 import exampleModelDefinition from './example';
 

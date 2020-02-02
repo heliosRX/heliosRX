@@ -13,13 +13,13 @@ function make_property_sorter(prop) {
   let sorter = null;
   if ( prop[0] === '-' ) {
     prop = prop.slice(1)
-     sorter = (a,b) => {
+     sorter = (a, b) => {
       if (a[prop] < b[prop]) return 1;
       if (a[prop] > b[prop]) return -1;
       return 0;
     }
   } else {
-    sorter = (a,b) => {
+    sorter = (a, b) => {
       if (a[prop] < b[prop]) return -1;
       if (a[prop] > b[prop]) return 1;
       return 0;

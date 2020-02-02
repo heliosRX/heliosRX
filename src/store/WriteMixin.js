@@ -463,7 +463,7 @@ export default {
    *
    * @return {type}  description
    */
-  new() {
+  new() {
     let model = factory.make_reactive_model( this.modelDefinition, null, this._create_context(), false );
     return model;
   },
@@ -508,7 +508,7 @@ export default {
 
     this._check_required_create_arg( data );
 
-    let payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND )
+    let payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND )
 
     /* Validate created data against it's schema. */
     if ( this.modelDefinition.schema ) {

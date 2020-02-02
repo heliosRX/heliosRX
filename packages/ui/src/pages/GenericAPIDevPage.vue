@@ -250,7 +250,7 @@ export default {
       "userAuth"
     ]), */
     userAuth() {
-      return { id: '0123456798 '};
+      return { id: '0123456798 '};
     },
     ...mapState([
       'res',

@@ -86,6 +86,7 @@ module.exports.teardown = async () => {
   Promise.all(firebase.apps().map(app => app.delete()));
 };
 
+/* eslint-disable no-empty */
 expect.extend({
   async toAllow(x) {
     let pass = false;

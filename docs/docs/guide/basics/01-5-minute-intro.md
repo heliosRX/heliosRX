@@ -255,7 +255,7 @@ export default {
     },
     updateItem() {
       // The first argument of update is always the id
-      this.$models.task.update( "-Lw_jEwrxiM6d2fS0n2m", { title: 'New title' });
+      this.$models.task.update( "-Lw_jEwrxiM6d2fS0n2m", { title: 'New title' });
     }
   }
 }

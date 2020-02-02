@@ -7,8 +7,7 @@
 
 *******************************************************************************/
 
-import { _registry as registry } from '../external-deps' // TODO ???
-import { _models } from '../external-deps'
+import { _models, _registry as registry } from '../external-deps'
 import { walkGet, walkGetObjectSave } from '../registry/utils'
 import joint from '../util/joint'
 // import { UIDMethod, DeleteMode } from './enums'
@@ -68,7 +67,7 @@ const _resultInstanceCache = new Map();
 const _resultListCache     = new Map();
 
 if ( String(process.env.VUE_APP_PRODUCTION) === 'false' ) {
-  window.helioRxDev = window.helioRxDev || {};
+  window.helioRxDev = window.helioRxDev || {};
   window.helioRxDev._resultInstanceCache = _resultInstanceCache
   window.helioRxDev._resultListCache     = _resultListCache
   window.helioRxDev._autoUnsubscribeMap  = _autoUnsubscribeMap
@@ -128,7 +127,7 @@ export default {
 
     // Keep track of of Vue components that subscribed to data and automatically
     // unsubscribe when the component is destroyed.
-    let last_caller = this._last_caller || null;
+    let last_caller = this._last_caller || null;
     if ( this.autoUnsubscribe && last_caller ) {
 
       // Create or update an existing unsubscribe function nd save it to _autoUnsubscribeMap
@@ -185,8 +184,7 @@ export default {
         + `accessed this.$models and created a subscriptions. The components \n`
         + `just got destroyed and so did it's subscription to ${JSON.stringify(Object.keys(keys))}.`,
         'color: green');
-    }
-    else {
+    } else {
       console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
         + `accessed this.$models, but it either didn't create any subscriptions or \n`
         + `the subscription was already removed. The component just got destroyed \n`
@@ -265,7 +263,7 @@ export default {
             ? this.global_store_path_array[ id ]
             : this.global_store_path;
 
-    if ( key ) {
+    if ( key ) {
       this._unbind_rtdb({ key })
     }
 
@@ -452,7 +450,7 @@ export default {
       throw new Error('Suffixed store does not support bind to array')
     }
 
-    const ref          = customRef || this.parentRef;
+    const ref          = customRef || this.parentRef;
     const key_from_ref = overwriteKey || this._infer_local_path_from_ref( ref )
     const key          = LOCAL_PATH_PREFIX + key_from_ref
 
@@ -858,7 +856,7 @@ export default {
       query: queryParams,
       status: 'Loading',
     };
-    registry.commit('ADD_ENTRY', { name: entry_name, data: registry_entry })
+    registry.commit('ADD_ENTRY', { name: entry_name, data: registry_entry })
     // TODO: registry.add_entry( registry_entry)
 
     let result = factory.make_reactive_list( this.modelDefinition, null, this._create_context() );
@@ -1120,7 +1118,7 @@ export default {
       id: id,
       status: 'Loading',
     };
-    registry.commit('ADD_ENTRY', { name: entry_name_child, data: registry_entry })
+    registry.commit('ADD_ENTRY', { name: entry_name_child, data: registry_entry })
     // TODO: registry.add_entry( registry_entry)
     log1(this.name, "subscribeNode - Made registry entry and started at", entry_name_child, registry_entry);
 
@@ -1421,7 +1419,7 @@ export default {
     const USE_NESTED_DATA = true;
     let item_path = '';
     if ( this.isSuffixed || id ) {
-      if ( !id ) {
+      if ( !id ) {
         throw new Error('getData: id required for suffixed stores')
       }
       item_path = this.path.replace(/\{id\}/g, id)

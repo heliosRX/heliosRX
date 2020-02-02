@@ -175,11 +175,11 @@ Next, create the following folder structure:
 
 ```
 ├── rules               - Used for database access rules
-│   └── rules.bolt      - Default access rules
+│   └── rules.bolt      - Default access rules
 └── src
     └── models
-        ├── config.js   - Models are assigned to DB paths here
-        └── *           - Model definitions (Can be accessed through this.$models)
+        ├── config.js   - Models are assigned to DB paths here
+        └── *           - Model definitions (Can be accessed through this.$models)
 ```
 
 by running

@@ -2,8 +2,6 @@
 // import { _Vue as Vue } from '../external-deps'
 // import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
 // const moment = {}
-const moment = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js")
-
 // import momentDurationFormatSetup from "moment-duration-format"
 // import firebase from "@firebase/app"; // TODO: Remove dependency
 // import "@firebase/database";
@@ -11,6 +9,8 @@ const moment = require("moment-timezone/builds/moment-timezone-with-data-2012-20
 import firebase from "./firebase-shim";
 
 import { matchUserInputDuration } from '../util/types'
+
+const moment = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js")
 
 /*******************************************************************************
 
@@ -242,7 +242,7 @@ export function enhanceMomentJS( moment ) {
   /* Parse time */
   moment.parseTimeNatural = (input, referenceTime = null ) => {
     let formats = ["HH:mm", "HH:mm A", "HH A", "HH"];
-    input = (input || '').trim();
+    input = (input || '').trim();
     if ( !input ) {
       return null
     }

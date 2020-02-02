@@ -16,7 +16,7 @@ export default {
   fields: [
     { model: 'a', type: 'Number' },
     { model: 'b', required: true },
-    { model: 'long_name',  abbrv: 'ln' },
+    { model: 'long_name',  abbrv: 'ln' },
     { model: 'short_name', abbrv: 'sn' }
     ...
   ],

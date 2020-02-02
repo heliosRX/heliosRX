@@ -1,6 +1,6 @@
 // DEPRECATED
 export default {
-  actions: {
+  actions: {
     customAction: () => {
       console.log("custom action 1");
     },

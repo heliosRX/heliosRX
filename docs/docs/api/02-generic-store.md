@@ -58,7 +58,7 @@ This section is still a work in progress. It will be updated soon.
 const post = new GenericStore(
   '/post/*',
   postModelDefinition,
-  { 
+  { 
     uidMethod: UIDMethod.TIMESTAMP,
     defaultDeleteMode: deleteMode.HARD,
   }
@@ -115,8 +115,8 @@ Returns if the store is a read-only store (all 'write methods' are removed from 
 Returns an object of defined properties.
 
 ```js
-example.with({ x: 'a', y: 'b' }).definedProps
-// > { x: 'a', y: 'b' }
+example.with({ x: 'a', y: 'b' }).definedProps
+// > { x: 'a', y: 'b' }
 ```
 
 ### additionalProps
@@ -133,7 +133,7 @@ const contact = new GenericStore(
   { additionalProps: ['otherUserId'] }
 );
 // Now myUserId and otherUserId can be used as path property
-example.with({ myUserId: 'a', otherUserId: 'b' }).definedProps
+example.with({ myUserId: 'a', otherUserId: 'b' }).definedProps
 ```
 
 ### uidMethod
@@ -358,7 +358,7 @@ as the id for the new entry. The UIDMethod is ignored. Valid options are:
 ```js
 $models.example.add({ title: 'Name' })
 // or
-$models.example.add({ title: 'Name' }).then(id => { ... })
+$models.example.add({ title: 'Name' }).then(id => { ... })
 ```
 
 ### update

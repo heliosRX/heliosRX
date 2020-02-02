@@ -4,11 +4,10 @@ import clonedeep from 'lodash.clonedeep'
 import { add_custom_getters, add_custom_actions } from '../classes/utils'
 import moment from '../moment'
 import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/utils'
+import { DeleteMode } from '../store/enums'
 
 const externalVMStore = new WeakMap(); // Exclude vm from instance, so it can be serialized
 const externalModelStore = new WeakMap(); // Stores generic store references
-
-import { DeleteMode } from '../store/enums'
 
 const SERVER_TIMESTAMP_ALIASES = [
   'ServerTimestamp',

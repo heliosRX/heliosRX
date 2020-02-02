@@ -1,15 +1,15 @@
 import GenericStore from '@/store'
 import firebase from "firebase"
-const chalk = require('chalk');
 
 import { testCases } from './generic-store.spec.js'
+const chalk = require('chalk');
 
 // const AUTHENTICATE_AS_USER = false;
 const AUTHENTICATE_AS_USER = "test@test.com";
 const AUTHENTICATE_WITH_PASSWORD = "test123";
 
 // console.log("Got genstores", Object.keys(genstores))
-// console.log("Got  testCases", Object.keys( testCases))
+// console.log("Got  testCases", Object.keys( testCases))
 
 // const matchTestName = 'test_rem_item';
 const matchTestName = 'test_path_interpolation';

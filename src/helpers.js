@@ -23,7 +23,7 @@ export function resetGenericStores( unsubscribe = true ) {
   const stores = StoreManager.getAllStores();
 
   for ( var key in stores ) {
-    // if ( key === '_prototype' ) { // ???
+    // if ( key === '_prototype' ) { // ???
     //   continue
     // }
 

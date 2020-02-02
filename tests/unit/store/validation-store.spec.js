@@ -1,9 +1,11 @@
+// eslint-disable-next-line import/no-unresolved
 import Vue from 'vue'
+
 import firebase from 'firebase'
 import GenericStore from '@/store'
 import { setup } from '@/store/GenericStore'
 import { DeleteMode, UIDMethod } from '@/store/enums'
-import { isValidId } from '@/util/types.js'
+// import { isValidId } from '@/util/types.js'
 
 setup({ Vue, firebase });
 
@@ -81,6 +83,7 @@ test('abstracStore', () => {
   }).not.toThrow();
 })
 
+/* eslint-disable no-new */
 test('creating invalid stores', () => {
   expect(() => {
     new GenericStore( "" );
@@ -170,6 +173,7 @@ test('uid methods', () => {
 expect.extend({
   toBeValidId(received) {
     // const pass = isValidId( received );
+    // eslint-disable-next-line no-control-regex, no-useless-escape
     const pass = /^((?![\/\[\]\.\#\$\/\u0000-\u001F\u007F]).)*$/.test( received )
     if (pass) {
       return {

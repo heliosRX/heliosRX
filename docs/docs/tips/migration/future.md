@@ -20,7 +20,7 @@ const db = heliosRX.setup({
     db2: rtdb2,
     db3: rtdb3,
   },
-  plugins: [],
+  plugins: [],
   // list of ready flags
 })
 

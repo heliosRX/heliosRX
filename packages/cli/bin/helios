@@ -141,7 +141,7 @@ program
   .command('gen-model <name>').alias("m")
   .description('Generate a new model')
   .action((options) => {
-    let name = options['name'] || null;
+    let name = options['name'] || null;
     RunWithES6('../routines/make_model', options, { name });
   });
 

@@ -36,11 +36,11 @@ should look like this:
 
 ```
 ├── rules               - Used for database access rules
-│   └── rules.bolt      - Default access rules
+│   └── rules.bolt      - Default access rules
 └── src
     └── models
-        ├── config.js   - Models are assigned to DB paths here
-        └── *           - Model definitions (Can be accessed through this.$models)
+        ├── config.js   - Models are assigned to DB paths here
+        └── *           - Model definitions (Can be accessed through this.$models)
 ```
 
 ::: warning Create src/models/index.js

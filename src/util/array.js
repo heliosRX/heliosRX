@@ -46,7 +46,7 @@ export function arrayDiff( array1, array2 ) {
 
 export function arrayDiffTwoWay( new_list, old_list ) {
   return {
-    'removed': arrayDiff( old_list, new_list ),
-    'added':   arrayDiff( new_list, old_list )
+    removed: arrayDiff( old_list, new_list ),
+    added:   arrayDiff( new_list, old_list )
   }
 }

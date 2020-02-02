@@ -181,6 +181,7 @@ export default class GenericStore {
 
     this.enableTypeValidation = options.enableTypeValidation;
     this.autoUnsubscribe = options.autoUnsubscribe;
+    this.allowEmptySchema = options.allowEmptySchema;
 
     this.isReadonly = options.isReadonly;
     this.templatePath = templatePath;

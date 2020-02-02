@@ -169,4 +169,18 @@ additional privileges to what parent nodes have already declared. They cannot re
 read or write privilege.
 :::
 
+::: tip Tip 23
+Bolt function definitions can not contain spaces:
+- **WRONG:**
+```bolt
+function isMeGroupMember (groupId) {}
+function isMeGroupMember( groupId ) {}
+```
+- **RIGHT:**
+```bolt
+function isMeGroupMember(groupId) {}
+```
+:::
+
+
 For more information see: [https://github.com/FirebaseExtended/bolt/blob/master/docs/language.md](https://github.com/FirebaseExtended/bolt/blob/master/docs/language.md).

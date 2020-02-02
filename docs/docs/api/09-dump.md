@@ -13,7 +13,7 @@ Create store with different UID method.
 
 # Markdown Testing
 
-- `$registy`
+- `$registry`
 - `$api`
 - `$models`
 - `$db`

@@ -50,6 +50,9 @@ This section is still a work in progress. It will be updated soon.
 | uidMethod         | `string`            | See [UIDMethod](./00-database#UIDMethod)
 | defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./00-database#DeleteMode)
 | additionalProps   | `array<string>`     | Additional properties |
+| enableTypeValidation   | `boolean`     | Enable validation based on (bolt) types |
+| autoUnsubscribe   | `boolean`     | Automatically unsubscribe from everything a component subscribed to? (triggered on beforeDestroy) |
+
 
 ```js
 const post = new GenericStore(
@@ -166,25 +169,32 @@ Return Firebase Database Reference to root of database.
 
 Returns Firebase Realtime Database Reference to child with given `id`.
 
-### schemaRequiredFields
-- **`get schemaRequiredFields() ⇒ array<string>`**
+### schemaFields
+- **`get schemaFields() ⇒ array< field: object >`**
 
-Returns all required fields defined in the schema.
-
-### schemaOptionalFields
-- **`get schemaOptionalFields() ⇒ array<string>`**
-
-Returns all required fields defined in the schema.
+Returns all fields defined in the schema as array.
 
 ### schemaAllFields
 - **`get schemaAllFields() ⇒ array<string>`**
 
-Returns all fields that are defined in the schema.
+Returns all fields names that are defined in the schema.
 
-### subscriptions (internal)
+### schemaRequiredFields
+- **`get schemaRequiredFields() ⇒ array<string>`**
+
+Returns all required fields names defined in the schema.
+
+### schemaOptionalFields
+- **`get schemaOptionalFields() ⇒ array<string>`**
+
+Returns all optional fields names defined in the schema.
+
+### subscriptions
+<!-- (internal?) -->
 - **`get subscriptions() ⇒ array<Subscrition>`**
 
 Returns all subscriptions that were created by this store.
+<!-- What is a subscription? -->
 
 ### rules
 - **`get rules() ⇒ string`**
@@ -240,7 +250,22 @@ example.with({ x: 'a', y: 'b' }).add({ ... })
 // A new entry is added to /project/a/post/b/comment/-Lw_jEwrxiM6d2fS0n2m
 ```
 
-### setName (INTERNAL?)
+### previewPath
+
+- **`previewPath( [id: string] ) ⇒ String`**
+
+Generate a path preview for a given it:
+
+```js
+// template path: /project/{x}/post/{y}/comment/*
+example.with({ x: 'a', y: 'b' }).previewPath('c')
+//> /project/a/post/b/comment/c
+example.with({ x: 'a', y: 'b' }).previewPath()
+//> /project/a/post/b/comment/{id}
+```
+
+### setName
+<!-- (INTERNAL?) -->
 
 - **`setName( string ) ⇒ void`**
 
@@ -486,7 +511,7 @@ Create empty model from schema (without calling create function)
 Create empty model from create function
 <!-- newFromTemplate + write = add -->
 
-### newFromData (INTERNAL)
+### newFromData
 - **`newFromData( data: object<string:any> <, make_dirty:boolean> ) ⇒ GenericModel`**
 
 <!-- TODO: make_dirty: default: false -->

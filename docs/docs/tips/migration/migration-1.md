@@ -30,6 +30,7 @@
 | `_schema_fields`          | `schemaFields`            | v0.2.3
 | `_define`                 | removed                   | v0.2.3
 | `$id_list`                | `$idList`                 | v0.2.3
+| `$isValid()`              | `$isValid`                | v0.2.3
 
 ### Property and method names (v0.2.4) ?
 

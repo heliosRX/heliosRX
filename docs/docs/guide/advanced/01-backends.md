@@ -69,7 +69,7 @@ export class CustomCollection extends Collection {
 
 ```js
 // file: custom-backend/database.js
-import { Database } from 'heliosrx'
+import { Database } from 'heliosrx'
 import CustomDocument from './document'
 import CustomCollection from './collection'
 

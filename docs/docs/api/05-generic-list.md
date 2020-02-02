@@ -20,61 +20,66 @@ _store_name  = name;
 _unwatch     = null;
 ```
 
+
 ## Getters
 
-#### $key
+#### $idList
+- **`TODO`**
 ```js
-get $key()
+get $idList()
 ```
 
-#### $vm
+#### itemsSorted
+- **`TODO`**
 ```js
-get $vm()
-```
-
-#### $model
-```js
-get $model()
+get itemsSorted()
 ```
 
 ## Methods
 
 #### constructor
 ```js
-constructor( schema, data, name )
+constructor( name )
 ```
 
-#### clone
+#### getItemByIdx
+- **`TODO`**
 ```js
-clone()
+getItemByIdx( idx )
 ```
 
-#### $isValid
+#### asArraySorted
+- **`TODO`**
 ```js
-$isValid()
+asArraySorted()
 ```
 
-#### _autogenerate_props
+#### asArraySortedBy
+- **`TODO`**
 ```js
-_autogenerate_props( schema, data, is_dirty = false )
+asArraySortedBy(prop)
 ```
 
-#### _decorate_actions
+#### asArrayFilteredBy
+- **`TODO`**
 ```js
-_decorate_actions( modelActions, context )
+asArrayFilteredBy(prop, value)
 ```
 
-#### _decorate_getters
+#### itemsAsArrayWithoutDeleted
+- **`TODO`**
 ```js
-_decorate_getters( modelGetters, context )
+itemsAsArrayWithoutDeleted( custom_sortidx )
 ```
 
-#### write
+#### itemsAsArrayOnlyDeleted
+- **`TODO`**
 ```js
-write()
+itemsAsArrayOnlyDeleted( custom_sortidx )
 ```
 
 #### reset
+- **`TODO`**
 ```js
 reset()
 ```

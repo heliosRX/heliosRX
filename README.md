@@ -45,19 +45,24 @@
 
 **heliosRX** is a front-end ORM (Object-Relational Mapping) layer
 for reactive real-time web applications using Firebase Realtime Database and Vue.
-heliosRX allows developers to define `models` based on schema files.
 
+<!-- heliosRX allows developers to define `models` based on schema files. -->
 <!--
 Firebase Realtime Database is a managed NoSQL database hosted on
 the Google Cloud infrastructure, that allows to save and retrieve data from a
 JSON-like structure.
 -->
 
-- ✌️ Currently supports Vue and Firebase.
-- 🍭 Easy to use abstraction layer for firebase
-- ⚡ Speeds up development significantly
-- 🔌 Modular architecture (will support other backends in the future)
-- ⏱️ Write fully reactive Realtime Apps
+<!-- - 🗃️ **Firebase ORM** Object Relation Management for Firebase Realtime Database. -->
+- 🍭 **Firebase ORM** Elegant abstraction layer for Firebase Realtime Database.
+- 🍱 **Model based state management** Declare models with reactive getters and custom actions.
+- ♻️ **One Codebase** Generate Frontend API and Backend API from one Codebase.
+- ⚡  **Faster development** Significantly reduced development time.
+
+
+The basic idea behind heliosRX is:
+
+> Describe your data structures by providing a schema. Based on that schema heliosRX will generate a client (with automatic client-side validation) and a server ( = security rules).
 
 ## Documentation
 
@@ -65,13 +70,21 @@ JSON-like structure.
 
 ## When should I use heliosRX?
 
-If you're using Firebase as your backend and if you're building a SPA that
-is a little bit more complex then a simple to-do list, then heliosRX is
-probably very useful for you. Some benefits of using heliosRX over
-just Firebase Client API are:
+If you're using Firebase as your backend and if you're building something that
+is a little bit more complex then just a simple to-do list, then heliosRX is
+probably very useful for you. Some reasons why you might chose heliosRX over just Firebase
+Client API are:
+
+- ➡️ You want to develop a SPA with Vue and Firebase
+- ➡️ You want to write significantly less code
+- ➡️ You want consistent data validation on client and server
+- ➡️ You want an additional layer of abstraction and therfore less vendor lock-in
+
+heliosRX will likely support other backends in the future.
 
 You can read more about it in the [announcement post](https://tw00.dev/post/heliosrx/annoucement/).
 
+<!--
 - ➡️ Easy, straight forward API based on model definitions/schemata
 - ➡️ Define schemas and locations for your data
 - ➡️ Consistent data validation on client and server
@@ -80,7 +93,7 @@ You can read more about it in the [announcement post](https://tw00.dev/post/heli
 - ➡️ Automatic type conversion for timestamps to moment-js
 - ➡️ Additional layer of abstraction and therefore less vendor lock-in
 - ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
-- ➡️ Write significantly less code
+-->
 
 ## Install
 
@@ -96,7 +109,7 @@ npm install --save heliosrx
 yarn add heliosrx
 ```
 
-heliosRX comes with CLI:
+heliosRX comes with a CLI:
 
 ```bash
 npm install -g heliosrx-cli
@@ -104,7 +117,7 @@ npm install -g heliosrx-cli
 yarn global add heliosrxc-cli
 ```
 
-heliosRX requires bolt-compiler as a peer dependency, so please run:
+heliosRX requires `bolt-compiler` as a peer dependency, so please run:
 
 ```bash
 npm install -g bolt-compiler
@@ -115,7 +128,8 @@ yarn add -g bolt-compiler
 ## Configuration
 
 Before you can start using heliosRX, you have to configure Firebase and heliosRX.
-Usually, this should be very simple.
+Usually, this should be pretty straight forward. You can read more in the
+[documentation](https://heliosrx.github.io/guide/03-configuration.html).
 
 ### Configure Firebase Realtime Database
 
@@ -160,10 +174,9 @@ which is why we're exporting it here.
 Next, create the following folder structure:
 
 ```
-└── rules
-    └── rules.bolt      - Database access rules
+├── rules               - Used for database access rules
+│   └── rules.bolt      - Default access rules
 └── src
-    ├── api             - Additional user API
     └── models
         ├── config.js   - Models are assigned to DB paths here
         └── *           - Model definitions (Can be accessed through this.$models)
@@ -187,8 +200,8 @@ import models from '@/models'
 
 Vue.use(heliosRX, {
   userModels:  models, // 'src/models',
-  devMode:     true,
   firebaseDb:  rtdb
+  devMode:     true,
 })
 
 ...
@@ -200,7 +213,7 @@ new Vue({
 
 ## Quickstart
 
-This is an example on a simple To-Do App:
+This is an example of a simple To-Do app:
 
 - [Demo](https://heliosrx-demo1.web.app/)
 
@@ -250,8 +263,9 @@ export default {
   },
   methods: {
     onCheckTask( task ) {
+      task = task.clone()
       task.isDone = !task.isDone;
-      task.save();
+      task.write();
       // or: this.$models.task.update( task.$id, { isDone: !task.isDone } )
     },
     onAddTask() {

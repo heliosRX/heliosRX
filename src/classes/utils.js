@@ -48,9 +48,14 @@ export function add_custom_actions( context, target, actions, reset ) {
       console.warn(`Name conflict: action "${key}" has same name as another method or property "${key}" in ${name}`);
       continue
     }
-    // Object.defineProperty( target, key, { value: () => action(context) } )
     Object.defineProperty( target, key, {
-      value: (...args) => action.apply(target, [context, ...args] ),
+      value: (...args) => {
+        // Assign $models at run time
+        if ( context.$modelsGetter ) {
+          context.$models = context.$modelsGetter();
+        }
+        return action.apply(target, [context, ...args] );
+      },
       enumerable: true // otherwise not cloned
     })
   }

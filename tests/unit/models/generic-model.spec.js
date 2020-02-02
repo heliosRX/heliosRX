@@ -94,7 +94,7 @@ describe('GenericModel', () => {
     expect(model.$exists).toBe(true)
     expect(model.$noaccess).toBe(false)
 
-    expect(model._validation_behaviour).toBeUndefined() // TODO
+    expect(model._validation_behaviour).toBe('WARNING')
 
     model.numField2 = moment('2020-01-01');
     expect(model.numField2).toBe(1577833200)
@@ -179,7 +179,7 @@ describe('GenericModel', () => {
 
     const spy = jest.spyOn(global.console, 'warn')
 
-    expect(model._validation_behaviour).toBeUndefined() // TODO
+    expect(model._validation_behaviour).toBe('WARNING')
 
     model.setValidationBehaviour('NONE')
     expect(model._validation_behaviour).toBe('NONE')

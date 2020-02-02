@@ -310,6 +310,10 @@ See [CHANGELOG.md](./CHANGELOG.md).
 Run `npx gulp api` which will build the documentation files and place them in the api folder.
 -->
 
+## Related
+
+- [vuefire](https://github.com/vuejs/vuefire)
+- [Vuex ORM](https://github.com/vuex-orm/vuex-orm)
 ## Pull request
 
 I'd be happy to review any pull requests that may better the heliosRX project, in particular, if you have a bug fix or enhancement. Before doing so, please first make sure that all of the tests pass (yarn test).

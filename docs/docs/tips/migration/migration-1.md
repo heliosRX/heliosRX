@@ -38,6 +38,11 @@
 |---------------------------|---------------------------|----------
 | `write()` - Model         | `save()`                  |
 | `create` - Schema         | `template`                |
+| `schemaAllFields`         | `schemaFieldName`         |
+| `schemaRequiredFields`    | `schemaRequiredFieldNames`|
+| `schemaOptionalFields`    | `schemaOptionalFieldNames`|
+
+
 
 ### Schema definition
 

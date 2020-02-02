@@ -699,6 +699,8 @@ export default class GenericStore {
         })
       }
 
+      // TODO: Cache everything above this point
+
       Object.keys( data ).forEach(key => {
 
         let matchedRegex = allowed_field_regex.find(regex => {

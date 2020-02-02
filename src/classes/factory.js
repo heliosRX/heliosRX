@@ -26,6 +26,8 @@ export default {
       reactive_list.$numReady = Object.keys( dataList ).length;
     }
 
+    // TODO: Implementd custom global actions / getters here too
+
     if ( modelDefinition.listActions ) {
       reactive_list._decorate_actions( modelDefinition.listActions, context );
     }

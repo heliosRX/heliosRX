@@ -283,6 +283,7 @@ Generates a new unique identifier based on the selected method in the constructo
 
 Resets the template path to it's initial state, without substitutions.
 
+
 <!--
 _clone()
 _get_uid()

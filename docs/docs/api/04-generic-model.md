@@ -98,7 +98,9 @@ reset()
 ```
 
 #### update
-- **`update() ⇒ Promise`**
+- **`update( [soft_delete: boolean] ) ⇒ Promise`**
+
+soft_delete is by default `true`!
 
 ```js
 // Update single fields

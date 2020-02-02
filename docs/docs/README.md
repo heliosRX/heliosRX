@@ -63,7 +63,7 @@ export const task = new GenericStore( '/user/{userId}/task/*', taskModelDefiniti
       <a href="#" @click.prevent="onDeleteTask( task )">del</a>
     </li>
     <input v-model="title" />
-    <button @click="onAddTask" />
+    <button @click="onAddTask">add</button>
   </ul>
 </template>
 
@@ -81,8 +81,9 @@ export default {
   },
   methods: {
     onCheckTask( task ) {
+      task = task.clone()
       task.isDone = !task.isDone;
-      task.save();
+      task.write();
       // or: this.$models.task.update( task.$id, { isDone: !task.isDone } )
     },
     onAddTask() {

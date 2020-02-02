@@ -297,7 +297,7 @@ export default {
       task.title = 'My updated title';
       task.isDone = true;
 
-      task.save();
+      task.write();
     }
   }
 }
@@ -327,7 +327,7 @@ export default {
       // Check if all task fields have valid values
       if ( this.task.$isValid ) {
         // Write task to db ()
-        this.task.save();
+        this.task.write();
       } else {
         // Handle invalid user input
       }

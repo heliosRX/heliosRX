@@ -21,44 +21,16 @@
   <a href="https://twitter.com/intent/follow?screen_name=helios_rx">
     <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="Follow on Twitter">
   </a>
-  <!--
-  <a href="https://cdnjs.com/libraries/heliosrx" alt="CDNJS">
-    <img src="https://img.shields.io/cdnjs/v/heliosrx.svg" />
-  </a>
-  <a href="https://github.com/heliosrx/heliosrx/graphs/contributors" alt="Contributors">
-    <img src="https://img.shields.io/github/contributors/heliosrx/heliosrx" />
-  </a>
-  <a href="#backers" alt="Backers on Open Collective">
-    <img src="https://img.shields.io/opencollective/backers/shields" />
-  </a>
-  <a href="#sponsors" alt="Sponsors on Open Collective">
-    <img src="https://img.shields.io/opencollective/sponsors/shields" />
-  </a>
-  <a href="https://github.com/heliosrx/heliosrx/compare/dev...master">
-    <img src="https://img.shields.io/github/commits-since/heliosrx/heliosrx/dev?label=commits%20to%20be%20deployed" alt="commits to be deployed">
-  </a>
-  <a href="https://lgtm.com/projects/g/heliosrx/heliosrx/alerts/">
-    <img src="https://img.shields.io/lgtm/alerts/g/heliosrx/heliosrx" alt="Total alerts"/>
-  </a>
-  -->
 </p>
 
 **heliosRX** is a front-end ORM (Object-Relational Mapping) layer
 for reactive real-time web applications using Firebase Realtime Database and Vue.
-
-<!-- heliosRX allows developers to define `models` based on schema files. -->
-<!--
-Firebase Realtime Database is a managed NoSQL database hosted on
-the Google Cloud infrastructure, that allows to save and retrieve data from a
-JSON-like structure.
--->
 
 <!-- - 🗃️ **Firebase ORM** Object Relation Management for Firebase Realtime Database. -->
 - 🍭 **Firebase ORM** Elegant abstraction layer for Firebase Realtime Database.
 - 🍱 **Model based state management** Declare models with reactive getters and custom actions.
 - ♻️ **One Codebase** Generate Frontend API and Backend API from one Codebase.
 - ⚡  **Faster development** Significantly reduced development time.
-
 
 The basic idea behind heliosRX is:
 
@@ -76,24 +48,15 @@ probably very useful for you. Some reasons why you might chose heliosRX over jus
 Client API are:
 
 - ➡️ You want to develop a SPA with Vue and Firebase
+- ➡️ You want object oriented state management
 - ➡️ You want to write significantly less code
 - ➡️ You want consistent data validation on client and server
 - ➡️ You want an additional layer of abstraction and therfore less vendor lock-in
+- ➡️ You want automatic type conversion for timestamps
 
 heliosRX will likely support other backends in the future.
 
 You can read more about it in the [announcement post](https://tw00.dev/post/heliosrx/annoucement/).
-
-<!--
-- ➡️ Easy, straight forward API based on model definitions/schemata
-- ➡️ Define schemas and locations for your data
-- ➡️ Consistent data validation on client and server
-- ➡️ Automatically generate Security Rules based on schemata
-- ➡️ Allows easy sorting of objects
-- ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ Additional layer of abstraction and therefore less vendor lock-in
-- ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
--->
 
 ## Install
 
@@ -295,25 +258,15 @@ type Task {
 ...
 ```
 
-<!--
-## Backers
-TODO
--->
-
-<!--
 ## Changelog
 See [CHANGELOG.md](./CHANGELOG.md).
--->
-
-<!--
-## Generate documentation
-Run `npx gulp api` which will build the documentation files and place them in the api folder.
--->
 
 ## Related
 
 - [vuefire](https://github.com/vuejs/vuefire)
 - [Vuex ORM](https://github.com/vuex-orm/vuex-orm)
+  - Vuex ORM takes a similar approach, but has no Firebase backend
+
 ## Pull request
 
 I'd be happy to review any pull requests that may better the heliosRX project, in particular, if you have a bug fix or enhancement. Before doing so, please first make sure that all of the tests pass (yarn test).

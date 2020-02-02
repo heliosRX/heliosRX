@@ -58,7 +58,7 @@ This section is still a work in progress. It will be updated soon.
 const post = new GenericStore(
   '/post/*',
   postModelDefinition,
-  { 
+  {
     uidMethod: UIDMethod.TIMESTAMP,
     defaultDeleteMode: deleteMode.HARD,
   }
@@ -789,6 +789,31 @@ _get_sync_state( path  )
 -->
 
 ## Static Methods
+
+### setDefault
+
+- **`set setDefault( key: string, value: any )`**
+
+Sets default options for new stores.
+
+```js
+GenericStore.setDefault( 'allowEmptySchema', false );
+```
+
+Available options are:
+
+```js
+const defaultStoreOptions = {
+  isAbstract:           false,
+  uidMethod:            UIDMethod.PUSHID,
+  additionalProps:      [],
+  defaultDeleteMode:    DeleteMode.HARD,
+  enableTypeValidation: true,
+  autoUnsubscribe:      true,
+  isReadonly:           false,
+  allowEmptySchema:     true,
+};
+```
 
 ### defaultUserId
 

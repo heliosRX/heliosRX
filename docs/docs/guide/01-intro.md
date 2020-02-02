@@ -49,15 +49,13 @@ is a little bit more complex then a simple to-do list, then heliosRX is
 probably very useful for you. Some benefits of using heliosRX over
 just Firebase Client API are:
 
-- ➡️ Easy, straight forward API based on model definitions/schemata
-- ➡️ Define schemas and locations for your data
-- ➡️ Consistent data validation on client and server
-- ➡️ Automatically generate Security Rules based on schemata
-- ➡️ Allows easy sorting of objects
-- ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ Additional layer of abstraction and therefore less vendor lock-in
-- ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
-- ➡️ Write significantly less code
+- ➡️ You want to develop a SPA with Vue and Firebase
+- ➡️ You want to write significantly less code
+- ➡️ You want to automatically generate Security Rules based on schema definitions
+- ➡️ You want consistent data validation on client and server
+- ➡️ You want an additional layer of abstraction and therfore less vendor lock-in
+- ➡️ You want automatic type conversion for timestamps
+- ➡️ You want object oriented state management - No `Vuex` needed (although heliosRX currently uses Vuex internally, which will probably change with Vue 3)
 
 If that makes sense to you, you should give heliosRX a try.
 

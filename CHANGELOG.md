@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Removed
 
+- Removed `$lastUpdate` from `GenericModel`
+
 
 ## [0.2.3] - 2020-02-02
 

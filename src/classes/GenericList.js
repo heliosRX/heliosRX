@@ -49,6 +49,7 @@ export default class GenericList {
     this.$numChildren = 0;
     this._store_name  = name;
     this._unwatch     = null;
+    // this.$lastUpdated = null;
   }
 
   // -----------------------------------------------------------------------------
@@ -61,7 +62,7 @@ export default class GenericList {
   _add_child( id, child ) {
     // TODO: Check if this.items is an array
     this.$readySome = true;
-    this.$lastUpdate = Date.now();
+    // this.$lastUpdated = Date.now();
     Vue.set( this.items, id, child )
     this.$numChildren += 1;
     this.items[ id ].$idx = this.$numChildren;

@@ -19,6 +19,10 @@ import { HELIOSRX_INIT_VALUE,
          HELIOSRX_ARRAY_REMOVE,
          HELIOSRX_SET } from '../registry/types'
 
+import { rtdbBindAsArray,
+         rtdbBindAsObject,
+         rtdbFetchAsArray,
+         rtdbFetchAsObject } from '../backends/firebase-rtdb/rtdb'
 import { add_custom_getters } from '../classes/utils'
 import factory from '../classes/factory'
 
@@ -58,13 +62,16 @@ const SHOW_SYNCING_INDIVIDUAL_WARNING = false;
 // const log_stringify = (v) => JSON.stringify(v)
 const log_stringify = (v) => null;
 
+const subscriptions        = new WeakMap();
+const _autoUnsubscribeMap  = new Map();
 const _resultInstanceCache = new Map();
-const _resultListCache = new Map();
+const _resultListCache     = new Map();
 
 if ( String(process.env.VUE_APP_PRODUCTION) === 'false' ) {
   window.helioRxDev = window.helioRxDev || {};
   window.helioRxDev._resultInstanceCache = _resultInstanceCache
-  window.helioRxDev._resultListCache = _resultListCache
+  window.helioRxDev._resultListCache     = _resultListCache
+  window.helioRxDev._autoUnsubscribeMap  = _autoUnsubscribeMap
 }
 
 // -----------------------------------------------------------------------------
@@ -84,6 +91,138 @@ export default {
         this._vm = add_custom_getters( context, this, this.modelDefinition.staticGetters );
       }
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * get subscriptions - Returns subscriptions that were create by this store
+   *
+   * @return {list} list of subscriptions
+   */
+  get subscriptions() { // TODO: might not work
+    return subscriptions.get( this );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _bind_rtdb - Firebase binding
+   *
+   * Adapted from:
+   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
+   *
+   * @param {{ key, ref, ops, bindAsArray }} obj - config
+   * @param {string} obj.key                - Key where the data is stored locally
+   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
+   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
+   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
+   */
+  _bind_rtdb({ key, ref, ops, bindAsArray }) {
+    // TODO check ref is valid
+    // TODO check defined in vm
+
+    // INFO: Why do we need subscriptions? Isn't that the same as the instance cache and the registry?
+    //       subscritions is a liittle bit more fundamental = real listeners
+
+    // registry = reactive data (but used where?)
+    // instance cache = cached subscriptions (real and 'simulated') as generic models
+
+    // Keep track of of Vue components that subscribed to data and automatically
+    // unsubscribe when the component is destroyed.
+    let last_caller = this._last_caller || null;
+    if ( this.autoUnsubscribe && last_caller ) {
+
+      // Create or update an existing unsubscribe function nd save it to _autoUnsubscribeMap
+      let unsubscribeFn = () => {
+        this._unbind_rtdb(key);
+        return { [key] : true };
+      };
+      let existingFn = _autoUnsubscribeMap.get( last_caller.uid )
+      if ( existingFn ) {
+        unsubscribeFn = joint([ unsubscribeFn, existingFn ])
+      }
+      _autoUnsubscribeMap.set( last_caller._uid, unsubscribeFn )
+
+      // Register beforeDestroy life-cycle hook on the vue component.
+      // TODO: Maybe _autoUnsubscribeMap can be removed entirely
+      last_caller.$once('hook:beforeDestroy', () => {
+        this._clean_up_refs( last_caller )
+      });
+    }
+
+    let sub = subscriptions.get(this)
+    if (!sub) {
+      sub = Object.create(null)
+      subscriptions.set(this, sub)
+    }
+
+    // unbind if ref is already bound
+    if (key in sub) {
+      this._unbind_rtdb(key)
+    }
+
+    // if ( subscriptions.get(key) ) { }
+
+    return new Promise((resolve, reject) => {
+      sub[ key ] = bindAsArray
+        ? rtdbBindAsArray({ key, collection: ref, ops, resolve, reject })
+        : rtdbBindAsObject({ key, document: ref, ops, resolve, reject })
+      // subscriptions.set(key, unsubscribe)
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * Will be called on hook:beforeDestroy for each VueComponent that accessed
+   * this.$models and then made a subscription (via _bind_rtdb).
+   *
+   */
+  _clean_up_refs( caller ) {
+    let unsubscribeFn = _autoUnsubscribeMap.get( caller._uid )
+    let name = caller.$options.name || caller.$options._componentTag;
+    if ( unsubscribeFn ) {
+      let keys = unsubscribeFn();
+      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+        + `accessed this.$models and created a subscriptions. The components \n`
+        + `just got destroyed and so did it's subscription to ${JSON.stringify(Object.keys(keys))}.`,
+        'color: green');
+    }
+    else {
+      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+        + `accessed this.$models, but it either didn't create any subscriptions or \n`
+        + `the subscription was already removed. The component just got destroyed \n`
+        + `so there is nothing to clean up.`, 'color: darkgoldenrod');
+    }
+    _autoUnsubscribeMap.delete( caller._uid )
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _fetch_rtdb - Firebase binding
+   *
+   */
+  _fetch_rtdb({ key, ref, ops, bindAsArray }) {
+    return new Promise((resolve, reject) => {
+      bindAsArray
+        ? rtdbFetchAsArray({ key, collection: ref, ops, resolve, reject })
+        : rtdbFetchAsObject({ key, document: ref, ops, resolve, reject })
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _unbind_rtdb - Unbind firebase from location
+   *
+   * @param  {type} { key } description
+   */
+  _unbind_rtdb({ key }) {
+    const sub = subscriptions.get(this)
+    if (!sub || !sub[key]) return
+
+    // subscriptions.delete( key );
+    // const sub = subscriptions.get(key)
+
+    sub[key]()
+    delete sub[key]
   },
 
   // ---------------------------------------------------------------------------
@@ -183,8 +322,7 @@ export default {
     // Make sure there is only one sync per store
     // Currently it is possible to sync, then change prop, then sync again - but never unsync
 
-    const sub = this.subscriptions
-    if (!sub) return
+    if (!subscriptions) return
 
     // TODO: Testen!
     if ( clean_up && _resultListCache.has( this.path ) ) {
@@ -193,7 +331,7 @@ export default {
       list.reset(); // ?/
     }
 
-    Object.keys(sub).forEach(key => {
+    Object.keys(subscriptions).forEach(key => {
 
       this._unbind_rtdb({ key })
 

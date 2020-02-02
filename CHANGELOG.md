@@ -8,12 +8,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
-- Added `CHANGELOG.md`
+- Subcriptions made by Vue components are now automatically unsynced, when the component's `beforeDestroy` life-cycle hook is called
+- Added (boolean) `autoUnsubscribe` option to `Generic Store`
 - Added CI pipeline, code coverage is now displayed in [`README.md`](./README.md)
 - Documentation: Added more information how to retrieve data
 - Documentation: Added more information how to write data and how to use `reorder()`
 - New method `previewPath` (GenericStore)
 - New getter `schemaFields` (GenericStore)
+- Added `CHANGELOG.md`
+
 
 ### Changed
 

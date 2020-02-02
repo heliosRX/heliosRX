@@ -18,10 +18,6 @@ import moment from '../moment/moment-enhanced.js'
 import { UIDMethod, DeleteMode } from './enums'
 
 import { parseTpl, analyzeTpl } from '../util/template.js'
-import { rtdbBindAsArray,
-         rtdbBindAsObject,
-         rtdbFetchAsArray,
-         rtdbFetchAsObject } from '../backends/firebase-rtdb/rtdb'
 
 import factory from '../classes/factory'
 import GenericModel from '../classes/GenericModel'
@@ -35,9 +31,9 @@ const slugid = require('slugid');
 const log = (...args) => { console.log(...args) };
 const log2 = (...args) => {};
 
-const subscriptions = new WeakMap()
-
 let defaultDB = null;
+let recentModelCallerComponent = null; // Component, that last called $models
+
 let _Vue;
 let _firebase = null; // TODO: Getter with not init warn
 
@@ -180,6 +176,10 @@ export default class GenericStore {
 
     this.enableTypeValidation = 'enableTypeValidation' in options
       ? options.enableTypeValidation
+      : true;
+
+    this.autoUnsubscribe = 'autoUnsubscribe' in options
+      ? options.autoUnsubscribe
       : true;
 
     this.isReadonly = options.isReadonly;
@@ -813,82 +813,31 @@ export default class GenericStore {
   }
 
   /**
-   * get subscriptions - Returns subscriptions that were create by this store
+   * Set the recent caller, this is trigger by the getter that returns $models.
+   * Which means this is called before subscribeList(), when calling it like this:
+   * this.$models.myexample.subscribeList()
+   *      ^                 ^
+   *      |                 |
+   *      +- _set_caller    +- subscribeList is called
+   *         is called         and can access this._last_caller
    *
-   * @return {list} list of subscriptions
    */
-  get subscriptions() {
-    return subscriptions.get( this );
-  }
+  static _set_caller( caller ) {
 
-  /**
-   * _bind_rtdb - Firebase binding
-   *
-   * Adapted from:
-   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
-   *
-   * @param {{ key, ref, ops, bindAsArray }} obj - config
-   * @param {string} obj.key                - Key where the data is stored locally
-   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
-   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
-   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
-   */
-  _bind_rtdb({ key, ref, ops, bindAsArray }) {
-    // TODO check ref is valid
-    // TODO check defined in vm
-
-    // TODO: Why do we need subscriptions? isn't that the same as the instance cache and the registry?
-    // subscritions is a liittle bit more fundamental = real listeners
-    // registry = reactive data (but used where?)
-    // instance cache = cached subscriptions (real and 'simulated') as generic models
-
-    let sub = subscriptions.get(this)
-    if (!sub) {
-      sub = Object.create(null)
-      subscriptions.set(this, sub)
+    // Check, if we got a VueComponent instance
+    if ( caller._isVue !== true ) {
+      return false;
     }
 
-    // unbind if ref is already bound
-    if (key in sub) {
-      this._unbind_rtdb(key)
-    }
-
-    // if ( subscriptions.get(key) ) { }
-
-    return new Promise((resolve, reject) => {
-      sub[ key ] = bindAsArray
-        ? rtdbBindAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbBindAsObject({ key, document: ref, ops, resolve, reject })
-      // subscriptions.set(key, unsubscribe)
-    })
+    recentModelCallerComponent = caller;
   }
 
   /**
-   * _fetch_rtdb - Firebase binding
+   * Returns last VueCompoennt that accessed this.$models (see above).
    *
    */
-  _fetch_rtdb({ key, ref, ops, bindAsArray }) {
-    return new Promise((resolve, reject) => {
-      bindAsArray
-        ? rtdbFetchAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbFetchAsObject({ key, document: ref, ops, resolve, reject })
-    })
-  }
-
-  /**
-   * _unbind_rtdb - Unbind firebase from location
-   *
-   * @param  {type} { key } description
-   */
-  _unbind_rtdb({ key }) {
-    const sub = subscriptions.get(this)
-    if (!sub || !sub[key]) return
-
-    // subscriptions.delete( key );
-    // const sub = subscriptions.get(key)
-
-    sub[key]()
-    delete sub[key]
+  get _last_caller() {
+    return recentModelCallerComponent
   }
 
   // ---------------------------------------------------------------------------

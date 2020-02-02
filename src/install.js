@@ -81,7 +81,10 @@ export function install (Vue, options) {
 
   // Define $models
   Object.defineProperty(Vue.prototype, '$models', {
-    get () { return options.models }
+    get () {
+      GenericStore._set_caller( this )
+      return options.models
+    }
   })
 
   // Merge user api with helios API

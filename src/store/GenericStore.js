@@ -53,6 +53,17 @@ export function setup({ Vue, firebase }) {
 const USE_READ_MIXIN = true;
 const USE_WRITE_MIXIN = true;
 
+const defaultStoreOptions = {
+  isAbstract:           false,
+  uidMethod:            UIDMethod.PUSHID,
+  additionalProps:      [],
+  defaultDeleteMode:    DeleteMode.HARD,
+  enableTypeValidation: true,
+  autoUnsubscribe:      true,
+  isReadonly:           false,
+  allowEmptySchema:     true,
+};
+
 /**
  * Sync-Implementation is bashed on:
  * https://github.com/vuejs/vuefire/blob/master/packages/vuexfire/src/index.js
@@ -121,6 +132,8 @@ export default class GenericStore {
 
     // TODO: Parse templatePath for "[DBName]:", set LOCAL_PATH_PREFIX
 
+    options = Object.assign( {}, defaultStoreOptions, options )
+
     if ( modelDefinition && ( modelDefinition.abstract_store || options.isAbstract ) ) {
       this.isAbstract = true;
 
@@ -163,18 +176,11 @@ export default class GenericStore {
       }
       this.additionalProps = options.additionalProps || [];
 
-      this.defaultDeleteMode = 'defaultDeleteMode' in options
-        ? options.defaultDeleteMode
-        : DeleteMode.HARD;
+      this.defaultDeleteMode = options.defaultDeleteMode;
     }
 
-    this.enableTypeValidation = 'enableTypeValidation' in options
-      ? options.enableTypeValidation
-      : true;
-
-    this.autoUnsubscribe = 'autoUnsubscribe' in options
-      ? options.autoUnsubscribe
-      : true;
+    this.enableTypeValidation = options.enableTypeValidation;
+    this.autoUnsubscribe = options.autoUnsubscribe;
 
     this.isReadonly = options.isReadonly;
     this.templatePath = templatePath;
@@ -329,6 +335,13 @@ export default class GenericStore {
 
       default: throw new Error('Unknown UID Method: ' + this.uidMethod)
     }
+  }
+
+  /**
+   * Set defaults
+   */
+  static setDefault(key, value) {
+    defaultStoreOptions[ key ] = value;
   }
 
   /**
@@ -649,8 +662,11 @@ export default class GenericStore {
     }
 
     let schema = this.schemaFields
-    if ( !schema || schema.length === 0 ) {
-      throw new Error('No schema found for "' + this.name + '", please provide one.')
+
+    if ( !this.allowEmptySchema ) {
+      if ( !schema || schema.length === 0 ) {
+        throw new Error('No schema found for "' + this.name + '", please provide one.')
+      }
     }
 
     /* Check 1: Are required fields present (Disabled for updates) */

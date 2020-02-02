@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [Unreleased]
 
 ### Added
+
+- `GenericStore.setDefault()` - set default options for new stores
+- New options `allowEmptySchema`
+
 ### Changed
 
 - Removed all debug output and introduced a log-level system (based on `ulog`)

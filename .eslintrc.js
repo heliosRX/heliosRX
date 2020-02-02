@@ -58,7 +58,7 @@ const config = {
     'func-call-spacing'           : 'warn',
     'no-multiple-empty-lines'     : 'warn',
     'block-spacing'               : 'warn',
-    'quote-props'                 : [ 'warn', "as-needed" ],
+    'quote-props'                 : [ 'warn', "consistent-as-needed" ],
     // ---- other
     'camelcase'                   : 'off',
     'new-cap'                     : ['error', { 'capIsNew': false, 'newIsCap': true }],

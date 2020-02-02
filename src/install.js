@@ -102,8 +102,8 @@ export function install (Vue, options) {
 
   // Expose everything to developer console
   let isDevEnvironment = process.env.VUE_APP_PRODUCTION === 'false' && process.browser;
-  if ( options.devMode === true ||
-       ( options.devMode === undefined && isDevEnvironment ) ) {
+  if ( options.devMode === true
+  || ( options.devMode === undefined && isDevEnvironment ) ) {
     window.$models = options.models;
     window.$db = options.db
     window.$api = mergedApi;

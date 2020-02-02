@@ -76,9 +76,9 @@ export function enhanceMomentJS( moment ) {
       ( Also we have to check if it is used anywhere else )
     */
 
-    if ( firestoreDatetimeObject &&
-         typeof firestoreDatetimeObject === 'object' &&
-         firestoreDatetimeObject.constructor.name === 'Timestamp' ) { // TODO: might not work in production
+    if ( firestoreDatetimeObject
+      && typeof firestoreDatetimeObject === 'object'
+      && firestoreDatetimeObject.constructor.name === 'Timestamp' ) { // TODO: might not work in production
       return moment( firestoreDatetimeObject.toDate() );
     } else {
       return moment( firestoreDatetimeObject )
@@ -179,10 +179,10 @@ export function enhanceMomentJS( moment ) {
   /* ------------------------------------------------------------------------ */
 
   moment.isValidDate = function(obj) {
-    return obj &&
-           moment.isMoment(obj) &&
-           !!obj.isEnhanced &&
-           obj.isValid();
+    return obj
+        && moment.isMoment(obj)
+        && !!obj.isEnhanced
+        && obj.isValid();
     // TODO: move util function here
   }
 

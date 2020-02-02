@@ -576,9 +576,9 @@ export default {
       if ( requested_path.startsWith( existing_path_without_query ) ) {
 
         let existing_query = registry.state.sync[ existing_path ];
-        if ( !( only_active && (
-            existing_query.status === 'Ready' ||
-            existing_query.status === 'Loading' ) ) ) {
+        if ( !( only_active
+           && ( existing_query.status === 'Ready'
+             || existing_query.status === 'Loading' ) ) ) {
           continue;
         }
 
@@ -639,8 +639,8 @@ export default {
       }
 
       if ( requested_path.startsWith( existing_path ) ) {
-        if ( registry.state.sync[ existing_path_unmodified ].status === 'Ready' ||
-             registry.state.sync[ existing_path_unmodified ].status === 'Loading' ) {
+        if ( registry.state.sync[ existing_path_unmodified ].status === 'Ready'
+          || registry.state.sync[ existing_path_unmodified ].status === 'Loading' ) {
           log1(this.name, "Found node of higher hierarchy that is already syncing:",
             existing_path, "vs.", requested_path);
           return existing_path_unmodified

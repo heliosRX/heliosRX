@@ -648,134 +648,133 @@ export default class GenericStore {
       return;
     }
 
-    // TODO: Convert object to array
     let schema = this.schemaFields
-    if ( schema && schema.length >= 0 ) {
-      /* Check 1: Are required fields present (Disabled for updates) */
-      if ( !is_update ) {
-        this._check_required_fields( data )
-        /*
-        schema.fields.forEach(required_field => {
-          if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
-            throw new Error('Required field <' + required_field.model + '> not present.')
-          }
-        });
-        */
-      }
-
-      // This is a ES2018 feature that buble won't compile
-      // const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
-      // const typeRegex = /(?<val>\w+)\s*\[\]/;
-
-      // Regexes to match special bolt types
-      const mapRegex = /Map\s*<(\w+),\s*(\w+)>/i;
-      const typeRegex = /(\w+)\s*\[\]/;
-
-      /* Check 2: Are provided fields within schema? */
-      let allowed_field_names = this.schemaAllFields;
-      let allowed_field_regex = [];
-      let allowed_field_map = {}
-
-      if ( schema.length === 0 ) {
-        console.warn('Schema for "' + this.name + '" is empty.');
-      } else {
-        allowed_field_map = Object.assign(...allowed_field_names.map((k, i) => {
-          if ( k.startsWith('/') && k.endsWith('/') ) {
-            allowed_field_regex.push( k )
-          }
-          return { [k]: this.schemaFields[i] }
-        }));
-
-        Object.keys(allowed_field_map).forEach((key, i) => {
-
-          let type = allowed_field_map[ key ].type || ''
-
-          if ( mapRegex.test( type ) ) {
-            // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
-            let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
-            allowed_field_regex.push( regex )
-            allowed_field_map[ regex ] = this.schemaFields[i];
-          }
-        })
-      }
-
-      // TODO: Cache everything above this point
-
-      Object.keys( data ).forEach(key => {
-
-        let matchedRegex = allowed_field_regex.find(regex => {
-          const flags = regex.includes('\\u00') ? '' : 'u' // Unicode
-          let rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags )
-          return rx.test( key )
-        })
-
-        if ( !matchedRegex && !allowed_field_names.includes(key) ) {
-          throw new Error('Field <' + key + '> is not allowed by schema.')
-        }
-
-        /* Check 3: Execute validator if present */
-        let field = allowed_field_map[ matchedRegex || key ] // Remove "|| key" ?
-        if ( field.validator ) {
-
-          // TODO: Try-catch
-          // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
-          let result = field.validator(
-            /* value */ data[ key ],
-            /* field */ field,
-            /* model */ null
-          );
-
-          if ( !result || ( result.length && result.length === 0 ) ) {
-            throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
-          }
-        }
-
-        if ( this.enableTypeValidation ) {
-
-          // TODO: Also support Generic types (MyTime<A,B>)
-
-          let type_list = (field.type || "").split("|");
-          let check = type_list.some(typeRaw => {
-
-            let type = typeRaw.trim()
-            let typeInfo = {};
-
-            if ( typeRegex.test( type ) ) {
-              // typeInfo = typeRegex.exec( type ).groups;
-              let match = typeRegex.exec( type );
-              typeInfo = { val: match[1] }
-              type = 'Array';
-            }
-
-            if ( mapRegex.test( type ) ) {
-              // typeInfo = mapRegex.exec( type ).groups;
-              let match = mapRegex.exec( type );
-              typeInfo = { key: match[1], val: match[2] }
-              type = 'Map';
-            }
-
-            // For non required fields also allow 'null' as a valid input
-            if ( !field.required ) {
-              if ( data[ key ] === null ) {
-                return true;
-              }
-            }
-
-            return this._validate_bolt_type(
-              data[ key ],
-              type,
-              typeInfo
-            );
-          })
-
-          if ( !check ) {
-            throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
-          }
-        }
-      })
-    } else {
+    if ( !schema || schema.length === 0 ) {
       throw new Error('No schema found for "' + this.name + '", please provide one.')
     }
+
+    /* Check 1: Are required fields present (Disabled for updates) */
+    if ( !is_update ) {
+      this._check_required_fields( data )
+      /*
+      schema.fields.forEach(required_field => {
+        if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
+          throw new Error('Required field <' + required_field.model + '> not present.')
+        }
+      });
+      */
+    }
+
+    // This is a ES2018 feature that buble won't compile
+    // const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
+    // const typeRegex = /(?<val>\w+)\s*\[\]/;
+
+    // Regexes to match special bolt types
+    const mapRegex = /Map\s*<(\w+),\s*(\w+)>/i;
+    const typeRegex = /(\w+)\s*\[\]/;
+
+    /* Check 2: Are provided fields within schema? */
+    let allowed_field_names = this.schemaAllFields;
+    let allowed_field_regex = [];
+    let allowed_field_map = {}
+
+    if ( schema.length === 0 ) {
+      console.warn('Schema for "' + this.name + '" is empty.');
+    } else {
+      allowed_field_map = Object.assign(...allowed_field_names.map((k, i) => {
+        if ( k.startsWith('/') && k.endsWith('/') ) {
+          allowed_field_regex.push( k )
+        }
+        return { [k]: this.schemaFields[i] }
+      }));
+
+      Object.keys(allowed_field_map).forEach((key, i) => {
+
+        let type = allowed_field_map[ key ].type || ''
+
+        if ( mapRegex.test( type ) ) {
+          // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
+          let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
+          allowed_field_regex.push( regex )
+          allowed_field_map[ regex ] = this.schemaFields[i];
+        }
+      })
+    }
+
+    // TODO: Cache everything above this point
+
+    Object.keys( data ).forEach(key => {
+
+      let matchedRegex = allowed_field_regex.find(regex => {
+        const flags = regex.includes('\\u00') ? '' : 'u' // Unicode
+        let rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags )
+        return rx.test( key )
+      })
+
+      if ( !matchedRegex && !allowed_field_names.includes(key) ) {
+        throw new Error('Field <' + key + '> is not allowed by schema.')
+      }
+
+      /* Check 3: Execute validator if present */
+      let field = allowed_field_map[ matchedRegex || key ] // Remove "|| key" ?
+      if ( field.validator ) {
+
+        // TODO: Try-catch
+        // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
+        let result = field.validator(
+          /* value */ data[ key ],
+          /* field */ field,
+          /* model */ null
+        );
+
+        if ( !result || ( result.length && result.length === 0 ) ) {
+          throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
+        }
+      }
+
+      if ( this.enableTypeValidation ) {
+
+        // TODO: Also support Generic types (MyTime<A,B>)
+
+        let type_list = (field.type || "").split("|");
+        let check = type_list.some(typeRaw => {
+
+          let type = typeRaw.trim()
+          let typeInfo = {};
+
+          if ( typeRegex.test( type ) ) {
+            // typeInfo = typeRegex.exec( type ).groups;
+            let match = typeRegex.exec( type );
+            typeInfo = { val: match[1] }
+            type = 'Array';
+          }
+
+          if ( mapRegex.test( type ) ) {
+            // typeInfo = mapRegex.exec( type ).groups;
+            let match = mapRegex.exec( type );
+            typeInfo = { key: match[1], val: match[2] }
+            type = 'Map';
+          }
+
+          // For non required fields also allow 'null' as a valid input
+          if ( !field.required ) {
+            if ( data[ key ] === null ) {
+              return true;
+            }
+          }
+
+          return this._validate_bolt_type(
+            data[ key ],
+            type,
+            typeInfo
+          );
+        })
+
+        if ( !check ) {
+          throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
+        }
+      }
+    })
   }
 
   /**

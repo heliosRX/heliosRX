@@ -1,5 +1,6 @@
 import GenericStore from '@/store'
 
+/* eslint-disable quote-props */
 const store = new GenericStore(
   "/example/*",
   {

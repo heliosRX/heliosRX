@@ -57,7 +57,7 @@ export function rtdbBindAsObject ({ document, ops, resolve, reject }) {
         data = { '.exists': false }
       }
 
-      ops.set( target, data )
+      ops.set( target, data ) // TODO: Also pass { .exists } here?
       resolve( data ); // Only one argument allowed!
     }, err => {
       if ( err ) {
@@ -79,6 +79,7 @@ export function rtdbBindAsArray ({ collection, ops, resolve, reject }) {
   // TODO: Handle snapshot.exists
 
   collection.once('value', snapshot => {
+    // INFO: This operation is currently unused!
     ops.once(target, snapshot.val(), snapshot.exists());
     resolve();
   }, err => {

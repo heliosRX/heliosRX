@@ -17,6 +17,7 @@ describe('GenericModel', () => {
 
   factory.configure({ GenericList, GenericModel });
 
+  /* eslint-disable quote-props */
   const modelDefinition = {
     modelGetters: {
       example: ( $model, $models ) => {

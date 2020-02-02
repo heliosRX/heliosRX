@@ -1,9 +1,3 @@
-/*******************************************************************************
-
-// TODO: Everything should return a promise
-
-*******************************************************************************/
-
 // import { _Vue as Vue } from '../external-deps'
 import {
   isString,
@@ -714,7 +708,7 @@ export default class GenericStore {
         }
 
         /* Check 3: Execute validator if present */
-        let field = allowed_field_map[ matchedRegex || key ]
+        let field = allowed_field_map[ matchedRegex || key ] // Remove "|| key" ?
         if ( field.validator ) {
 
           // TODO: Try-catch

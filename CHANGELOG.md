@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- :boom: `$store` in static actions is now called `$model`
 - :boom: `new_from_template` is now called `newFromTemplate`
 - :boom: `new_from_data` is now called `newFromData`
 - :boom: `schema_required_fields` is now called `schemaRequiredFields` (GenricStore)

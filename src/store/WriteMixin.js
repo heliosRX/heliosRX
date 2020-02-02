@@ -7,7 +7,7 @@
 import isEqual from 'lodash.isequal'
 import { DeleteMode } from './enums'
 import { _models } from '../external-deps'
-import { _registry as registry } from '../external-deps'
+// import { _registry as registry } from '../external-deps'
 import { parseTpl, analyzeTpl } from '../util/template'
 import { add_custom_actions } from '../classes/utils'
 import factory from '../classes/factory'
@@ -25,18 +25,13 @@ export default {
       if ( this.modelDefinition.staticActions ) {
 
         const context = {
-          $store: this,
-          $models: _models,
-          $registry: registry,
-          // state: registry.state,
-          // TODO
-          // state,      // same as `store.state`, or local state if in modules
-          // rootState,  // same as `store.state`, only in modules
-          // commit,     // same as `store.commit`
-          // dispatch,   // same as `store.dispatch`
-          // getters,    // same as `store.getters`, or local getters if in modules
-          // rootGetters // same as `store.getters`, only in modules
+          $model: this,
+          $modelsGetter: () => _models,
+          // $models: _models, // must be injected later
+          // $registry: registry,
+          // $state: registry.state,
         }
+        // const context = this._create_context();
         add_custom_actions( context, this, this.modelDefinition.staticActions, reset )
       }
     }

@@ -2,22 +2,20 @@
 
 <!-- TODO: Move to guide, keep simple example here? -->
 
-#### Type definition
+#### Type definition overview
 
 ```js
 // file: src/models/example/index.js
-import getters from './getters'
-import actions from './actions'
 import schema from './schema'
 
 export default {
-  modelGetters: {},         // Define additional getters for model instances
-  modelActions: {},         // Define additional actions for model instances
-  listGetters: {},          // Define additional getters for lists
-  listActions: {},          // Define additional actions for lists
-  staticGetters: getters,   // Define global getters for the store
-  staticActions: actions,   // Define global actions for the store
-  schema: schema,           // Define model schema
+  modelGetters: {},    // Define additional getters for model instances
+  modelActions: {},    // Define additional actions for model instances
+  listGetters: {},     // Define additional getters for lists
+  listActions: {},     // Define additional actions for lists
+  staticGetters: {},   // Define global getters for the store
+  staticActions: {},   // Define global actions for the store
+  schema: schema,      // Define model schema
 };
 ```
 
@@ -25,7 +23,7 @@ export default {
 
 ```js
 // file: src/models/example/schema.js
-import { moment } from 'heliosrx'
+import { moment } from 'heliosrx'
 
 export default {
 
@@ -60,42 +58,91 @@ export default {
 };
 ```
 
-- **Static getters `getters.js`**:
-
-```js
-// file: src/models/example/getters.js
-export default {
-  mygetter: ( $models, $registry, $store ) => {
-    // ...
-  }
-}
-
-$models.example.getters.mygetter
-```
-
-- **Static actions `actions.js`**:
-
-```js
-// file: src/models/example/actions.js
-export default {
-  doSomethingFancy({ $store, $models }) {
-    // ...
-  },
-  doAction({ $store, $models }, id) {
-    // ...
-  },
-}
-
-$models.example.doSomethingFancy()
-$models.example.doAction('0123456789')
-```
-
 - **Bolt definition `schema.bolt`** (default, optional):
 ```js
 // file: src/models/example/schema.bolt
 type Example {
   {FIELDS_PLACEHOLDER}
 }
+```
+
+- **Type definition with custom actions and getters**:
+
+```js
+export default {
+
+  schema: schema, // Define model schema
+
+  // Define additional getters for model instances
+  modelGetters: {
+    mygetter(
+      $instance, GenericModel,
+      $model: GenricStore,
+      $models: Moduel<GenericStore> ) {
+      // Will become:
+      // let model = this.$models.example.subscribeNode(1)
+      // model.getters.mygetter
+    }
+  },
+
+  // Define additional actions for model instances
+  modelActions: {
+    myaction({
+      $instance, GenericModel,
+      $model: GenericStore,
+      $models: Module<GenericStore> }, customArg1, customArg2, ...) {
+      // Will become:
+      // let model = this.$models.example.subscribeNode(1)
+      // model.myaction(customArg1, customArg2, ...)
+    }
+  },
+
+  // Define additional getters for lists
+  listGetters: {
+    mygetter(
+      $instance, GenericList,
+      $model: GenricStore
+      $models: Moduel<GenericStore>,
+    ) {
+      // Will become:
+      // let list = this.$models.example.subscribeList()
+      // list.getters.mygetter
+    }
+  },
+
+  // Define additional actions for lists
+  listActions: {
+    myaction({
+      $instance, GenericList,
+      $model: GenricStore,
+      $models: Module<GenericStore> }, customArg1, customArg2, ... ) {
+      // Will become:
+      // let list = this.$models.example.subscribeList()
+      // list.myaction(customArg1, customArg2, ...)
+    }
+  },
+
+  // Define global getters for the store
+  staticGetters: {
+    mygetter(
+      $model: GenericStore
+      $models: Module<GenericStore>,
+    )) {
+      // Will become:
+      // this.$models.example.getters.mygetter
+    }
+  },
+
+  // Define global actions for the store
+  staticActions: {
+    myaction({
+      $models: Module<GenericStore>,
+      $model: GenricStore }, customArg1, customArg2, ...) {
+      // Will become:
+      // this.$models.example.myaction(customArg1, customArg2, ...)
+    }
+  },
+};
 ```
 
 #### Data types (`type`)

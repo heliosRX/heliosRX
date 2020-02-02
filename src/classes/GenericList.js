@@ -1,5 +1,5 @@
 import { _Vue as Vue } from '../external-deps'
-import { add_custom_getters } from '../classes/utils'
+import { add_custom_getters, add_custom_actions } from '../classes/utils'
 
 function sortidx_sorter(a, b) {
   if (a.sortidx < b.sortidx) return -1;
@@ -83,10 +83,12 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  _decorate_actions( listActions, context ) { // TODO: move to util
+  _decorate_actions( listActions, context ) {
     if ( !listActions ) {
       return
     }
+
+    /*
     context.model = this; // HACK
     for ( let key in listActions ) {
       let action = listActions[ key ];
@@ -96,6 +98,15 @@ export default class GenericList {
       }
       Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
     }
+    */
+
+    const action_context = {
+      $instance: this,
+      $model: context.model,
+      $models: context.models,
+    }
+
+    add_custom_actions( action_context, this, listActions, false )
   }
 
   // -----------------------------------------------------------------------------
@@ -113,8 +124,8 @@ export default class GenericList {
     }
 
     /* Embed getter in vue instance */
-    context.model = this; // HACK
-    let vm = add_custom_getters( context, this, listGetters );
+    const getter_context = [ this, context.model, context.models ]
+    let vm = add_custom_getters( getter_context, this, listGetters );
     externalVMStore.set( this, vm )
 
     // "Self destroy"

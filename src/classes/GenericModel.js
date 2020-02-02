@@ -1,7 +1,7 @@
 import { _Vue as Vue } from '../external-deps'
 import clonedeep from 'lodash.clonedeep'
 // import { _models } from '../external-deps'
-import { add_custom_getters } from '../classes/utils'
+import { add_custom_getters, add_custom_actions } from '../classes/utils'
 import moment from '../moment'
 import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/utils'
 
@@ -281,10 +281,12 @@ export default class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  _decorate_actions( modelActions, context ) { // TODO: move to util
+  _decorate_actions( modelActions, context ) {
     if ( !modelActions ) {
       return
     }
+
+    /*
     context.model = this; // HACK
     for ( let key in modelActions ) {
       let action = modelActions[ key ];
@@ -294,6 +296,14 @@ export default class GenericModel {
       }
       Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
     }
+    */
+
+    const action_context = {
+      $instance: this,
+      $model: context.model,
+      $models: context.models,
+    }
+    add_custom_actions( action_context, this, modelActions, false )
   }
 
   // ---------------------------------------------------------------------------
@@ -311,8 +321,8 @@ export default class GenericModel {
     }
 
     /* Embed getter in vue instance */
-    context.model = this; // HACK
-    let vm = add_custom_getters( context, this, modelGetters );
+    const getter_context = [ this, context.model, context.models ]
+    let vm = add_custom_getters( getter_context, this, modelGetters );
     externalVMStore.set( this, vm );
   }
 

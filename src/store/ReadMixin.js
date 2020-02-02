@@ -76,22 +76,11 @@ export default {
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticGetters ) {
-        // const context = {
-        //   state:   registry.state,
-        //   getters: registry.staticGetters,
-        //   model:   this,
-          // $models: _models, can be imported directly
-          // TODO
-          // state,       // will be module local state if defined in a module.
-          // getters,     // module local getters of the current module
-          // rootState,   // global state
-          // rootGetters  // all getters
-        // }
-
-        // Syntax: getter: ( $models, $registry, $UIStore?, $store ) => {...}
         // Careful: $store will point to the root instance not a with/clone-instance!
 
-        const context = [ _models, registry, this ];
+        // const context = [ this, _models, registry ];
+        // const context = this._create_context()
+        const context = [ this, _models ];
         this._vm = add_custom_getters( context, this, this.modelDefinition.staticGetters );
       }
     }
@@ -429,10 +418,10 @@ export default {
   },
 
   // ---------------------------------------------------------------------------
-  _create_context() {
+  _create_context() { // move to generic store
     return {
-      registry: registry,
-      store: this
+      model:    this,
+      models:   _models, // tooo early
     }
   },
 

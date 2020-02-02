@@ -12,7 +12,7 @@ export default {
 
     // TODO: Error when not inintialized
 
-    let name = context.store.name;
+    let name = context.model.name;
     let reactive_list = new this.GenericList( name );
 
     if ( dataList ) {
@@ -33,7 +33,7 @@ export default {
     if ( modelDefinition.listGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      reactive_list._decorate_getters( modelDefinition.listGetters, context.registry );
+      reactive_list._decorate_getters( modelDefinition.listGetters, context );
     }
 
     Vue.observable( reactive_list );
@@ -51,9 +51,9 @@ export default {
 
     // TODO: Error when not inintialized
 
-    let name = context.store.name;
+    let name = context.model.name;
     let load_result = new this.GenericModel( null, null, name )
-    load_result._set_generic_store( context.store );
+    load_result._set_generic_store( context.model );
 
     // console.log( "[GENS:make_reactive_model] name", name, "data", data );
 
@@ -80,7 +80,7 @@ export default {
     if ( modelDefinition.modelGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      load_result._decorate_getters( modelDefinition.modelGetters, context.registry );
+      load_result._decorate_getters( modelDefinition.modelGetters, context );
     }
 
     /*

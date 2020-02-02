@@ -120,20 +120,121 @@ entry with `add` heliosRX will check if the required field was set.
 If the schema is defined as an array, `model` is the name of the field.
 If the schema is defined as an object, it will be ignored.
 
-## Store Getters and Actions
+## Custom Getters and Actions
 
-::: warning Work in Progress (20/1/2020)
-This section is still a work in progress. It will be updated soon.
-:::
+Assuming you have a model or a list of models:
 
-## Model Getters and Actions
+```js
+let model = this.$models.example.subscribeNode(1)
+let list = this.$models.example.subscribeList()
+```
 
-::: warning Work in Progress (20/1/2020)
-This section is still a work in progress. It will be updated soon.
-:::
+You can define the following type of custom actions:
 
-## List Getters and actions
+- `model.myaction(customArg1, customArg2, ...)`
+- `list.myaction(customArg1, customArg2, ...)`
+- `this.$models.example.myaction(customArg1, customArg2, ...)`
 
-::: warning Work in Progress (20/1/2020)
-This section is still a work in progress. It will be updated soon.
-:::
+And the following type of custom (reactive) getters:
+
+- `model.getters.mygetter`
+- `list.getters.mygetter`
+- `this.$models.example.getters.mygetter`
+
+Custom actions and getters are defined by adding them to the model defintion:
+
+```js
+const exampleModelDefinition = {
+
+  schema: schema, // Define model schema
+
+  // Define additional getters for model instances
+  modelGetters: {
+    mygetter(
+      $instance, GenericModel,
+      $model: GenricStore,
+      $models: Moduel<GenericStore> ) {
+      // Will become:
+      // let model = this.$models.example.subscribeNode(1)
+      // model.getters.mygetter
+    }
+  },
+
+  // Define additional actions for model instances
+  modelActions: {
+    myaction({
+      $instance, GenericModel,
+      $model: GenericStore,
+      $models: Module<GenericStore> }, customArg1, customArg2, ...) {
+      // Will become:
+      // let model = this.$models.example.subscribeNode(1)
+      // model.myaction(customArg1, customArg2, ...)
+    }
+  },
+
+  // Define additional getters for lists
+  listGetters: {
+    mygetter(
+      $instance, GenericList,
+      $model: GenricStore
+      $models: Moduel<GenericStore>,
+    ) {
+      // Will become:
+      // let list = this.$models.example.subscribeList()
+      // list.getters.mygetter
+    }
+  },
+
+  // Define additional actions for lists
+  listActions: {
+    myaction({
+      $instance, GenericList,
+      $model: GenricStore,
+      $models: Module<GenericStore> }, customArg1, customArg2, ... ) {
+      // Will become:
+      // let list = this.$models.example.subscribeList()
+      // list.myaction(customArg1, customArg2, ...)
+    }
+  },
+
+  // Define global getters for the store
+  staticGetters: {
+    mygetter(
+      $model: GenericStore
+      $models: Module<GenericStore>,
+    )) {
+      // Will become:
+      // this.$models.example.getters.mygetter
+    }
+  },
+
+  // Define global actions for the store
+  staticActions: {
+    myaction({
+      $models: Module<GenericStore>,
+      $model: GenricStore }, customArg1, customArg2, ...) {
+      // Will become:
+      // this.$models.example.myaction(customArg1, customArg2, ...)
+    }
+  },
+};
+
+const example = GenricStore('/example/*', exampleModelDefinition);
+```
+
+
+## Misc
+
+
+### modelDefinition.schema.unsafe_disable_validation
+
+- **`schema.unsafe_disable_validation: boolean`**
+
+Disabled the client side validation (useful for development)
+
+
+### modelDefinition.abstract_store
+
+- **`abstract_store: boolean`**
+
+Declare stores that use the model definition as abstract stores.

@@ -13,27 +13,19 @@ export function add_custom_getters( context, target, getters ) {
   for ( let key in getters ) {
 
     let fn = getters[key]
-    // computed[ key ] = () => fn( context )
-    // computed[ key ] = () => fn( ...context )
-    // computed[ key ] = () => fn.apply(target, Object.values(context))
-    computed[ key ] = () => fn.apply(target, context) // TODO: Test if works with reactivty
+    computed[ key ] = () => fn.apply(target, context)
 
     /*
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.store.name;
+      let name = context.$model.name;
       console.warn(`Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
       continue
     }
     */
 
-    // TODO: Assign to target.getters ?
-
-    // Object.defineProperty( target.getters.prototype, key, {
     Object.defineProperty( target.getters, key, {
       get: () => _vm[key],
-      // get: function() { return _vm[key].apply( target ) }, // Does not work
-      // enumerable: false
-      enumerable: true // schon ok
+      enumerable: true
     })
   }
 
@@ -52,8 +44,8 @@ export function add_custom_actions( context, target, actions, reset ) {
       delete target[ key ]
     }
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.$store.name;
-      console.warn(`Name conflict: action "${key}" has same name as another property "${key}" in ${name}`);
+      let name = context.$model.name;
+      console.warn(`Name conflict: action "${key}" has same name as another method or property "${key}" in ${name}`);
       continue
     }
     // Object.defineProperty( target, key, { value: () => action(context) } )

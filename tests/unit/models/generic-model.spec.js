@@ -17,13 +17,13 @@ describe('GenericModel', () => {
 
   const modelDefinition = {
     modelGetters: {
-      example: ( $models, $registry, $store ) => {
+      example: ( $model, $models ) => {
         // let myId = $store.definedProps[ 'myId' ]
         return 'return-example'
       },
     },
     modelActions: {
-      exampleAction({ $store, $models }) {
+      exampleAction({ $model, $models }) {
         return "return-action"
       },
     },
@@ -290,7 +290,7 @@ describe('GenericModel', () => {
 
     model.write().then(id => {
       expect(id).toBe('abc');
-      expect(context.store.update).toHaveBeenCalledWith("abc", {"numField": 1, "strField": "test"})
+      expect(context.model.update).toHaveBeenCalledWith("abc", {"numField": 1, "strField": "test"})
     });
   });
 
@@ -307,15 +307,15 @@ describe('GenericModel', () => {
     model.update({ numField: 2 }).then(id => {
       expect(model.$id).toBe('xyz');
       expect(id).toBe('xyz');
-      expect(context.store.update).toHaveBeenCalledWith("xyz", { "numField": 2 })
+      expect(context.model.update).toHaveBeenCalledWith("xyz", { "numField": 2 })
     })
 
     model.remove().then(() => {
-      expect(context.store.remove).toHaveBeenCalledWith("xyz", true)
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", true)
     })
 
     model.restore().then(() => {
-      expect(context.store.restore).toHaveBeenCalledWith("xyz")
+      expect(context.model.restore).toHaveBeenCalledWith("xyz")
     })
   })
 })

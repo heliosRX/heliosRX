@@ -1,7 +1,7 @@
 export function create_context( modelDefinition, name = null ) {
   return {
     registry: {},
-    store: {
+    model: {
       modelDefinition: modelDefinition,
       name: name || "default",
       _validate_schema() {

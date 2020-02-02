@@ -116,6 +116,106 @@ type UserDayplanSessionsTask {
 }
 ```
 
+
+- **Static getters `getters.js`**:
+
+```js
+// file: src/models/example/getters.js
+export default {
+  mygetter: ( $models, $registry, $store ) => {
+    // ...
+  }
+}
+
+$models.example.getters.mygetter
+```
+
+- **Static actions `actions.js`**:
+
+```js
+// file: src/models/example/actions.js
+export default {
+  doSomethingFancy({ $store, $models }) {
+    // ...
+  },
+  doAction({ $store, $models }, id) {
+    // ...
+  },
+}
+
+$models.example.doSomethingFancy()
+$models.example.doAction('0123456789')
+```
+
+## Static Getters and Actions
+
+- **Static getters `getters.js`**:
+
+```js
+// file: src/models/example/getters.js
+export default {
+  mygetter: ( $model, $models ) => { // OK!
+    // ...
+  }
+}
+// Will become: $models.example.getters.mygetter
+```
+
+Example get last sort idx:
+
+```js
+import { getRegistry } from 'heliosrx'
+const $registry = getRegistry()
+
+// file: src/models/example/getters.js
+
+export default {
+  get_last_sortidx: ( $model, $models ) => {
+
+    let currentUserId = $models.user.defaultUserId;
+    if ( !$model.getters.registry_state_res_user ||
+         !$model.getters.registry_state_res_user[ currentUserId ] ) {
+      return {};
+    }
+
+    let goal_list_user = $model.getters.registry_state_res_user[ currentUserId ].goal_settings
+
+    let max_sort_idx = 0;
+    for ( let idx in goal_list_user ) {
+      max_sort_idx = Math.max( goal_list_user[ idx ].sortidx, max_sort_idx );
+    }
+    return max_sort_idx + 100
+  },
+}
+
+// $models.example.getters.mygetter
+```
+
+Explain how `with()` will affect getters and actions
+
+- **Static actions `actions.js`**:
+
+```js
+// file: src/models/example/actions.js
+export default {
+  doSomethingFancy({ $model, $models }) {
+    // ...
+  },
+  doAction({ $model, $models }, id) {
+    // ...
+  },
+}
+```
+
+## Model Getters and Actions
+
+## List Getters and actions
+
+- TODO: In getters `this` is undefined in actions `this` is the GenericModel, GenericStore or GenericList
+- TODO: GenericStore.prototype.XYZ
+- TODO: How to implement global actions?
+- TODO: How to implement global getter?
+
 ### How to use the model
 
 ```html

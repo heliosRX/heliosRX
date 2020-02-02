@@ -663,9 +663,13 @@ export default class GenericStore {
         */
       }
 
-      // Regexes to match special bolt types
-      const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
-      const typeRegex = /(?<val>\w+)\s*\[\]/;
+      // This is a ES2018 feature that buble won't compile
+      // const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
+      // const typeRegex = /(?<val>\w+)\s*\[\]/;
+
+      // Regexes to match special bolt types
+      const mapRegex = /Map\s*<(\w+),\s*(\w+)>/i;
+      const typeRegex = /(\w+)\s*\[\]/;
 
       /* Check 2: Are provided fields within schema? */
       let allowed_field_names = this.schemaAllFields;
@@ -735,12 +739,16 @@ export default class GenericStore {
             let typeInfo = {};
 
             if ( typeRegex.test( type ) ) {
-              typeInfo = typeRegex.exec( type ).groups;
+              // typeInfo = typeRegex.exec( type ).groups;
+              let match = typeRegex.exec( type );
+              typeInfo = { val: match[1] }
               type = 'Array';
             }
 
             if ( mapRegex.test( type ) ) {
-              typeInfo = mapRegex.exec( type ).groups;
+              // typeInfo = mapRegex.exec( type ).groups;
+              let match = mapRegex.exec( type );
+              typeInfo = { key: match[1], val: match[2] }
               type = 'Map';
             }
 

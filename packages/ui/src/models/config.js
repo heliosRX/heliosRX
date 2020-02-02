@@ -1,4 +1,4 @@
-import { GenericStore, UIDMethod } from 'heliosrx'
+import { GenericStore, UIDMethod } from 'heliosrx'
 
 import exampleModelDefinition from './example';
 

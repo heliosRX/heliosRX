@@ -126,7 +126,7 @@
 <script>
 // import db from "@/generic_api/firebase/rtdb"
 import Color from 'color'
-import { moment } from 'heliosrx'
+import { moment } from 'heliosrx'
 
 function random() {
   return Math.round( Math.random() * 100 ) / 100;

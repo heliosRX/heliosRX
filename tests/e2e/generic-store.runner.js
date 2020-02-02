@@ -2,7 +2,7 @@ import GenericStore from '@/store'
 import firebase from "firebase"
 const chalk = require('chalk');
 
-import { testCases } from './generic-store.spec.js'
+import { testCases } from './generic-store.spec.js'
 
 // const AUTHENTICATE_AS_USER = false;
 const AUTHENTICATE_AS_USER = "test@test.com";

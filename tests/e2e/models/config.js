@@ -1,4 +1,4 @@
-import { GenericStore, UIDMethod } from '@'
+import { GenericStore, UIDMethod } from '@'
 
 import exampleModelDefinition from './example';
 

@@ -5,7 +5,7 @@ import registryModule from './registry/module'
 import { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers.js'
 import { UIDMethod, DeleteMode } from './store/enums.js'
 import moment from './moment/index.js'
-import { getRegistry } from './external-deps'
+import { getRegistry } from './external-deps'
 
 const version = '__VERSION__';
 

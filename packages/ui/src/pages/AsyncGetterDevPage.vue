@@ -57,9 +57,9 @@
 </template>
 
 <script>
-// import { fake_models, fake_db } from '@/poc/AsyncGetterProofOfConcept'
-// import { fake_models, fake_db } from '@/poc/RegistryProofOfConcept'
-import { fake_models, fake_db } from '@/poc/VuexProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/AsyncGetterProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/RegistryProofOfConcept'
+import { fake_models, fake_db } from '@/poc/VuexProofOfConcept'
 
 export default {
   data: () => ({

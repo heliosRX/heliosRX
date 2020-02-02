@@ -1,7 +1,7 @@
 import GenericModel from '@/classes/GenericModel'
 import GenericList from '@/classes/GenericList'
 import factory from '@/classes/factory'
-import { create_context } from './mock-context';
+import { create_context } from './mock-context';
 import moment from '@/moment'
 import Vue from 'vue'
 

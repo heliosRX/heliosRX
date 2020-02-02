@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [Unreleased]
 
 ### Added
+### Changed
+### Removed
+
+## [0.2.3] - 2020-02-02
+
+### Added
 
 - Subcriptions made by Vue components are now automatically unsynced, when the component's `beforeDestroy` life-cycle hook is called
 - Added (boolean) `autoUnsubscribe` option to `Generic Store`
@@ -16,7 +22,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - New method `previewPath` (GenericStore)
 - New getter `schemaFields` (GenericStore)
 - Added `CHANGELOG.md`
-
 
 ### Changed
 

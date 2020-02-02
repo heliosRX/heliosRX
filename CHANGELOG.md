@@ -8,7 +8,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 ### Changed
+
+- Removed all debug output and introduced a log-level system (based on `ulog`)
+
 ### Removed
+
 
 ## [0.2.3] - 2020-02-02
 
@@ -36,7 +40,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - :boom: `$id_list` is now called `$idList` (GenericList)
 - :boom: `$isValid` is now a getter (GenericModel)
 - :boom: `validate_bolt_type` is now called `type` (Model Definition)
-- Removed all debug output and introduced a log-level system (based on `ulog`)
 
 ### Removed
 

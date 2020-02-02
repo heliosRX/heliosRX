@@ -13,7 +13,7 @@ const version = '__VERSION__';
 class heliosRX {
   static install() {}
 
-  static setup ( options ) {
+  static setup( options ) {
     setupNode(options)
     return heliosRX;
   }

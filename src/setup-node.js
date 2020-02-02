@@ -1,7 +1,7 @@
 import { setDefaultDB } from './helpers.js'
-import setupExternalDeps from './external-deps'
 import { setup as storeSetup } from './store/GenericStore.js'
 import registryModule from './registry/module'
+import setupExternalDeps, { _Vue, _Vuex } from './external-deps'
 
 /* Usage:
 let client_env = functions.config().client_env;
@@ -32,13 +32,13 @@ export function setupNode( options ) {
   */
 
   // eslint-disable-next-line import/no-unresolved
-  const admin = require('firebase-admin');
+  const admin = options.firebaseAdmin; // require('firebase-admin');
 
   // eslint-disable-next-line import/no-unresolved
-  const Vue = options.Vue || require('vue');
+  const Vue = options.Vue || _Vue;
 
   // eslint-disable-next-line import/no-unresolved
-  const Vuex = options.Vuex || require('vuex');
+  const Vuex = options.Vuex || _Vuex;
 
   const usingLocalEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
 

@@ -131,6 +131,9 @@ heliosRX.setup({
   // Should firebase admin sdk be initialized as a user or as admin?
   runAsUser: false | null | <String>,
 
+  // FirebaseApp
+  firebaseAdmin: rquire('firebase-admin'),
+
   // Configuration
   firebaseConfig: null | <object>,
 

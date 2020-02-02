@@ -1,5 +1,5 @@
 /**
- * heliosRX v0.2.2
+ * heliosRX v0.2.3
  * (c) 2020 Thomas Weustenfeld
  * @license MIT
  */
@@ -503,145 +503,6 @@ const template = 'Example text: ${text}';
 const result = interpolate(template, { text: 'Foo Boo' });
 */
 
-// -----------------------------------------------------------------------------
-function rtdbFetchAsObject ({ document, ops, resolve, reject }) {
-  const { target } = ops.init();
-
-  document.once('value', snapshot => {
-
-    // INFO: This is not called, when the data does not exist
-
-    let data = snapshot.val();
-    if ( !snapshot.exists() ) {
-      data = { '.exists': false };
-    }
-    ops.set( target, data );
-    resolve( data );
-
-  }, err => {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return () => {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbFetchAsArray ({ collection, ops, resolve, reject }) {
-  const { target } = ops.init();
-
-  collection.once('value', snapshot => {
-    let data = snapshot.val();
-    ops.once(target, data, snapshot.exists());
-    resolve(data);
-  }, err => {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return () => {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsObject ({ document, ops, resolve, reject }) {
-  /* INFO: Single value is not supported */
-
-  // const target = {};
-  const { target } = ops.init();
-
-  const listener = document.on(
-    'value',
-    snapshot => {
-      // let target = snapshot.ref.path.toString();
-      let data = snapshot.val();
-
-      // TODO: Handle snapshot.exists
-      if ( !snapshot.exists() ) {
-        data = { '.exists': false };
-      }
-
-      ops.set( target, data );
-      resolve( data ); // Only one argument allowed!
-    }, err => {
-      if ( err ) {
-        reject(err);
-      }
-    }
-  );
-
-  return () => {
-    document.off('value', listener);
-  }
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsArray ({ collection, ops, resolve, reject }) {
-  // const target = {}; // []
-  const { target } = ops.init();
-
-  // TODO: Handle snapshot.exists
-
-  collection.once('value', snapshot => {
-    ops.once(target, snapshot.val(), snapshot.exists());
-    resolve();
-  }, err => {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  const childAdded = collection.on(
-    'child_added',
-    (snapshot, prevKey) => {
-      // TWE: We're not really intersted in the order, since we ensure order via sortidx
-      // TODO: Add sortidx for ordered queries
-      ops.add(target, snapshot.key, snapshot.val());
-    },
-    reject
-  );
-
-  const childRemoved = collection.on(
-    'child_removed',
-    snapshot => {
-      ops.remove(target, snapshot.key);
-    },
-    reject
-  );
-
-  const childChanged = collection.on(
-    'child_changed',
-    snapshot => {
-      ops.set( target, snapshot.key, snapshot.val() );
-    },
-    reject
-  );
-
-  const childMoved = collection.on( // ATTENTION: This is also used for orderByChild
-    'child_moved',
-    (snapshot, prevKey) => {
-      // const index = indexForKey(target, snapshot.key)
-      // const oldRecord = ops.remove(target, index)[0]
-      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
-      // ops.add(target, newIndex, oldRecord)
-
-      // TODO: Update target.sortidx
-      // oldKey = prevKey
-      // newKey = snapshot.key
-      // ops.order(  )
-    },
-    reject
-  );
-
-  return () => {
-    collection.off('child_added',   childAdded);
-    collection.off('child_changed', childChanged);
-    collection.off('child_removed', childRemoved);
-    collection.off('child_moved',   childMoved);
-  }
-}
-
 // TODO: Make sure it's the same 'Vue'
 
 // bind on install
@@ -677,7 +538,7 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    let name = context.store.name;
+    let name = context.model.name;
     let reactive_list = new this.GenericList( name );
 
     if ( dataList ) {
@@ -692,13 +553,13 @@ var factory = {
     }
 
     if ( modelDefinition.listActions ) {
-      reactive_list.decorate_actions( modelDefinition.listActions, context );
+      reactive_list._decorate_actions( modelDefinition.listActions, context );
     }
 
     if ( modelDefinition.listGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      reactive_list.decorate_getters( modelDefinition.listGetters, context.registry );
+      reactive_list._decorate_getters( modelDefinition.listGetters, context );
     }
 
     _Vue.observable( reactive_list );
@@ -716,14 +577,14 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    let name = context.store.name;
+    let name = context.model.name;
     let load_result = new this.GenericModel( null, null, name );
-    load_result._set_generic_store( context.store );
+    load_result._set_generic_store( context.model );
 
     // console.log( "[GENS:make_reactive_model] name", name, "data", data );
 
     if ( modelDefinition.schema && modelDefinition.schema.fields ) {
-      load_result.autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
+      load_result._autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
     } else {
       console.warn('Making a reactive model without schema. This means props are not autogenerated and only accessible through model.$state. Please provide a schema for ' + name + '.');
     }
@@ -734,7 +595,7 @@ var factory = {
     }
 
     if ( modelDefinition.modelActions ) {
-      load_result.decorate_actions( modelDefinition.modelActions, context );
+      load_result._decorate_actions( modelDefinition.modelActions, context );
     }
 
     /* add model getters:
@@ -745,7 +606,7 @@ var factory = {
     if ( modelDefinition.modelGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      load_result.decorate_getters( modelDefinition.modelGetters, context.registry );
+      load_result._decorate_getters( modelDefinition.modelGetters, context );
     }
 
     /*
@@ -2551,27 +2412,19 @@ function add_custom_getters( context, target, getters ) {
   for ( let key in getters ) {
 
     let fn = getters[key];
-    // computed[ key ] = () => fn( context )
-    // computed[ key ] = () => fn( ...context )
-    // computed[ key ] = () => fn.apply(target, Object.values(context))
-    computed[ key ] = () => fn.apply(target, context); // TODO: Test if works with reactivty
+    computed[ key ] = () => fn.apply(target, context);
 
     /*
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.store.name;
+      let name = context.$model.name;
       console.warn(`Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
       continue
     }
     */
 
-    // TODO: Assign to target.getters ?
-
-    // Object.defineProperty( target.getters.prototype, key, {
     Object.defineProperty( target.getters, key, {
       get: () => _vm[key],
-      // get: function() { return _vm[key].apply( target ) }, // Does not work
-      // enumerable: false
-      enumerable: true // schon ok
+      enumerable: true
     });
   }
 
@@ -2590,13 +2443,18 @@ function add_custom_actions( context, target, actions, reset ) {
       delete target[ key ];
     }
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.$store.name;
-      console.warn(`Name conflict: action "${key}" has same name as another property "${key}" in ${name}`);
+      let name = context.$model.name;
+      console.warn(`Name conflict: action "${key}" has same name as another method or property "${key}" in ${name}`);
       continue
     }
-    // Object.defineProperty( target, key, { value: () => action(context) } )
     Object.defineProperty( target, key, {
-      value: (...args) => action.apply(target, [context, ...args] ),
+      value: (...args) => {
+        // Assign $models at run time
+        if ( context.$modelsGetter ) {
+          context.$models = context.$modelsGetter();
+        }
+        return action.apply(target, [context, ...args] );
+      },
       enumerable: true // otherwise not cloned
     });
   }
@@ -2833,7 +2691,7 @@ class GenericModel {
     copy.$state = lodash_clonedeep( copy.$state );
     copy.$dirty = lodash_clonedeep( copy.$dirty );
     copy.$invalid = lodash_clonedeep( copy.$invalid );
-    copy.autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
+    copy._autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
     copy._set_generic_store( this.$model );
     externalVMStore.set( copy, this.$vm );
     return copy;
@@ -2910,14 +2768,14 @@ class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  _onRemove() {
+  _on_remove() {
     this.$deleted = true; // TODO
     // This is called when the item is going to be removed
     //  - maybe allow subscribers and call them here
   }
 
   // ---------------------------------------------------------------------------
-  $isValid() {
+  get $isValid() {
     return Object.keys( this.$invalid ).length === 0;
   }
 
@@ -2942,7 +2800,7 @@ class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  autogenerate_props( schema, data, is_dirty = false ) { // TODO: move to util
+  _autogenerate_props( schema, data, is_dirty = false ) { // TODO: move to util
 
     if ( !Array.isArray( schema ) ) {
       schema = Object.keys(schema).map(key => {
@@ -2952,7 +2810,7 @@ class GenericModel {
 
     schema.forEach(field => {
       let propName = field.model;
-      // console.log("[autogenerate_props]", field, propName, data)
+      // console.log("[_autogenerate_props]", field, propName, data)
 
       if ( data && propName in data ) {
         this.$state[ propName ] = data[ propName ];
@@ -2993,7 +2851,7 @@ class GenericModel {
         field.is_nested = false;
       }
 
-      if ( field.validate_bolt_type ) {
+      if ( field.type ) {
 
         const validate_timestamp = (value, moment_conversion_func, min_date, max_date) => {
           if ( value === 0 || value === null ) {
@@ -3012,7 +2870,7 @@ class GenericModel {
 
         let prop_getter_original = prop_getter;
 
-        if ( field.validate_bolt_type === 'Timestamp' ) {
+        if ( field.type === 'Timestamp' ) {
 
           prop_getter = () => {
             const min_date =   200000000; // '1976-05-03'
@@ -3023,7 +2881,7 @@ class GenericModel {
               min_date,
               max_date)
           };
-        } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.validate_bolt_type ) ) {
+        } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.type ) ) {
           prop_getter = () => {
             const min_date =   200000000 * 1000; // '1976-05-03'
             const max_date = 30000000000 * 1000; // '2065-01-24'
@@ -3033,10 +2891,10 @@ class GenericModel {
               min_date,
               max_date)
           };
-        } else if ( field.validate_bolt_type.includes( 'Timestamp' ) ) {
+        } else if ( field.type.includes( 'Timestamp' ) ) {
           console.warn(
             "Found validation type that contains 'Timestamp' but is not recognized:",
-            field.validate_bolt_type
+            field.type
           );
         }
 
@@ -3051,10 +2909,12 @@ class GenericModel {
   }
 
   // ---------------------------------------------------------------------------
-  decorate_actions( modelActions, context ) { // TODO: move to util
+  _decorate_actions( modelActions, context ) {
     if ( !modelActions ) {
       return
     }
+
+    /*
     context.model = this; // HACK
     for ( let key in modelActions ) {
       let action = modelActions[ key ];
@@ -3062,12 +2922,20 @@ class GenericModel {
         console.warn(`Name conflict: action "${key}" has same name as property/global action/global getter "${key}" in ${this._store_name}`);
         continue
       }
-      Object.defineProperty( this, key, { value: () => action(context) } ); // TODO: bind this?
+      Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
     }
+    */
+
+    const action_context = {
+      $instance: this,
+      $model: context.model,
+      $models: context.models,
+    };
+    add_custom_actions( action_context, this, modelActions, false );
   }
 
   // ---------------------------------------------------------------------------
-  decorate_getters( modelGetters, context ) { // TODO: move to util
+  _decorate_getters( modelGetters, context ) { // TODO: move to util
     if ( !modelGetters ) {
       return
     }
@@ -3081,8 +2949,8 @@ class GenericModel {
     }
 
     /* Embed getter in vue instance */
-    context.model = this; // HACK
-    let vm = add_custom_getters( context, this, modelGetters );
+    const getter_context = [ this, context.model, context.models ];
+    let vm = add_custom_getters( getter_context, this, modelGetters );
     externalVMStore.set( this, vm );
   }
 
@@ -3274,7 +3142,7 @@ class GenericList {
   _rem_child( id ) {
     // TODO: Check if this.items is an array
     if ( id in this.items ) {
-      this.items[ id ]._onRemove();
+      this.items[ id ]._on_remove();
     }
     _Vue.delete( this.items, id );
     this.$numChildren -= 1;
@@ -3286,10 +3154,12 @@ class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  decorate_actions( listActions, context ) { // TODO: move to util
+  _decorate_actions( listActions, context ) {
     if ( !listActions ) {
       return
     }
+
+    /*
     context.model = this; // HACK
     for ( let key in listActions ) {
       let action = listActions[ key ];
@@ -3297,12 +3167,21 @@ class GenericList {
         console.warn(`Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
         continue
       }
-      Object.defineProperty( this, key, { value: () => action(context) } ); // TODO: bind this?
+      Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
     }
+    */
+
+    const action_context = {
+      $instance: this,
+      $model: context.model,
+      $models: context.models,
+    };
+
+    add_custom_actions( action_context, this, listActions, false );
   }
 
   // -----------------------------------------------------------------------------
-  decorate_getters( listGetters, context ) { // TODO: move to util
+  _decorate_getters( listGetters, context ) { // TODO: move to util
     if ( !listGetters ) {
       return
     }
@@ -3316,8 +3195,8 @@ class GenericList {
     }
 
     /* Embed getter in vue instance */
-    context.model = this; // HACK
-    let vm = add_custom_getters( context, this, listGetters );
+    const getter_context = [ this, context.model, context.models ];
+    let vm = add_custom_getters( getter_context, this, listGetters );
     externalVMStore$1.set( this, vm );
 
     // "Self destroy"
@@ -3403,7 +3282,7 @@ class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  get $id_list() {
+  get $idList() {
     // TODO: Here or static in $models.example?
     return Object.keys( this.items );
   }
@@ -3463,6 +3342,145 @@ export const HELIOSRX_SET_ENTRY_STATUS         = 'heliosrx/SET_ENTRY_STATUS'
 export const HELIOSRX_SET_GLOBAL_READY_STATE   = 'heliosrx/SET_GLOBAL_READY_STATE'
 export const HELIOSRX_REM_GLOBAL_READY_STATE   = 'heliosrx/REM_GLOBAL_READY_STATE'
 */
+
+// -----------------------------------------------------------------------------
+function rtdbFetchAsObject ({ document, ops, resolve, reject }) {
+  const { target } = ops.init();
+
+  document.once('value', snapshot => {
+
+    // INFO: This is not called, when the data does not exist
+
+    let data = snapshot.val();
+    if ( !snapshot.exists() ) {
+      data = { '.exists': false };
+    }
+    ops.set( target, data );
+    resolve( data );
+
+  }, err => {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return () => {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbFetchAsArray ({ collection, ops, resolve, reject }) {
+  const { target } = ops.init();
+
+  collection.once('value', snapshot => {
+    let data = snapshot.val();
+    ops.once(target, data, snapshot.exists());
+    resolve(data);
+  }, err => {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return () => {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsObject ({ document, ops, resolve, reject }) {
+  /* INFO: Single value is not supported */
+
+  // const target = {};
+  const { target } = ops.init();
+
+  const listener = document.on(
+    'value',
+    snapshot => {
+      // let target = snapshot.ref.path.toString();
+      let data = snapshot.val();
+
+      // TODO: Handle snapshot.exists
+      if ( !snapshot.exists() ) {
+        data = { '.exists': false };
+      }
+
+      ops.set( target, data );
+      resolve( data ); // Only one argument allowed!
+    }, err => {
+      if ( err ) {
+        reject(err);
+      }
+    }
+  );
+
+  return () => {
+    document.off('value', listener);
+  }
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsArray ({ collection, ops, resolve, reject }) {
+  // const target = {}; // []
+  const { target } = ops.init();
+
+  // TODO: Handle snapshot.exists
+
+  collection.once('value', snapshot => {
+    ops.once(target, snapshot.val(), snapshot.exists());
+    resolve();
+  }, err => {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  const childAdded = collection.on(
+    'child_added',
+    (snapshot, prevKey) => {
+      // TWE: We're not really intersted in the order, since we ensure order via sortidx
+      // TODO: Add sortidx for ordered queries
+      ops.add(target, snapshot.key, snapshot.val());
+    },
+    reject
+  );
+
+  const childRemoved = collection.on(
+    'child_removed',
+    snapshot => {
+      ops.remove(target, snapshot.key);
+    },
+    reject
+  );
+
+  const childChanged = collection.on(
+    'child_changed',
+    snapshot => {
+      ops.set( target, snapshot.key, snapshot.val() );
+    },
+    reject
+  );
+
+  const childMoved = collection.on( // ATTENTION: This is also used for orderByChild
+    'child_moved',
+    (snapshot, prevKey) => {
+      // const index = indexForKey(target, snapshot.key)
+      // const oldRecord = ops.remove(target, index)[0]
+      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
+      // ops.add(target, newIndex, oldRecord)
+
+      // TODO: Update target.sortidx
+      // oldKey = prevKey
+      // newKey = snapshot.key
+      // ops.order(  )
+    },
+    reject
+  );
+
+  return () => {
+    collection.off('child_added',   childAdded);
+    collection.off('child_changed', childChanged);
+    collection.off('child_removed', childRemoved);
+    collection.off('child_moved',   childMoved);
+  }
+}
 
 /* Defines a promise that can be resolved outside of it's scope
 *
@@ -3544,43 +3562,167 @@ const log3 = _no_log;
 const log4 = _no_log;
 const SHOW_SYNCING_INDIVIDUAL_WARNING = false;
 
+const subscriptions        = new WeakMap();
+const _autoUnsubscribeMap  = new Map();
 const _resultInstanceCache = new Map();
-const _resultListCache = new Map();
+const _resultListCache     = new Map();
 
 if ( String(process.env.VUE_APP_PRODUCTION) === 'false' ) {
   window.helioRxDev = window.helioRxDev || {};
   window.helioRxDev._resultInstanceCache = _resultInstanceCache;
-  window.helioRxDev._resultListCache = _resultListCache;
+  window.helioRxDev._resultListCache     = _resultListCache;
+  window.helioRxDev._autoUnsubscribeMap  = _autoUnsubscribeMap;
 }
 
 // -----------------------------------------------------------------------------
 var ReadMixin = {
 
   // ---------------------------------------------------------------------------
-  read_mixin_init() {
+  _read_mixin_init() {
     log2(this.name);
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticGetters ) {
-        // const context = {
-        //   state:   registry.state,
-        //   getters: registry.staticGetters,
-        //   model:   this,
-          // $models: _models, can be imported directly
-          // TODO
-          // state,       // will be module local state if defined in a module.
-          // getters,     // module local getters of the current module
-          // rootState,   // global state
-          // rootGetters  // all getters
-        // }
-
-        // Syntax: getter: ( $models, $registry, $UIStore?, $store ) => {...}
         // Careful: $store will point to the root instance not a with/clone-instance!
 
-        const context = [ _models, _registry, this ];
+        // const context = [ this, _models, registry ];
+        // const context = this._create_context()
+        const context = [ this, _models ];
         this._vm = add_custom_getters( context, this, this.modelDefinition.staticGetters );
       }
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * get subscriptions - Returns subscriptions that were create by this store
+   *
+   * @return {list} list of subscriptions
+   */
+  get subscriptions() { // TODO: might not work
+    return subscriptions.get( this );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _bind_rtdb - Firebase binding
+   *
+   * Adapted from:
+   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
+   *
+   * @param {{ key, ref, ops, bindAsArray }} obj - config
+   * @param {string} obj.key                - Key where the data is stored locally
+   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
+   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
+   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
+   */
+  _bind_rtdb({ key, ref, ops, bindAsArray }) {
+    // TODO check ref is valid
+    // TODO check defined in vm
+
+    // INFO: Why do we need subscriptions? Isn't that the same as the instance cache and the registry?
+    //       subscritions is a liittle bit more fundamental = real listeners
+
+    // registry = reactive data (but used where?)
+    // instance cache = cached subscriptions (real and 'simulated') as generic models
+
+    // Keep track of of Vue components that subscribed to data and automatically
+    // unsubscribe when the component is destroyed.
+    let last_caller = this._last_caller || null;
+    if ( this.autoUnsubscribe && last_caller ) {
+
+      // Create or update an existing unsubscribe function nd save it to _autoUnsubscribeMap
+      let unsubscribeFn = () => {
+        this._unbind_rtdb(key);
+        return { [key] : true };
+      };
+      let existingFn = _autoUnsubscribeMap.get( last_caller.uid );
+      if ( existingFn ) {
+        unsubscribeFn = joint([ unsubscribeFn, existingFn ]);
+      }
+      _autoUnsubscribeMap.set( last_caller._uid, unsubscribeFn );
+
+      // Register beforeDestroy life-cycle hook on the vue component.
+      // TODO: Maybe _autoUnsubscribeMap can be removed entirely
+      last_caller.$once('hook:beforeDestroy', () => {
+        this._clean_up_refs( last_caller );
+      });
+    }
+
+    let sub = subscriptions.get(this);
+    if (!sub) {
+      sub = Object.create(null);
+      subscriptions.set(this, sub);
+    }
+
+    // unbind if ref is already bound
+    if (key in sub) {
+      this._unbind_rtdb(key);
+    }
+
+    // if ( subscriptions.get(key) ) { }
+
+    return new Promise((resolve, reject) => {
+      sub[ key ] = bindAsArray
+        ? rtdbBindAsArray({ key, collection: ref, ops, resolve, reject })
+        : rtdbBindAsObject({ key, document: ref, ops, resolve, reject });
+      // subscriptions.set(key, unsubscribe)
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * Will be called on hook:beforeDestroy for each VueComponent that accessed
+   * this.$models and then made a subscription (via _bind_rtdb).
+   *
+   */
+  _clean_up_refs( caller ) {
+    let unsubscribeFn = _autoUnsubscribeMap.get( caller._uid );
+    let name = caller.$options.name || caller.$options._componentTag;
+    if ( unsubscribeFn ) {
+      let keys = unsubscribeFn();
+      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+        + `accessed this.$models and created a subscriptions. The components \n`
+        + `just got destroyed and so did it's subscription to ${JSON.stringify(Object.keys(keys))}.`,
+        'color: green');
+    }
+    else {
+      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+        + `accessed this.$models, but it either didn't create any subscriptions or \n`
+        + `the subscription was already removed. The component just got destroyed \n`
+        + `so there is nothing to clean up.`, 'color: darkgoldenrod');
+    }
+    _autoUnsubscribeMap.delete( caller._uid );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _fetch_rtdb - Firebase binding
+   *
+   */
+  _fetch_rtdb({ key, ref, ops, bindAsArray }) {
+    return new Promise((resolve, reject) => {
+      bindAsArray
+        ? rtdbFetchAsArray({ key, collection: ref, ops, resolve, reject })
+        : rtdbFetchAsObject({ key, document: ref, ops, resolve, reject });
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _unbind_rtdb - Unbind firebase from location
+   *
+   * @param  {type} { key } description
+   */
+  _unbind_rtdb({ key }) {
+    const sub = subscriptions.get(this);
+    if (!sub || !sub[key]) return
+
+    // subscriptions.delete( key );
+    // const sub = subscriptions.get(key)
+
+    sub[key]();
+    delete sub[key];
   },
 
   // ---------------------------------------------------------------------------
@@ -3617,7 +3759,7 @@ var ReadMixin = {
   unsync( id = null, { clean_up = false } = {} ) {
     log2(this.name);
 
-    // TODO: Document difference between unsync( without id ) and unsync_all()
+    // TODO: Document difference between unsync( without id ) and unsyncAll()
 
     let key = id !== null
             ? this.global_store_path_array[ id ]
@@ -3650,7 +3792,7 @@ var ReadMixin = {
       /*
       // TODO: Use this._match_existing_synced_nodes?
       let existing_path = id !== null
-          ? this._previewPath( id )
+          ? this.previewPath( id )
           : this.path
 
       if ( _resultInstanceCache.has( existing_path ) ) {
@@ -3670,27 +3812,26 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * unsync_all - Stop sycning all subscriptions of this store.
+   * unsyncAll - Stop sycning all subscriptions of this store.
    *
    * @param  {type} { clean_up = false } = {} description
    */
-  unsync_all({ clean_up = false } = {}) {
+  unsyncAll({ clean_up = false } = {}) {
     log2(this.name);
 
     // Make sure there is only one sync per store
     // Currently it is possible to sync, then change prop, then sync again - but never unsync
 
-    const sub = this.subscriptions;
-    if (!sub) return
+    if (!subscriptions) return
 
     // TODO: Testen!
     if ( clean_up && _resultListCache.has( this.path ) ) {
       let list = _resultListCache.get( this.path );
-      list.$id_list.forEach(id => list._rem_child( id ));
+      list.$idList.forEach(id => list._rem_child( id ));
       list.reset(); // ?/
     }
 
-    Object.keys(sub).forEach(key => {
+    Object.keys(subscriptions).forEach(key => {
 
       this._unbind_rtdb({ key });
 
@@ -3707,13 +3848,13 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * fetch_individual - fetch an individual item of the collection
+   * _fetch_individual - fetch an individual item of the collection
    *
    * @param  {type} id                            description
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_individual( id, { overwriteKey = false, customOps = {} } = {} ) {
-    return this.sync_individual(id, { overwriteKey, customOps, fetchOnce: true })
+  _fetch_individual( id, { overwriteKey = false, customOps = {} } = {} ) {
+    return this._sync_individual(id, { overwriteKey, customOps, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
@@ -3722,19 +3863,19 @@ var ReadMixin = {
    *
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} ) {
-    return this.sync_list({ overwriteKey, customOps, customRef, fetchOnce: true })
+  _fetch_list( { overwriteKey = false, customOps = {}, customRef = null } = {} ) {
+    return this._sync_list({ overwriteKey, customOps, customRef, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
   /**
-   * sync_individual - sync an individual item of the collection
+   * _sync_individual - sync an individual item of the collection
    *
    * @param  {type} id                        description
    * @param  {type} { overwriteKey = false    description
    * @param  {type} fetchOnce = false }  = {} description
    */
-  sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} ) {
+  _sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} ) {
     if ( !this.isSuffixed && !fetchOnce && SHOW_SYNCING_INDIVIDUAL_WARNING ) {
       console.warn("Syncing individually in " + this.name + ", even though list would be supported");
     }
@@ -3745,7 +3886,7 @@ var ReadMixin = {
 
     this.global_store_path_array[ id ] = key;
 
-    log1(this.name, "sync_individual:", this.name);
+    log1(this.name, "_sync_individual:", this.name);
     log2(this.name, "[GENS] - sync ref", ref.path.toString());
     log2(this.name);
     log2(this.name, "[GENS] - sync target", this.global_store_path_array[ id ]);
@@ -3805,7 +3946,7 @@ var ReadMixin = {
    *  Returns a promise, that will resolve, when all items are ready
    *
    */
-  sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} ) {
+  _sync_list( { overwriteKey = false, fetchOnce = false, customOps = {}, customRef = null }  = {} ) {
 
     if ( this.isSuffixed ) {
       throw new Error('Suffixed store does not support bind to array')
@@ -3830,7 +3971,7 @@ var ReadMixin = {
 
         let data = {};
 
-        /* Check if there is existing data, if yes it means sync_individual already synced data, which we should keep. */
+        /* Check if there is existing data, if yes it means _sync_individual already synced data, which we should keep. */
         let existing_data = walkGetObjectSave( _registry.state, this.global_store_path );
         if ( Object.keys(existing_data).length > 0 ) {
           log2(this.name);
@@ -3860,7 +4001,7 @@ var ReadMixin = {
         for ( let idx in synced_queries ) {
           let query = synced_queries[idx].query;
 
-          if ( this._itemMatchesQuery( query, deleted_item ) ) {
+          if ( this._item_matches_query( query, deleted_item ) ) {
             log4(this.name);
             return // Cancel deletion of entry
           }
@@ -3907,17 +4048,17 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  _itemMatchesQuery(query, item) {
-    console.log("[itemMatchesQuery]", query, item);
+  _item_matches_query(query, item) {
+    // console.log("[_item_matches_query]", query, item)
     // TODO: Implement this function
     return true;
   },
 
   // ---------------------------------------------------------------------------
-  _create_context() {
+  _create_context() { // move to generic store
     return {
-      registry: _registry,
-      store: this
+      model:    this,
+      models:   _models, // tooo early
     }
   },
 
@@ -4056,7 +4197,7 @@ var ReadMixin = {
 
     if ( queryParams ) {
       customRef  = this.buildQueryRef( queryParams );
-      queryHash  = this.queryHash( queryParams );
+      queryHash  = this._query_hash( queryParams );
       entry_name = entry_name + '#' + queryHash;
 
       log0(this.name);
@@ -4128,7 +4269,7 @@ var ReadMixin = {
 
             if ( new_value === undefined || new_value === null ) {
               /* This means the list was deleted */
-              list.$id_list.forEach(old_id => {
+              list.$idList.forEach(old_id => {
                 log4(this.name);
                 list._rem_child( old_id );
               });
@@ -4142,7 +4283,7 @@ var ReadMixin = {
 
             let ids_new = Object.keys( new_value );
             let ids_old_via_watcher = old_value ? Object.keys( old_value ) : [];
-            let ids_old = list.$id_list;
+            let ids_old = list.$idList;
 
             if ( ids_new.toString() === ids_old_via_watcher.toString() ) {
               log4(this.name);
@@ -4262,7 +4403,7 @@ var ReadMixin = {
           /* It is possible, that the node was already synced and is now waiting for results (see ANNOTATION#1).
              This means, subscribeList is now responsible */
 
-          /* This will not happen! If a sub-node is already synced via sync_individual, child_added for this node
+          /* This will not happen! If a sub-node is already synced via _sync_individual, child_added for this node
              will NOT be called. */
 
           /*
@@ -4321,7 +4462,7 @@ var ReadMixin = {
       },
     };
 
-    this.sync_list({ customOps, customRef }).then(() => {
+    this._sync_list({ customOps, customRef }).then(() => {
       /* This promise is resolved when data is first fetched */
       result.$readyAll = true;
       result.$promise.resolve(true);
@@ -4340,7 +4481,7 @@ var ReadMixin = {
         result.$noaccess = true;
 
         /* TODO ? -> probably not
-        result.$id_list.forEach(old_id => {
+        result.$idList.forEach(old_id => {
           registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' })
           let data_reactive = this.getData( id );
           data_reactive[ '.noaccess' ] = true;
@@ -4374,7 +4515,7 @@ var ReadMixin = {
     // TODO: Figure out if list is loading or item
 
     /* 1. Check if data already exists */
-    let entry_name_child = this._previewPath( id ); // HACK
+    let entry_name_child = this.previewPath( id ); // HACK
     let entry_name_list = this.path;
 
     log1(this.name);
@@ -4491,7 +4632,7 @@ var ReadMixin = {
     };
 
     /* 4. Start syncing */
-    this.sync_individual( id, { customOps } ).then( (data) => {
+    this._sync_individual( id, { customOps } ).then( (data) => {
 
       let data_reactive = this.getData( id );
       log1(this.name);
@@ -4501,7 +4642,7 @@ var ReadMixin = {
         /* In some cases, when a node is subscribing and while waiting for the results the list,
            that contains the node is synced as well, it can happen that the list is resetted
            in $registry.state.res (See. ANNOTIATION#1 ) */
-        console.warn(this.name, "subscribeNode - subscribeList took over, while waiting for sync_individual. subscribeList will handle instance now.");
+        console.warn(this.name, "subscribeNode - subscribeList took over, while waiting for _sync_individual. subscribeList will handle instance now.");
 
         /* We need to wait now, until the list is synced, so we can return reactive data. This
            is (hopefully) handled by subscribe List, when picking up 'load_result' from the instance cache */
@@ -4603,7 +4744,7 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  queryHash( query ) {
+  _query_hash( query ) {
     let queryHash = [ query.key, query.value, query.limit, query.startAt, query.endAt ].join('_');
     return queryHash;
   },
@@ -4670,7 +4811,7 @@ var ReadMixin = {
       },
     };
 
-    this.fetch_individual( id, { customOps } ).then( data => {
+    this._fetch_individual( id, { customOps } ).then( data => {
       log3(this.name);
       // TODO: make data reactive
       load_result._update_data( data, this.modelDefinition.schema.fields );
@@ -4716,7 +4857,7 @@ var ReadMixin = {
     };
 
     /* 2. Start fetching and update list when data is ready */
-    this.fetch_list({ customOps, customRef }).then(data => {
+    this._fetch_list({ customOps, customRef }).then(data => {
       log3(this.name);
 
       let id_list = Object.keys( data || [] );
@@ -4807,7 +4948,7 @@ var ReadMixin = {
     // $models.timeslotWeekdayPref.with({ timeslotCollectionId: tscId }).exists()
 
     let existing_path = id
-        ? this._match_existing_synced_nodes( this._previewPath( id ), true )
+        ? this._match_existing_synced_nodes( this.previewPath( id ), true )
         : this._match_existing_synced_nodes( this.path, true )
 
     // This does not work in all cases!
@@ -4821,7 +4962,7 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
 
-  reset_global_instance_cache() {
+  resetGlobalInstanceCache() {
     try {
       _resultInstanceCache.forEach(instance => {
         instance.reset();
@@ -4839,21 +4980,8 @@ var ReadMixin = {
   // ---------------------------------------------------------------------------
 
   // hotUpdate() {
-    // TODO
+  // TODO
   // },
-
-  // ---------------------------------------------------------------------------
-  /*
-  syncNode(id) {
-    // Changes are directly written to the database
-    throw new Error('NOT_IMPLEMENTED')
-  },
-
-  // ---------------------------------------------------------------------------
-  syncList() {
-    throw new Error('NOT_IMPLEMENTED')
-  },
-  */
 
   // ---------------------------------------------------------------------------
 
@@ -6766,23 +6894,18 @@ const log$1 = (...args) => { console.log(...args); };
 var WriteMixin = {
 
   // ---------------------------------------------------------------------------
-  write_mixin_init( reset = false ) {
+  _write_mixin_init( reset = false ) {
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticActions ) {
 
         const context = {
-          $store: this,
-          $models: _models,
-          $registry: _registry,
-          // state: registry.state,
-          // TODO
-          // state,      // same as `store.state`, or local state if in modules
-          // rootState,  // same as `store.state`, only in modules
-          // commit,     // same as `store.commit`
-          // dispatch,   // same as `store.dispatch`
-          // getters,    // same as `store.getters`, or local getters if in modules
-          // rootGetters // same as `store.getters`, only in modules
+          $model: this,
+          $modelsGetter: () => _models,
+          // $models: _models, // must be injected later
+          // $registry: registry,
+          // $state: registry.state,
         };
+        // const context = this._create_context();
         add_custom_actions( context, this, this.modelDefinition.staticActions, reset );
       }
     }
@@ -6806,7 +6929,7 @@ var WriteMixin = {
       new_id = this._get_uid();
     }
 
-    if ( !new_id['.sv'] && !this._validateId( new_id ) ) { // only validate if not a server variable
+    if ( !new_id['.sv'] && !this._validate_id( new_id ) ) { // only validate if not a server variable
       throw new Error('Got invalid id:' + new_id)
     }
 
@@ -6850,7 +6973,7 @@ var WriteMixin = {
 
     this._convert_moment_objects( payload );
 
-    log$1("[GENS] Creating at", this._previewPath(new_id), "with payload", payload);
+    log$1("[GENS] Creating at", this.previewPath(new_id), "with payload", payload);
     // return this.ref.set(payload).then(() => new_id);
     // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
     // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
@@ -6889,7 +7012,7 @@ var WriteMixin = {
       throw new Error('Either id or data is missing.')
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
         console.warn("Got invalid id <" + id + ">, but validation is disabled.");
       } else {
@@ -6909,7 +7032,7 @@ var WriteMixin = {
     let payload = data;
     this._convert_moment_objects( payload );
 
-    log$1("[GENS] Updating at", this._previewPath(id), "with payload", payload);
+    log$1("[GENS] Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -6956,7 +7079,7 @@ var WriteMixin = {
         throw new Error("Got invalid sortidx", sortidx);
       }
 
-      if (!this._validateId(item.id)) {
+      if (!this._validate_id(item.id)) {
         throw new Error("Got invalid id", item.id);
       }
 
@@ -6972,13 +7095,13 @@ var WriteMixin = {
         // data[path + '/' + subset_name + '/' + id + '/' + prop] = data[prop];
         // "/goal/{goalId}/user_list/{uid}/task_names/"
 
-        payload[ this._previewPath(id) + '/' + prop ] = data[prop];
+        payload[ this.previewPath(id) + '/' + prop ] = data[prop];
       });
     });
 
     // TODO: Check schema if sortidx is allowed
 
-    log$1("[GENS] update at", this._previewPath(), "with payload", payload);
+    log$1("[GENS] update at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -7005,7 +7128,7 @@ var WriteMixin = {
       const id_list = id;
       const payload = {};
       id_list.forEach(id => {
-        if ( !this._validateId(id) ) {
+        if ( !this._validate_id(id) ) {
           throw new Error('Got invalid id in remove')
         }
 
@@ -7020,7 +7143,7 @@ var WriteMixin = {
       return this.parentRef.update(payload);
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7086,7 +7209,7 @@ var WriteMixin = {
       // TODO: It probably does - test and remove this check
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7174,7 +7297,7 @@ var WriteMixin = {
   */
   transaction( id, prop, transaction, value = 1 ) {
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7220,24 +7343,24 @@ var WriteMixin = {
   },
 
   /**
-   * new_from_template - Create empty model from create function
+   * newFromTemplate - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromTemplate + write = add
    *
    * @return {type}  description
    */
-  new_from_template( data = {}, optional_data = null ) {
+  newFromTemplate( data = {}, optional_data = null ) {
     let generated_data = this.empty( data, optional_data );
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     model._update_data( generated_data, null, true ); // doppelt
     return model
   },
   /**
-   * new_from_template - Create empty model from create function
+   * newFromData - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromData + write = add
    */
-  new_from_data( data = {}, make_dirty = false ) {
+  newFromData( data = {}, make_dirty = false ) {
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     // model._update_data( generated_data, null, true );
     return model
@@ -7246,7 +7369,7 @@ var WriteMixin = {
   /**
    * empty - Create empty payload from schema.create()
    *         This method WILL only create an JS-Object, not a GenericModel
-   *         In most cases, you want to use new_from_template_instead
+   *         In most cases, you want to use newFromTemplate instead
    */
   empty( data = {}, optional_data = null ) {
     if ( !this.modelDefinition ) {
@@ -7309,9 +7432,9 @@ const slugid = require('slugid');
 const log$2 = (...args) => { console.log(...args); };
 const log2$1 = (...args) => {};
 
-const subscriptions = new WeakMap();
-
 let defaultDB = null;
+let recentModelCallerComponent = null; // Component, that last called $models
+
 let _Vue$1;
 let _firebase = null; // TODO: Getter with not init warn
 
@@ -7381,7 +7504,7 @@ class GenericStore {
    *
    * Retrieving data:
    *
-   * challenge.sync_list( target )
+   * challenge._sync_list( target )
    * challenge.unsync()
    * challenge.once( target )
    *
@@ -7453,6 +7576,10 @@ class GenericStore {
       ? options.enableTypeValidation
       : true;
 
+    this.autoUnsubscribe = 'autoUnsubscribe' in options
+      ? options.autoUnsubscribe
+      : true;
+
     this.isReadonly = options.isReadonly;
     this.templatePath = templatePath;
     this.modelDefinition = modelDefinition;
@@ -7470,26 +7597,26 @@ class GenericStore {
 
       // Only execute mixin inits, but don't attach methods
       Object.assign(this, {
-        read_mixin_init: ReadMixin.read_mixin_init,
-        write_mixin_init: WriteMixin.write_mixin_init
+        _read_mixin_init: ReadMixin._read_mixin_init,
+        _write_mixin_init: WriteMixin._write_mixin_init
       });
-      this.read_mixin_init();
-      this.write_mixin_init();
+      this._read_mixin_init();
+      this._write_mixin_init();
 
     } else {
       {
         Object.assign(this, ReadMixin);
-        this.read_mixin_init();
+        this._read_mixin_init();
       }
 
       if (  !this.isReadonly ) {
         Object.assign(this, WriteMixin);
-        this.write_mixin_init();
+        this._write_mixin_init();
       }
     }
 
-    // delete this.read_mixin_init
-    // delete this.write_mixin_init
+    // delete this._read_mixin_init
+    // delete this._write_mixin_init
   }
 
   /**
@@ -7505,13 +7632,13 @@ class GenericStore {
     // - Only because they are not in the prototype
     // get _db
     // get _template_path_field_names
-    // get _schema_fields
+    // get schemaFields
     // get path
     // get parentRef
     // get rootRef
-    // get schema_required_fields
-    // get schema_optional_fields
-    // get schema_all_fields
+    // get schemaRequiredFields
+    // get schemaOptionalFields
+    // get schemaAllFields
     // get subscriptions
     // get rules
 
@@ -7525,11 +7652,11 @@ class GenericStore {
     {
       delete clone.getters;
       delete clone._vm; // !!!
-      clone.read_mixin_init();
+      clone._read_mixin_init();
     }
 
     if ( !this.isReadonly && REDEFINE_ACTIONS_AFTER_CLONE ) {
-      clone.write_mixin_init(true);
+      clone._write_mixin_init(true);
     }
 
     // Keep track of clones
@@ -7624,11 +7751,11 @@ class GenericStore {
   }
 
   /**
-   * _validateId - Checks if a given id is valid
+   * _validate_id - Checks if a given id is valid
    *
    * @return {type}    true or false
    */
-  _validateId( id ) {
+  _validate_id( id ) {
     if ( this.uidMethod === UIDMethod.SLUGID ) {
       if ( !isValidId(id) ) {
         return false;
@@ -7641,9 +7768,9 @@ class GenericStore {
   }
 
   /**
-   * _defineUser - Define user (userId/uid) based on default value
+   * _define_user - Define user (userId/uid) based on default value
    */
-  _defineUser() {
+  _define_user() {
     if ( GenericStore.defaultUserId ) {
       this.definedProps[ 'uid' ] = GenericStore.defaultUserId;
     }
@@ -7701,7 +7828,7 @@ class GenericStore {
   get path() { // TODO: rename this to path and this.path to this.uninterpolatedPath
 
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps);
@@ -7725,15 +7852,15 @@ class GenericStore {
   }
 
   /**
-   * _previewPath - Generate a path preview for a given it
+   * previewPath - Generate a path preview for a given it
    *
    * @param  {type} id description
    */
-  _previewPath( id ) {
+  previewPath( id ) {
 
     // TODO: Should this be called during preview?
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps);
@@ -7784,7 +7911,7 @@ class GenericStore {
    *
    * @returns {nothing}
    */
-  _define( target, props ) {
+  define( target, props ) {
     /* Merge new props with previous props */
     target.definedProps = Object.assign({}, this.definedProps, props);
 
@@ -7797,14 +7924,10 @@ class GenericStore {
     return target; // Allow chaining
   }
 
-  define( props ) {
-    return this._define( this, props );
-  }
-
   with( props ) {
     // Synax: store.with({ prop1: 'value' }).add({...}) - store is not mutated
     let new_this = this._clone();
-    return this._define( new_this, props );
+    return this.define( new_this, props );
   }
 
   /**
@@ -7839,7 +7962,7 @@ class GenericStore {
   /**
    *
    */
-  get _schema_fields() {
+  get schemaFields() {
     let schema = ( ( this.modelDefinition || {} ).schema || {} ).fields;
     if ( typeof schema === 'undefined' ) {
       return [];
@@ -7853,34 +7976,34 @@ class GenericStore {
   }
 
   /**
-   * get schema_optional_fields - Returns all required fields defined in the schema
+   * get schemaOptionalFields - Returns all required fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_required_fields() {
-    return this._schema_fields
+  get schemaRequiredFields() {
+    return this.schemaFields
           .filter( field => field.required )
           .map( field => field.model );
   }
 
   /**
-   * get schema_optional_fields - Returns all optional fields defined in the schema
+   * get schemaOptionalFields - Returns all optional fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_optional_fields() {
-    return this._schema_fields
+  get schemaOptionalFields() {
+    return this.schemaFields
           .filter( field => !( field.required || false )  )
           .map( field => field.model );
   }
 
   /**
-   * get schema_all_fields - Returns all fields that are defined in the schema
+   * get schemaAllFields - Returns all fields that are defined in the schema
    *
    * @return {type}  description
    */
-  get schema_all_fields() {
-    return this._schema_fields.map( field => field.model );
+  get schemaAllFields() {
+    return this.schemaFields.map( field => field.model );
   }
 
   /**
@@ -7889,7 +8012,7 @@ class GenericStore {
    * @param  {type} data data to check
    */
   _check_required_fields( data ) {
-    this.schema_required_fields.forEach(required_field => {
+    this.schemaRequiredFields.forEach(required_field => {
       if ( !( required_field in data ) ) {
         throw new Error('Required field <' + required_field + '> not present.')
       }
@@ -7927,7 +8050,7 @@ class GenericStore {
     }
 
     // TODO: Convert object to array
-    let schema = this._schema_fields;
+    let schema = this.schemaFields;
     if ( schema && schema.length >= 0 ) {
       /* Check 1: Are required fields present (Disabled for updates) */
       if ( !is_update ) {
@@ -7946,7 +8069,7 @@ class GenericStore {
       const typeRegex = /(?<val>\w+)\s*\[\]/;
 
       /* Check 2: Are provided fields within schema? */
-      let allowed_field_names = this.schema_all_fields;
+      let allowed_field_names = this.schemaAllFields;
       let allowed_field_regex = [];
       let allowed_field_map = {};
 
@@ -7957,18 +8080,18 @@ class GenericStore {
           if ( k.startsWith('/') && k.endsWith('/') ) {
             allowed_field_regex.push( k );
           }
-          return { [k]: this._schema_fields[i] }
+          return { [k]: this.schemaFields[i] }
         }));
 
         Object.keys(allowed_field_map).forEach((key, i) => {
 
-          let type = allowed_field_map[ key ].validate_bolt_type || '';
+          let type = allowed_field_map[ key ].type || '';
 
           if ( mapRegex.test( type ) ) {
             // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
             let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
             allowed_field_regex.push( regex );
-            allowed_field_map[ regex ] = this._schema_fields[i];
+            allowed_field_map[ regex ] = this.schemaFields[i];
           }
         });
       }
@@ -8006,7 +8129,7 @@ class GenericStore {
 
           // TODO: Also support Generic types (MyTime<A,B>)
 
-          let type_list = (field.validate_bolt_type || "").split("|");
+          let type_list = (field.type || "").split("|");
           let check = type_list.some(typeRaw => {
 
             let type = typeRaw.trim();
@@ -8020,6 +8143,13 @@ class GenericStore {
             if ( mapRegex.test( type ) ) {
               typeInfo = mapRegex.exec( type ).groups;
               type = 'Map';
+            }
+
+            // For non required fields also allow 'null' as a valid input
+            if ( !field.required ) {
+              if ( data[ key ] === null ) {
+                return true;
+              }
             }
 
             return this._validate_bolt_type(
@@ -8086,82 +8216,31 @@ class GenericStore {
   }
 
   /**
-   * get subscriptions - Returns subscriptions that were create by this store
+   * Set the recent caller, this is trigger by the getter that returns $models.
+   * Which means this is called before subscribeList(), when calling it like this:
+   * this.$models.myexample.subscribeList()
+   *      ^                 ^
+   *      |                 |
+   *      +- _set_caller    +- subscribeList is called
+   *         is called         and can access this._last_caller
    *
-   * @return {list} list of subscriptions
    */
-  get subscriptions() {
-    return subscriptions.get( this );
-  }
+  static _set_caller( caller ) {
 
-  /**
-   * _bind_rtdb - Firebase binding
-   *
-   * Adapted from:
-   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
-   *
-   * @param {{ key, ref, ops, bindAsArray }} obj - config
-   * @param {string} obj.key                - Key where the data is stored locally
-   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
-   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
-   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
-   */
-  _bind_rtdb({ key, ref, ops, bindAsArray }) {
-    // TODO check ref is valid
-    // TODO check defined in vm
-
-    // TODO: Why do we need subscriptions? isn't that the same as the instance cache and the registry?
-    // subscritions is a liittle bit more fundamental = real listeners
-    // registry = reactive data (but used where?)
-    // instance cache = cached subscriptions (real and 'simulated') as generic models
-
-    let sub = subscriptions.get(this);
-    if (!sub) {
-      sub = Object.create(null);
-      subscriptions.set(this, sub);
+    // Check, if we got a VueComponent instance
+    if ( caller._isVue !== true ) {
+      return false;
     }
 
-    // unbind if ref is already bound
-    if (key in sub) {
-      this._unbind_rtdb(key);
-    }
-
-    // if ( subscriptions.get(key) ) { }
-
-    return new Promise((resolve, reject) => {
-      sub[ key ] = bindAsArray
-        ? rtdbBindAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbBindAsObject({ key, document: ref, ops, resolve, reject });
-      // subscriptions.set(key, unsubscribe)
-    })
+    recentModelCallerComponent = caller;
   }
 
   /**
-   * _fetch_rtdb - Firebase binding
+   * Returns last VueCompoennt that accessed this.$models (see above).
    *
    */
-  _fetch_rtdb({ key, ref, ops, bindAsArray }) {
-    return new Promise((resolve, reject) => {
-      bindAsArray
-        ? rtdbFetchAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbFetchAsObject({ key, document: ref, ops, resolve, reject });
-    })
-  }
-
-  /**
-   * _unbind_rtdb - Unbind firebase from location
-   *
-   * @param  {type} { key } description
-   */
-  _unbind_rtdb({ key }) {
-    const sub = subscriptions.get(this);
-    if (!sub || !sub[key]) return
-
-    // subscriptions.delete( key );
-    // const sub = subscriptions.get(key)
-
-    sub[key]();
-    delete sub[key];
+  get _last_caller() {
+    return recentModelCallerComponent
   }
 
   // ---------------------------------------------------------------------------
@@ -8394,7 +8473,10 @@ function install (Vue, options) {
 
   // Define $models
   Object.defineProperty(Vue.prototype, '$models', {
-    get () { return options.models }
+    get () {
+      GenericStore._set_caller( this );
+      return options.models
+    }
   });
 
   // Merge user api with helios API
@@ -8456,7 +8538,7 @@ var StoreManager = {
   // setDefaultDB
   // getRegistryState
   // getAllSyncedPaths
-  // reset_global_instance_cache
+  // resetGlobalInstanceCache
   // get subscriptions()
 };
 
@@ -8504,7 +8586,7 @@ function resetGenericStores( unsubscribe = true ) {
   }
 }
 
-const version = '0.2.2';
+const version = '0.2.3';
 
 class heliosRX {
   static install() {}

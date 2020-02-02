@@ -1,5 +1,5 @@
 /**
- * heliosRX v0.2.2
+ * heliosRX v0.2.3
  * (c) 2020 Thomas Weustenfeld
  * @license MIT
  */
@@ -519,169 +519,6 @@ const template = 'Example text: ${text}';
 const result = interpolate(template, { text: 'Foo Boo' });
 */
 
-// -----------------------------------------------------------------------------
-function rtdbFetchAsObject (ref) {
-  var document = ref.document;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  document.once('value', function (snapshot) {
-
-    // INFO: This is not called, when the data does not exist
-
-    var data = snapshot.val();
-    if ( !snapshot.exists() ) {
-      data = { '.exists': false };
-    }
-    ops.set( target, data );
-    resolve( data );
-
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return function () {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbFetchAsArray (ref) {
-  var collection = ref.collection;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  collection.once('value', function (snapshot) {
-    var data = snapshot.val();
-    ops.once(target, data, snapshot.exists());
-    resolve(data);
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return function () {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsObject (ref) {
-  var document = ref.document;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  /* INFO: Single value is not supported */
-
-  // const target = {};
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  var listener = document.on(
-    'value',
-    function (snapshot) {
-      // let target = snapshot.ref.path.toString();
-      var data = snapshot.val();
-
-      // TODO: Handle snapshot.exists
-      if ( !snapshot.exists() ) {
-        data = { '.exists': false };
-      }
-
-      ops.set( target, data );
-      resolve( data ); // Only one argument allowed!
-    }, function (err) {
-      if ( err ) {
-        reject(err);
-      }
-    }
-  );
-
-  return function () {
-    document.off('value', listener);
-  }
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsArray (ref) {
-  var collection = ref.collection;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  // const target = {}; // []
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  // TODO: Handle snapshot.exists
-
-  collection.once('value', function (snapshot) {
-    ops.once(target, snapshot.val(), snapshot.exists());
-    resolve();
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  var childAdded = collection.on(
-    'child_added',
-    function (snapshot, prevKey) {
-      // TWE: We're not really intersted in the order, since we ensure order via sortidx
-      // TODO: Add sortidx for ordered queries
-      ops.add(target, snapshot.key, snapshot.val());
-    },
-    reject
-  );
-
-  var childRemoved = collection.on(
-    'child_removed',
-    function (snapshot) {
-      ops.remove(target, snapshot.key);
-    },
-    reject
-  );
-
-  var childChanged = collection.on(
-    'child_changed',
-    function (snapshot) {
-      ops.set( target, snapshot.key, snapshot.val() );
-    },
-    reject
-  );
-
-  var childMoved = collection.on( // ATTENTION: This is also used for orderByChild
-    'child_moved',
-    function (snapshot, prevKey) {
-      // const index = indexForKey(target, snapshot.key)
-      // const oldRecord = ops.remove(target, index)[0]
-      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
-      // ops.add(target, newIndex, oldRecord)
-
-      // TODO: Update target.sortidx
-      // oldKey = prevKey
-      // newKey = snapshot.key
-      // ops.order(  )
-    },
-    reject
-  );
-
-  return function () {
-    collection.off('child_added',   childAdded);
-    collection.off('child_changed', childChanged);
-    collection.off('child_removed', childRemoved);
-    collection.off('child_moved',   childMoved);
-  }
-}
-
 // TODO: Make sure it's the same 'Vue'
 
 // bind on install
@@ -722,7 +559,7 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    var name = context.store.name;
+    var name = context.model.name;
     var reactive_list = new this.GenericList( name );
 
     if ( dataList ) {
@@ -737,13 +574,13 @@ var factory = {
     }
 
     if ( modelDefinition.listActions ) {
-      reactive_list.decorate_actions( modelDefinition.listActions, context );
+      reactive_list._decorate_actions( modelDefinition.listActions, context );
     }
 
     if ( modelDefinition.listGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      reactive_list.decorate_getters( modelDefinition.listGetters, context.registry );
+      reactive_list._decorate_getters( modelDefinition.listGetters, context );
     }
 
     _Vue.observable( reactive_list );
@@ -764,14 +601,14 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    var name = context.store.name;
+    var name = context.model.name;
     var load_result = new this.GenericModel( null, null, name );
-    load_result._set_generic_store( context.store );
+    load_result._set_generic_store( context.model );
 
     // console.log( "[GENS:make_reactive_model] name", name, "data", data );
 
     if ( modelDefinition.schema && modelDefinition.schema.fields ) {
-      load_result.autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
+      load_result._autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
     } else {
       console.warn('Making a reactive model without schema. This means props are not autogenerated and only accessible through model.$state. Please provide a schema for ' + name + '.');
     }
@@ -782,7 +619,7 @@ var factory = {
     }
 
     if ( modelDefinition.modelActions ) {
-      load_result.decorate_actions( modelDefinition.modelActions, context );
+      load_result._decorate_actions( modelDefinition.modelActions, context );
     }
 
     /* add model getters:
@@ -793,7 +630,7 @@ var factory = {
     if ( modelDefinition.modelGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      load_result.decorate_getters( modelDefinition.modelGetters, context.registry );
+      load_result._decorate_getters( modelDefinition.modelGetters, context );
     }
 
     /*
@@ -2599,27 +2436,19 @@ function add_custom_getters( context, target, getters ) {
   var loop = function ( key ) {
 
     var fn = getters[key];
-    // computed[ key ] = () => fn( context )
-    // computed[ key ] = () => fn( ...context )
-    // computed[ key ] = () => fn.apply(target, Object.values(context))
-    computed[ key ] = function () { return fn.apply(target, context); }; // TODO: Test if works with reactivty
+    computed[ key ] = function () { return fn.apply(target, context); };
 
     /*
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.store.name;
+      let name = context.$model.name;
       console.warn(`Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
       continue
     }
     */
 
-    // TODO: Assign to target.getters ?
-
-    // Object.defineProperty( target.getters.prototype, key, {
     Object.defineProperty( target.getters, key, {
       get: function () { return _vm[key]; },
-      // get: function() { return _vm[key].apply( target ) }, // Does not work
-      // enumerable: false
-      enumerable: true // schon ok
+      enumerable: true
     });
   };
 
@@ -2640,18 +2469,21 @@ function add_custom_actions( context, target, actions, reset ) {
       delete target[ key ];
     }
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      var name = context.$store.name;
-      console.warn(("Name conflict: action \"" + key + "\" has same name as another property \"" + key + "\" in " + name));
+      var name = context.$model.name;
+      console.warn(("Name conflict: action \"" + key + "\" has same name as another method or property \"" + key + "\" in " + name));
       return
     }
-    // Object.defineProperty( target, key, { value: () => action(context) } )
     Object.defineProperty( target, key, {
       value: function () {
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
+        // Assign $models at run time
+        if ( context.$modelsGetter ) {
+          context.$models = context.$modelsGetter();
+        }
         return action.apply(target, [context ].concat( args) );
-    },
+      },
       enumerable: true // otherwise not cloned
     });
   };
@@ -2876,7 +2708,7 @@ var GenericModel = function GenericModel( schema, data, name ) {
   // this.$state = Vue.oberservable({});
 };
 
-var prototypeAccessors = { $key: { configurable: true },$vm: { configurable: true },$model: { configurable: true },$exists: { configurable: true } };
+var prototypeAccessors = { $isValid: { configurable: true },$key: { configurable: true },$vm: { configurable: true },$model: { configurable: true },$exists: { configurable: true } };
 
 // ---------------------------------------------------------------------------
 GenericModel.prototype._update_data = function _update_data ( data, schema, make_dirty ) {
@@ -2904,7 +2736,7 @@ GenericModel.prototype.clone = function clone () {
   copy.$state = lodash_clonedeep( copy.$state );
   copy.$dirty = lodash_clonedeep( copy.$dirty );
   copy.$invalid = lodash_clonedeep( copy.$invalid );
-  copy.autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
+  copy._autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
   copy._set_generic_store( this.$model );
   externalVMStore.set( copy, this.$vm );
   return copy;
@@ -2983,14 +2815,14 @@ GenericModel.prototype._update_field = function _update_field ( propName, value,
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype._onRemove = function _onRemove () {
+GenericModel.prototype._on_remove = function _on_remove () {
   this.$deleted = true; // TODO
   // This is called when the item is going to be removed
   //- maybe allow subscribers and call them here
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.$isValid = function $isValid () {
+prototypeAccessors.$isValid.get = function () {
   return Object.keys( this.$invalid ).length === 0;
 };
 
@@ -3015,7 +2847,7 @@ prototypeAccessors.$exists.get = function () {
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema, data, is_dirty ) {
+GenericModel.prototype._autogenerate_props = function _autogenerate_props ( schema, data, is_dirty ) {
     var this$1 = this;
     if ( is_dirty === void 0 ) is_dirty = false;
  // TODO: move to util
@@ -3028,7 +2860,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
 
   schema.forEach(function (field) {
     var propName = field.model;
-    // console.log("[autogenerate_props]", field, propName, data)
+    // console.log("[_autogenerate_props]", field, propName, data)
 
     if ( data && propName in data ) {
       this$1.$state[ propName ] = data[ propName ];
@@ -3069,7 +2901,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
       field.is_nested = false;
     }
 
-    if ( field.validate_bolt_type ) {
+    if ( field.type ) {
 
       var validate_timestamp = function (value, moment_conversion_func, min_date, max_date) {
         if ( value === 0 || value === null ) {
@@ -3088,7 +2920,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
 
       var prop_getter_original = prop_getter;
 
-      if ( field.validate_bolt_type === 'Timestamp' ) {
+      if ( field.type === 'Timestamp' ) {
 
         prop_getter = function () {
           var min_date = 200000000; // '1976-05-03'
@@ -3099,7 +2931,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
             min_date,
             max_date)
         };
-      } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.validate_bolt_type ) ) {
+      } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.type ) ) {
         prop_getter = function () {
           var min_date = 200000000 * 1000; // '1976-05-03'
           var max_date = 30000000000 * 1000; // '2065-01-24'
@@ -3109,10 +2941,10 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
             min_date,
             max_date)
         };
-      } else if ( field.validate_bolt_type.includes( 'Timestamp' ) ) {
+      } else if ( field.type.includes( 'Timestamp' ) ) {
         console.warn(
           "Found validation type that contains 'Timestamp' but is not recognized:",
-          field.validate_bolt_type
+          field.type
         );
       }
 
@@ -3127,27 +2959,33 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.decorate_actions = function decorate_actions ( modelActions, context ) {
-    var this$1 = this;
- // TODO: move to util
+GenericModel.prototype._decorate_actions = function _decorate_actions ( modelActions, context ) {
   if ( !modelActions ) {
     return
   }
-  context.model = this; // HACK
-  var loop = function ( key ) {
-    var action = modelActions[ key ];
-    if ( Object.prototype.hasOwnProperty.call( this$1, key ) ) {
-      console.warn(("Name conflict: action \"" + key + "\" has same name as property/global action/global getter \"" + key + "\" in " + (this$1._store_name)));
-      return
-    }
-    Object.defineProperty( this$1, key, { value: function () { return action(context); } } ); // TODO: bind this?
-  };
 
-    for ( var key in modelActions ) loop( key );
+  /*
+  context.model = this; // HACK
+  for ( let key in modelActions ) {
+    let action = modelActions[ key ];
+    if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
+      console.warn(`Name conflict: action "${key}" has same name as property/global action/global getter "${key}" in ${this._store_name}`);
+      continue
+    }
+    Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
+  }
+  */
+
+  var action_context = {
+    $instance: this,
+    $model: context.model,
+    $models: context.models,
+  };
+  add_custom_actions( action_context, this, modelActions, false );
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.decorate_getters = function decorate_getters ( modelGetters, context ) { // TODO: move to util
+GenericModel.prototype._decorate_getters = function _decorate_getters ( modelGetters, context ) { // TODO: move to util
   if ( !modelGetters ) {
     return
   }
@@ -3161,8 +2999,8 @@ GenericModel.prototype.decorate_getters = function decorate_getters ( modelGette
   }
 
   /* Embed getter in vue instance */
-  context.model = this; // HACK
-  var vm = add_custom_getters( context, this, modelGetters );
+  var getter_context = [ this, context.model, context.models ];
+  var vm = add_custom_getters( getter_context, this, modelGetters );
   externalVMStore.set( this, vm );
 };
 
@@ -3334,7 +3172,7 @@ var GenericList = function GenericList( name ) {
   this._unwatch   = null;
 };
 
-var prototypeAccessors$1 = { $vm: { configurable: true },itemsSorted: { configurable: true },$id_list: { configurable: true } };
+var prototypeAccessors$1 = { $vm: { configurable: true },itemsSorted: { configurable: true },$idList: { configurable: true } };
 
 // -----------------------------------------------------------------------------
 GenericList.prototype._clone = function _clone () {
@@ -3356,7 +3194,7 @@ GenericList.prototype._add_child = function _add_child ( id, child ) {
 GenericList.prototype._rem_child = function _rem_child ( id ) {
   // TODO: Check if this.items is an array
   if ( id in this.items ) {
-    this.items[ id ]._onRemove();
+    this.items[ id ]._on_remove();
   }
   _Vue.delete( this.items, id );
   this.$numChildren -= 1;
@@ -3368,27 +3206,34 @@ prototypeAccessors$1.$vm.get = function () {
 };
 
 // -----------------------------------------------------------------------------
-GenericList.prototype.decorate_actions = function decorate_actions ( listActions, context ) {
-    var this$1 = this;
- // TODO: move to util
+GenericList.prototype._decorate_actions = function _decorate_actions ( listActions, context ) {
   if ( !listActions ) {
     return
   }
+
+  /*
   context.model = this; // HACK
-  var loop = function ( key ) {
-    var action = listActions[ key ];
-    if ( Object.prototype.hasOwnProperty.call( this$1, key ) ) {
-      console.warn(("Name conflict: list action \"" + key + "\" has same name as existing method \"" + key + "\" in " + (this$1._store_name)));
-      return
+  for ( let key in listActions ) {
+    let action = listActions[ key ];
+    if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
+      console.warn(`Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
+      continue
     }
-    Object.defineProperty( this$1, key, { value: function () { return action(context); } } ); // TODO: bind this?
+    Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
+  }
+  */
+
+  var action_context = {
+    $instance: this,
+    $model: context.model,
+    $models: context.models,
   };
 
-    for ( var key in listActions ) loop( key );
+  add_custom_actions( action_context, this, listActions, false );
 };
 
 // -----------------------------------------------------------------------------
-GenericList.prototype.decorate_getters = function decorate_getters ( listGetters, context ) { // TODO: move to util
+GenericList.prototype._decorate_getters = function _decorate_getters ( listGetters, context ) { // TODO: move to util
   if ( !listGetters ) {
     return
   }
@@ -3402,8 +3247,8 @@ GenericList.prototype.decorate_getters = function decorate_getters ( listGetters
   }
 
   /* Embed getter in vue instance */
-  context.model = this; // HACK
-  var vm = add_custom_getters( context, this, listGetters );
+  var getter_context = [ this, context.model, context.models ];
+  var vm = add_custom_getters( getter_context, this, listGetters );
   externalVMStore$1.set( this, vm );
 
   // "Self destroy"
@@ -3491,7 +3336,7 @@ GenericList.prototype.itemsAsArrayOnlyDeleted = function itemsAsArrayOnlyDeleted
 };
 
 // -----------------------------------------------------------------------------
-prototypeAccessors$1.$id_list.get = function () {
+prototypeAccessors$1.$idList.get = function () {
   // TODO: Here or static in $models.example?
   return Object.keys( this.items );
 };
@@ -3555,6 +3400,169 @@ export const HELIOSRX_SET_ENTRY_STATUS         = 'heliosrx/SET_ENTRY_STATUS'
 export const HELIOSRX_SET_GLOBAL_READY_STATE   = 'heliosrx/SET_GLOBAL_READY_STATE'
 export const HELIOSRX_REM_GLOBAL_READY_STATE   = 'heliosrx/REM_GLOBAL_READY_STATE'
 */
+
+// -----------------------------------------------------------------------------
+function rtdbFetchAsObject (ref) {
+  var document = ref.document;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  document.once('value', function (snapshot) {
+
+    // INFO: This is not called, when the data does not exist
+
+    var data = snapshot.val();
+    if ( !snapshot.exists() ) {
+      data = { '.exists': false };
+    }
+    ops.set( target, data );
+    resolve( data );
+
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return function () {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbFetchAsArray (ref) {
+  var collection = ref.collection;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  collection.once('value', function (snapshot) {
+    var data = snapshot.val();
+    ops.once(target, data, snapshot.exists());
+    resolve(data);
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return function () {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsObject (ref) {
+  var document = ref.document;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  /* INFO: Single value is not supported */
+
+  // const target = {};
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  var listener = document.on(
+    'value',
+    function (snapshot) {
+      // let target = snapshot.ref.path.toString();
+      var data = snapshot.val();
+
+      // TODO: Handle snapshot.exists
+      if ( !snapshot.exists() ) {
+        data = { '.exists': false };
+      }
+
+      ops.set( target, data );
+      resolve( data ); // Only one argument allowed!
+    }, function (err) {
+      if ( err ) {
+        reject(err);
+      }
+    }
+  );
+
+  return function () {
+    document.off('value', listener);
+  }
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsArray (ref) {
+  var collection = ref.collection;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  // const target = {}; // []
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  // TODO: Handle snapshot.exists
+
+  collection.once('value', function (snapshot) {
+    ops.once(target, snapshot.val(), snapshot.exists());
+    resolve();
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  var childAdded = collection.on(
+    'child_added',
+    function (snapshot, prevKey) {
+      // TWE: We're not really intersted in the order, since we ensure order via sortidx
+      // TODO: Add sortidx for ordered queries
+      ops.add(target, snapshot.key, snapshot.val());
+    },
+    reject
+  );
+
+  var childRemoved = collection.on(
+    'child_removed',
+    function (snapshot) {
+      ops.remove(target, snapshot.key);
+    },
+    reject
+  );
+
+  var childChanged = collection.on(
+    'child_changed',
+    function (snapshot) {
+      ops.set( target, snapshot.key, snapshot.val() );
+    },
+    reject
+  );
+
+  var childMoved = collection.on( // ATTENTION: This is also used for orderByChild
+    'child_moved',
+    function (snapshot, prevKey) {
+      // const index = indexForKey(target, snapshot.key)
+      // const oldRecord = ops.remove(target, index)[0]
+      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
+      // ops.add(target, newIndex, oldRecord)
+
+      // TODO: Update target.sortidx
+      // oldKey = prevKey
+      // newKey = snapshot.key
+      // ops.order(  )
+    },
+    reject
+  );
+
+  return function () {
+    collection.off('child_added',   childAdded);
+    collection.off('child_changed', childChanged);
+    collection.off('child_removed', childRemoved);
+    collection.off('child_moved',   childMoved);
+  }
+}
 
 /* Defines a promise that can be resolved outside of it's scope
 *
@@ -3636,43 +3644,182 @@ var log3 = _no_log;
 var log4 = _no_log;
 var SHOW_SYNCING_INDIVIDUAL_WARNING = false;
 
+var subscriptions        = new WeakMap();
+var _autoUnsubscribeMap  = new Map();
 var _resultInstanceCache = new Map();
-var _resultListCache = new Map();
+var _resultListCache     = new Map();
 
 if ( String(process.env.VUE_APP_PRODUCTION) === 'false' ) {
   window.helioRxDev = window.helioRxDev || {};
   window.helioRxDev._resultInstanceCache = _resultInstanceCache;
-  window.helioRxDev._resultListCache = _resultListCache;
+  window.helioRxDev._resultListCache     = _resultListCache;
+  window.helioRxDev._autoUnsubscribeMap  = _autoUnsubscribeMap;
 }
 
 // -----------------------------------------------------------------------------
 var ReadMixin = {
 
   // ---------------------------------------------------------------------------
-  read_mixin_init: function read_mixin_init() {
+  _read_mixin_init: function _read_mixin_init() {
     log2(this.name);
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticGetters ) {
-        // const context = {
-        //   state:   registry.state,
-        //   getters: registry.staticGetters,
-        //   model:   this,
-          // $models: _models, can be imported directly
-          // TODO
-          // state,       // will be module local state if defined in a module.
-          // getters,     // module local getters of the current module
-          // rootState,   // global state
-          // rootGetters  // all getters
-        // }
-
-        // Syntax: getter: ( $models, $registry, $UIStore?, $store ) => {...}
         // Careful: $store will point to the root instance not a with/clone-instance!
 
-        var context = [ _models, _registry, this ];
+        // const context = [ this, _models, registry ];
+        // const context = this._create_context()
+        var context = [ this, _models ];
         this._vm = add_custom_getters( context, this, this.modelDefinition.staticGetters );
       }
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * get subscriptions - Returns subscriptions that were create by this store
+   *
+   * @return {list} list of subscriptions
+   */
+  get subscriptions() { // TODO: might not work
+    return subscriptions.get( this );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _bind_rtdb - Firebase binding
+   *
+   * Adapted from:
+   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
+   *
+   * @param {{ key, ref, ops, bindAsArray }} obj - config
+   * @param {string} obj.key                - Key where the data is stored locally
+   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
+   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
+   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
+   */
+  _bind_rtdb: function _bind_rtdb(ref$1) {
+    var this$1 = this;
+    var key = ref$1.key;
+    var ref = ref$1.ref;
+    var ops = ref$1.ops;
+    var bindAsArray = ref$1.bindAsArray;
+
+    // TODO check ref is valid
+    // TODO check defined in vm
+
+    // INFO: Why do we need subscriptions? Isn't that the same as the instance cache and the registry?
+    //       subscritions is a liittle bit more fundamental = real listeners
+
+    // registry = reactive data (but used where?)
+    // instance cache = cached subscriptions (real and 'simulated') as generic models
+
+    // Keep track of of Vue components that subscribed to data and automatically
+    // unsubscribe when the component is destroyed.
+    var last_caller = this._last_caller || null;
+    if ( this.autoUnsubscribe && last_caller ) {
+
+      // Create or update an existing unsubscribe function nd save it to _autoUnsubscribeMap
+      var unsubscribeFn = function () {
+        var obj;
+
+        this$1._unbind_rtdb(key);
+        return ( obj = {}, obj[key] = true, obj );
+      };
+      var existingFn = _autoUnsubscribeMap.get( last_caller.uid );
+      if ( existingFn ) {
+        unsubscribeFn = joint([ unsubscribeFn, existingFn ]);
+      }
+      _autoUnsubscribeMap.set( last_caller._uid, unsubscribeFn );
+
+      // Register beforeDestroy life-cycle hook on the vue component.
+      // TODO: Maybe _autoUnsubscribeMap can be removed entirely
+      last_caller.$once('hook:beforeDestroy', function () {
+        this$1._clean_up_refs( last_caller );
+      });
+    }
+
+    var sub = subscriptions.get(this);
+    if (!sub) {
+      sub = Object.create(null);
+      subscriptions.set(this, sub);
+    }
+
+    // unbind if ref is already bound
+    if (key in sub) {
+      this._unbind_rtdb(key);
+    }
+
+    // if ( subscriptions.get(key) ) { }
+
+    return new Promise(function (resolve, reject) {
+      sub[ key ] = bindAsArray
+        ? rtdbBindAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
+        : rtdbBindAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
+      // subscriptions.set(key, unsubscribe)
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * Will be called on hook:beforeDestroy for each VueComponent that accessed
+   * this.$models and then made a subscription (via _bind_rtdb).
+   *
+   */
+  _clean_up_refs: function _clean_up_refs( caller ) {
+    var unsubscribeFn = _autoUnsubscribeMap.get( caller._uid );
+    var name = caller.$options.name || caller.$options._componentTag;
+    if ( unsubscribeFn ) {
+      var keys = unsubscribeFn();
+      console.log("%cIt seems that the VueComponent \"" + name + "\" (" + (caller.$vnode.tag) + "), \n"
+        + "accessed this.$models and created a subscriptions. The components \n"
+        + "just got destroyed and so did it's subscription to " + (JSON.stringify(Object.keys(keys))) + ".",
+        'color: green');
+    }
+    else {
+      console.log("%cIt seems that the VueComponent \"" + name + "\" (" + (caller.$vnode.tag) + "), \n"
+        + "accessed this.$models, but it either didn't create any subscriptions or \n"
+        + "the subscription was already removed. The component just got destroyed \n"
+        + "so there is nothing to clean up.", 'color: darkgoldenrod');
+    }
+    _autoUnsubscribeMap.delete( caller._uid );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _fetch_rtdb - Firebase binding
+   *
+   */
+  _fetch_rtdb: function _fetch_rtdb(ref$1) {
+    var key = ref$1.key;
+    var ref = ref$1.ref;
+    var ops = ref$1.ops;
+    var bindAsArray = ref$1.bindAsArray;
+
+    return new Promise(function (resolve, reject) {
+      bindAsArray
+        ? rtdbFetchAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
+        : rtdbFetchAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _unbind_rtdb - Unbind firebase from location
+   *
+   * @param  {type} { key } description
+   */
+  _unbind_rtdb: function _unbind_rtdb(ref) {
+    var key = ref.key;
+
+    var sub = subscriptions.get(this);
+    if (!sub || !sub[key]) { return }
+
+    // subscriptions.delete( key );
+    // const sub = subscriptions.get(key)
+
+    sub[key]();
+    delete sub[key];
   },
 
   // ---------------------------------------------------------------------------
@@ -3713,7 +3860,7 @@ var ReadMixin = {
 
     log2(this.name);
 
-    // TODO: Document difference between unsync( without id ) and unsync_all()
+    // TODO: Document difference between unsync( without id ) and unsyncAll()
 
     var key = id !== null
             ? this.global_store_path_array[ id ]
@@ -3746,7 +3893,7 @@ var ReadMixin = {
       /*
       // TODO: Use this._match_existing_synced_nodes?
       let existing_path = id !== null
-          ? this._previewPath( id )
+          ? this.previewPath( id )
           : this.path
 
       if ( _resultInstanceCache.has( existing_path ) ) {
@@ -3766,11 +3913,11 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * unsync_all - Stop sycning all subscriptions of this store.
+   * unsyncAll - Stop sycning all subscriptions of this store.
    *
    * @param  {type} { clean_up = false } = {} description
    */
-  unsync_all: function unsync_all(ref) {
+  unsyncAll: function unsyncAll(ref) {
     var this$1 = this;
     if ( ref === void 0 ) ref = {};
     var clean_up = ref.clean_up; if ( clean_up === void 0 ) clean_up = false;
@@ -3780,17 +3927,16 @@ var ReadMixin = {
     // Make sure there is only one sync per store
     // Currently it is possible to sync, then change prop, then sync again - but never unsync
 
-    var sub = this.subscriptions;
-    if (!sub) { return }
+    if (!subscriptions) { return }
 
     // TODO: Testen!
     if ( clean_up && _resultListCache.has( this.path ) ) {
       var list = _resultListCache.get( this.path );
-      list.$id_list.forEach(function (id) { return list._rem_child( id ); });
+      list.$idList.forEach(function (id) { return list._rem_child( id ); });
       list.reset(); // ?/
     }
 
-    Object.keys(sub).forEach(function (key) {
+    Object.keys(subscriptions).forEach(function (key) {
 
       this$1._unbind_rtdb({ key: key });
 
@@ -3807,17 +3953,17 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * fetch_individual - fetch an individual item of the collection
+   * _fetch_individual - fetch an individual item of the collection
    *
    * @param  {type} id                            description
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_individual: function fetch_individual( id, ref ) {
+  _fetch_individual: function _fetch_individual( id, ref ) {
     if ( ref === void 0 ) ref = {};
     var overwriteKey = ref.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
     var customOps = ref.customOps; if ( customOps === void 0 ) customOps = {};
 
-    return this.sync_individual(id, { overwriteKey: overwriteKey, customOps: customOps, fetchOnce: true })
+    return this._sync_individual(id, { overwriteKey: overwriteKey, customOps: customOps, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
@@ -3826,24 +3972,24 @@ var ReadMixin = {
    *
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_list: function fetch_list( ref ) {
+  _fetch_list: function _fetch_list( ref ) {
     if ( ref === void 0 ) ref = {};
     var overwriteKey = ref.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
     var customOps = ref.customOps; if ( customOps === void 0 ) customOps = {};
     var customRef = ref.customRef; if ( customRef === void 0 ) customRef = null;
 
-    return this.sync_list({ overwriteKey: overwriteKey, customOps: customOps, customRef: customRef, fetchOnce: true })
+    return this._sync_list({ overwriteKey: overwriteKey, customOps: customOps, customRef: customRef, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
   /**
-   * sync_individual - sync an individual item of the collection
+   * _sync_individual - sync an individual item of the collection
    *
    * @param  {type} id                        description
    * @param  {type} { overwriteKey = false    description
    * @param  {type} fetchOnce = false }  = {} description
    */
-  sync_individual: function sync_individual( id, ref$1 ) {
+  _sync_individual: function _sync_individual( id, ref$1 ) {
     var this$1 = this;
     if ( ref$1 === void 0 ) ref$1  = {};
     var overwriteKey = ref$1.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
@@ -3860,7 +4006,7 @@ var ReadMixin = {
 
     this.global_store_path_array[ id ] = key;
 
-    log1(this.name, "sync_individual:", this.name);
+    log1(this.name, "_sync_individual:", this.name);
     log2(this.name, "[GENS] - sync ref", ref.path.toString());
     log2(this.name);
     log2(this.name, "[GENS] - sync target", this.global_store_path_array[ id ]);
@@ -3920,7 +4066,7 @@ var ReadMixin = {
    *  Returns a promise, that will resolve, when all items are ready
    *
    */
-  sync_list: function sync_list( ref$1 ) {
+  _sync_list: function _sync_list( ref$1 ) {
     var this$1 = this;
     if ( ref$1 === void 0 ) ref$1  = {};
     var overwriteKey = ref$1.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
@@ -3952,7 +4098,7 @@ var ReadMixin = {
 
         var data = {};
 
-        /* Check if there is existing data, if yes it means sync_individual already synced data, which we should keep. */
+        /* Check if there is existing data, if yes it means _sync_individual already synced data, which we should keep. */
         var existing_data = walkGetObjectSave( _registry.state, this$1.global_store_path );
         if ( Object.keys(existing_data).length > 0 ) {
           log2(this$1.name);
@@ -3982,7 +4128,7 @@ var ReadMixin = {
         for ( var idx in synced_queries ) {
           var query = synced_queries[idx].query;
 
-          if ( this$1._itemMatchesQuery( query, deleted_item ) ) {
+          if ( this$1._item_matches_query( query, deleted_item ) ) {
             log4(this$1.name);
             return // Cancel deletion of entry
           }
@@ -4029,17 +4175,17 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  _itemMatchesQuery: function _itemMatchesQuery(query, item) {
-    console.log("[itemMatchesQuery]", query, item);
+  _item_matches_query: function _item_matches_query(query, item) {
+    // console.log("[_item_matches_query]", query, item)
     // TODO: Implement this function
     return true;
   },
 
   // ---------------------------------------------------------------------------
-  _create_context: function _create_context() {
+  _create_context: function _create_context() { // move to generic store
     return {
-      registry: _registry,
-      store: this
+      model:    this,
+      models:   _models, // tooo early
     }
   },
 
@@ -4188,7 +4334,7 @@ var ReadMixin = {
 
     if ( queryParams ) {
       customRef  = this.buildQueryRef( queryParams );
-      queryHash  = this.queryHash( queryParams );
+      queryHash  = this._query_hash( queryParams );
       entry_name = entry_name + '#' + queryHash;
 
       log0(this.name);
@@ -4260,7 +4406,7 @@ var ReadMixin = {
 
             if ( new_value === undefined || new_value === null ) {
               /* This means the list was deleted */
-              list.$id_list.forEach(function (old_id) {
+              list.$idList.forEach(function (old_id) {
                 log4(this$1.name);
                 list._rem_child( old_id );
               });
@@ -4274,7 +4420,7 @@ var ReadMixin = {
 
             var ids_new = Object.keys( new_value );
             var ids_old_via_watcher = old_value ? Object.keys( old_value ) : [];
-            var ids_old = list.$id_list;
+            var ids_old = list.$idList;
 
             if ( ids_new.toString() === ids_old_via_watcher.toString() ) {
               log4(this$1.name);
@@ -4394,7 +4540,7 @@ var ReadMixin = {
           /* It is possible, that the node was already synced and is now waiting for results (see ANNOTATION#1).
              This means, subscribeList is now responsible */
 
-          /* This will not happen! If a sub-node is already synced via sync_individual, child_added for this node
+          /* This will not happen! If a sub-node is already synced via _sync_individual, child_added for this node
              will NOT be called. */
 
           /*
@@ -4453,7 +4599,7 @@ var ReadMixin = {
       },
     };
 
-    this.sync_list({ customOps: customOps, customRef: customRef }).then(function () {
+    this._sync_list({ customOps: customOps, customRef: customRef }).then(function () {
       /* This promise is resolved when data is first fetched */
       result.$readyAll = true;
       result.$promise.resolve(true);
@@ -4472,7 +4618,7 @@ var ReadMixin = {
         result.$noaccess = true;
 
         /* TODO ? -> probably not
-        result.$id_list.forEach(old_id => {
+        result.$idList.forEach(old_id => {
           registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' })
           let data_reactive = this.getData( id );
           data_reactive[ '.noaccess' ] = true;
@@ -4508,7 +4654,7 @@ var ReadMixin = {
     // TODO: Figure out if list is loading or item
 
     /* 1. Check if data already exists */
-    var entry_name_child = this._previewPath( id ); // HACK
+    var entry_name_child = this.previewPath( id ); // HACK
     var entry_name_list = this.path;
 
     log1(this.name);
@@ -4625,7 +4771,7 @@ var ReadMixin = {
     };
 
     /* 4. Start syncing */
-    this.sync_individual( id, { customOps: customOps } ).then( function (data) {
+    this._sync_individual( id, { customOps: customOps } ).then( function (data) {
 
       var data_reactive = this$1.getData( id );
       log1(this$1.name);
@@ -4635,7 +4781,7 @@ var ReadMixin = {
         /* In some cases, when a node is subscribing and while waiting for the results the list,
            that contains the node is synced as well, it can happen that the list is resetted
            in $registry.state.res (See. ANNOTIATION#1 ) */
-        console.warn(this$1.name, "subscribeNode - subscribeList took over, while waiting for sync_individual. subscribeList will handle instance now.");
+        console.warn(this$1.name, "subscribeNode - subscribeList took over, while waiting for _sync_individual. subscribeList will handle instance now.");
 
         /* We need to wait now, until the list is synced, so we can return reactive data. This
            is (hopefully) handled by subscribe List, when picking up 'load_result' from the instance cache */
@@ -4737,7 +4883,7 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  queryHash: function queryHash( query ) {
+  _query_hash: function _query_hash( query ) {
     var queryHash = [ query.key, query.value, query.limit, query.startAt, query.endAt ].join('_');
     return queryHash;
   },
@@ -4810,7 +4956,7 @@ var ReadMixin = {
       },
     };
 
-    this.fetch_individual( id, { customOps: customOps } ).then( function (data) {
+    this._fetch_individual( id, { customOps: customOps } ).then( function (data) {
       log3(this$1.name);
       // TODO: make data reactive
       load_result._update_data( data, this$1.modelDefinition.schema.fields );
@@ -4857,7 +5003,7 @@ var ReadMixin = {
     };
 
     /* 2. Start fetching and update list when data is ready */
-    this.fetch_list({ customOps: customOps, customRef: customRef }).then(function (data) {
+    this._fetch_list({ customOps: customOps, customRef: customRef }).then(function (data) {
       log3(this$1.name);
 
       var id_list = Object.keys( data || [] );
@@ -4950,7 +5096,7 @@ var ReadMixin = {
     // $models.timeslotWeekdayPref.with({ timeslotCollectionId: tscId }).exists()
 
     let existing_path = id
-        ? this._match_existing_synced_nodes( this._previewPath( id ), true )
+        ? this._match_existing_synced_nodes( this.previewPath( id ), true )
         : this._match_existing_synced_nodes( this.path, true )
 
     // This does not work in all cases!
@@ -4964,7 +5110,7 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
 
-  reset_global_instance_cache: function reset_global_instance_cache() {
+  resetGlobalInstanceCache: function resetGlobalInstanceCache() {
     try {
       _resultInstanceCache.forEach(function (instance) {
         instance.reset();
@@ -4982,21 +5128,8 @@ var ReadMixin = {
   // ---------------------------------------------------------------------------
 
   // hotUpdate() {
-    // TODO
+  // TODO
   // },
-
-  // ---------------------------------------------------------------------------
-  /*
-  syncNode(id) {
-    // Changes are directly written to the database
-    throw new Error('NOT_IMPLEMENTED')
-  },
-
-  // ---------------------------------------------------------------------------
-  syncList() {
-    throw new Error('NOT_IMPLEMENTED')
-  },
-  */
 
   // ---------------------------------------------------------------------------
 
@@ -6912,25 +7045,20 @@ while ( len-- ) args[ len ] = arguments[ len ];
 var WriteMixin = {
 
   // ---------------------------------------------------------------------------
-  write_mixin_init: function write_mixin_init( reset ) {
+  _write_mixin_init: function _write_mixin_init( reset ) {
     if ( reset === void 0 ) reset = false;
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticActions ) {
 
         var context = {
-          $store: this,
-          $models: _models,
-          $registry: _registry,
-          // state: registry.state,
-          // TODO
-          // state,      // same as `store.state`, or local state if in modules
-          // rootState,  // same as `store.state`, only in modules
-          // commit,     // same as `store.commit`
-          // dispatch,   // same as `store.dispatch`
-          // getters,    // same as `store.getters`, or local getters if in modules
-          // rootGetters // same as `store.getters`, only in modules
+          $model: this,
+          $modelsGetter: function () { return _models; },
+          // $models: _models, // must be injected later
+          // $registry: registry,
+          // $state: registry.state,
         };
+        // const context = this._create_context();
         add_custom_actions( context, this, this.modelDefinition.staticActions, reset );
       }
     }
@@ -6956,7 +7084,7 @@ var WriteMixin = {
       new_id = this._get_uid();
     }
 
-    if ( !new_id['.sv'] && !this._validateId( new_id ) ) { // only validate if not a server variable
+    if ( !new_id['.sv'] && !this._validate_id( new_id ) ) { // only validate if not a server variable
       throw new Error('Got invalid id:' + new_id)
     }
 
@@ -7000,7 +7128,7 @@ var WriteMixin = {
 
     this._convert_moment_objects( payload );
 
-    log$2("[GENS] Creating at", this._previewPath(new_id), "with payload", payload);
+    log$2("[GENS] Creating at", this.previewPath(new_id), "with payload", payload);
     // return this.ref.set(payload).then(() => new_id);
     // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
     // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
@@ -7039,7 +7167,7 @@ var WriteMixin = {
       throw new Error('Either id or data is missing.')
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
         console.warn("Got invalid id <" + id + ">, but validation is disabled.");
       } else {
@@ -7059,7 +7187,7 @@ var WriteMixin = {
     var payload = data;
     this._convert_moment_objects( payload );
 
-    log$2("[GENS] Updating at", this._previewPath(id), "with payload", payload);
+    log$2("[GENS] Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -7111,7 +7239,7 @@ var WriteMixin = {
         throw new Error("Got invalid sortidx", sortidx);
       }
 
-      if (!this$1._validateId(item.id)) {
+      if (!this$1._validate_id(item.id)) {
         throw new Error("Got invalid id", item.id);
       }
 
@@ -7127,13 +7255,13 @@ var WriteMixin = {
         // data[path + '/' + subset_name + '/' + id + '/' + prop] = data[prop];
         // "/goal/{goalId}/user_list/{uid}/task_names/"
 
-        payload[ this$1._previewPath(id) + '/' + prop ] = data[prop];
+        payload[ this$1.previewPath(id) + '/' + prop ] = data[prop];
       });
     });
 
     // TODO: Check schema if sortidx is allowed
 
-    log$2("[GENS] update at", this._previewPath(), "with payload", payload);
+    log$2("[GENS] update at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -7162,7 +7290,7 @@ var WriteMixin = {
       var id_list = id;
       var payload = {};
       id_list.forEach(function (id) {
-        if ( !this$1._validateId(id) ) {
+        if ( !this$1._validate_id(id) ) {
           throw new Error('Got invalid id in remove')
         }
 
@@ -7177,7 +7305,7 @@ var WriteMixin = {
       return this.parentRef.update(payload);
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7248,7 +7376,7 @@ var WriteMixin = {
       // TODO: It probably does - test and remove this check
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7339,7 +7467,7 @@ var WriteMixin = {
 
     if ( value === void 0 ) value = 1;
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7385,13 +7513,13 @@ var WriteMixin = {
   },
 
   /**
-   * new_from_template - Create empty model from create function
+   * newFromTemplate - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromTemplate + write = add
    *
    * @return {type}  description
    */
-  new_from_template: function new_from_template( data, optional_data ) {
+  newFromTemplate: function newFromTemplate( data, optional_data ) {
     if ( data === void 0 ) data = {};
     if ( optional_data === void 0 ) optional_data = null;
 
@@ -7401,11 +7529,11 @@ var WriteMixin = {
     return model
   },
   /**
-   * new_from_template - Create empty model from create function
+   * newFromData - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromData + write = add
    */
-  new_from_data: function new_from_data( data, make_dirty ) {
+  newFromData: function newFromData( data, make_dirty ) {
     if ( data === void 0 ) data = {};
 
     var model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
@@ -7416,7 +7544,7 @@ var WriteMixin = {
   /**
    * empty - Create empty payload from schema.create()
    *         This method WILL only create an JS-Object, not a GenericModel
-   *         In most cases, you want to use new_from_template_instead
+   *         In most cases, you want to use newFromTemplate instead
    */
   empty: function empty( data, optional_data ) {
     if ( data === void 0 ) data = {};
@@ -7488,9 +7616,9 @@ var log2$1 = function () {
   while ( len-- ) args[ len ] = arguments[ len ];
 };
 
-var subscriptions = new WeakMap();
-
 var defaultDB = null;
+var recentModelCallerComponent = null; // Component, that last called $models
+
 var _Vue$1;
 var _firebase = null; // TODO: Getter with not init warn
 
@@ -7578,6 +7706,10 @@ var GenericStore = function GenericStore( templatePath, modelDefinition, options
     ? options.enableTypeValidation
     : true;
 
+  this.autoUnsubscribe = 'autoUnsubscribe' in options
+    ? options.autoUnsubscribe
+    : true;
+
   this.isReadonly = options.isReadonly;
   this.templatePath = templatePath;
   this.modelDefinition = modelDefinition;
@@ -7595,29 +7727,29 @@ var GenericStore = function GenericStore( templatePath, modelDefinition, options
 
     // Only execute mixin inits, but don't attach methods
     Object.assign(this, {
-      read_mixin_init: ReadMixin.read_mixin_init,
-      write_mixin_init: WriteMixin.write_mixin_init
+      _read_mixin_init: ReadMixin._read_mixin_init,
+      _write_mixin_init: WriteMixin._write_mixin_init
     });
-    this.read_mixin_init();
-    this.write_mixin_init();
+    this._read_mixin_init();
+    this._write_mixin_init();
 
   } else {
     {
       Object.assign(this, ReadMixin);
-      this.read_mixin_init();
+      this._read_mixin_init();
     }
 
     if (  !this.isReadonly ) {
       Object.assign(this, WriteMixin);
-      this.write_mixin_init();
+      this._write_mixin_init();
     }
   }
 
-  // delete this.read_mixin_init
-  // delete this.write_mixin_init
+  // delete this._read_mixin_init
+  // delete this._write_mixin_init
 };
 
-var prototypeAccessors$2 = { _db: { configurable: true },defaultUserId: { configurable: true },path: { configurable: true },parentRef: { configurable: true },rootRef: { configurable: true },_template_path_field_names: { configurable: true },_schema_fields: { configurable: true },schema_required_fields: { configurable: true },schema_optional_fields: { configurable: true },schema_all_fields: { configurable: true },subscriptions: { configurable: true },rules: { configurable: true } };
+var prototypeAccessors$2 = { _db: { configurable: true },defaultUserId: { configurable: true },path: { configurable: true },parentRef: { configurable: true },rootRef: { configurable: true },_template_path_field_names: { configurable: true },schemaFields: { configurable: true },schemaRequiredFields: { configurable: true },schemaOptionalFields: { configurable: true },schemaAllFields: { configurable: true },_last_caller: { configurable: true },rules: { configurable: true } };
 var staticAccessors = { defaultUserId: { configurable: true } };
 
 /**
@@ -7633,13 +7765,13 @@ GenericStore.prototype._clone = function _clone () {
   // - Only because they are not in the prototype
   // get _db
   // get _template_path_field_names
-  // get _schema_fields
+  // get schemaFields
   // get path
   // get parentRef
   // get rootRef
-  // get schema_required_fields
-  // get schema_optional_fields
-  // get schema_all_fields
+  // get schemaRequiredFields
+  // get schemaOptionalFields
+  // get schemaAllFields
   // get subscriptions
   // get rules
 
@@ -7653,11 +7785,11 @@ GenericStore.prototype._clone = function _clone () {
   {
     delete clone.getters;
     delete clone._vm; // !!!
-    clone.read_mixin_init();
+    clone._read_mixin_init();
   }
 
   if ( !this.isReadonly && REDEFINE_ACTIONS_AFTER_CLONE ) {
-    clone.write_mixin_init(true);
+    clone._write_mixin_init(true);
   }
 
   // Keep track of clones
@@ -7752,11 +7884,11 @@ prototypeAccessors$2._db.get = function () {
 };
 
 /**
- * _validateId - Checks if a given id is valid
+ * _validate_id - Checks if a given id is valid
  *
  * @return {type}  true or false
  */
-GenericStore.prototype._validateId = function _validateId ( id ) {
+GenericStore.prototype._validate_id = function _validate_id ( id ) {
   if ( this.uidMethod === UIDMethod.SLUGID ) {
     if ( !isValidId(id) ) {
       return false;
@@ -7769,9 +7901,9 @@ GenericStore.prototype._validateId = function _validateId ( id ) {
 };
 
 /**
- * _defineUser - Define user (userId/uid) based on default value
+ * _define_user - Define user (userId/uid) based on default value
  */
-GenericStore.prototype._defineUser = function _defineUser () {
+GenericStore.prototype._define_user = function _define_user () {
   if ( GenericStore.defaultUserId ) {
     this.definedProps[ 'uid' ] = GenericStore.defaultUserId;
   }
@@ -7829,7 +7961,7 @@ GenericStore.resetState = function resetState () {
 prototypeAccessors$2.path.get = function () { // TODO: rename this to path and this.path to this.uninterpolatedPath
 
   if ( !( 'uid' in this.definedProps ) ) {
-    this._defineUser();
+    this._define_user();
   }
 
   var path = parseTpl(this.templatePath, this.definedProps);
@@ -7853,15 +7985,15 @@ prototypeAccessors$2.path.get = function () { // TODO: rename this to path and t
 };
 
 /**
- * _previewPath - Generate a path preview for a given it
+ * previewPath - Generate a path preview for a given it
  *
  * @param{type} id description
  */
-GenericStore.prototype._previewPath = function _previewPath ( id ) {
+GenericStore.prototype.previewPath = function previewPath ( id ) {
 
   // TODO: Should this be called during preview?
   if ( !( 'uid' in this.definedProps ) ) {
-    this._defineUser();
+    this._define_user();
   }
 
   var path = parseTpl(this.templatePath, this.definedProps);
@@ -7912,7 +8044,7 @@ prototypeAccessors$2.rootRef.get = function () {
  *
  * @returns {nothing}
  */
-GenericStore.prototype._define = function _define ( target, props ) {
+GenericStore.prototype.define = function define ( target, props ) {
   /* Merge new props with previous props */
   target.definedProps = Object.assign({}, this.definedProps, props);
 
@@ -7925,14 +8057,10 @@ GenericStore.prototype._define = function _define ( target, props ) {
   return target; // Allow chaining
 };
 
-GenericStore.prototype.define = function define ( props ) {
-  return this._define( this, props );
-};
-
 GenericStore.prototype.with = function with$1 ( props ) {
   // Synax: store.with({ prop1: 'value' }).add({...}) - store is not mutated
   var new_this = this._clone();
-  return this._define( new_this, props );
+  return this.define( new_this, props );
 };
 
 /**
@@ -7969,7 +8097,7 @@ GenericStore.prototype.reset = function reset (level) {
 /**
  *
  */
-prototypeAccessors$2._schema_fields.get = function () {
+prototypeAccessors$2.schemaFields.get = function () {
   var schema = ( ( this.modelDefinition || {} ).schema || {} ).fields;
   if ( typeof schema === 'undefined' ) {
     return [];
@@ -7983,34 +8111,34 @@ prototypeAccessors$2._schema_fields.get = function () {
 };
 
 /**
- * get schema_optional_fields - Returns all required fields defined in the schema
+ * get schemaOptionalFields - Returns all required fields defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_required_fields.get = function () {
-  return this._schema_fields
+prototypeAccessors$2.schemaRequiredFields.get = function () {
+  return this.schemaFields
         .filter( function (field) { return field.required; } )
         .map( function (field) { return field.model; } );
 };
 
 /**
- * get schema_optional_fields - Returns all optional fields defined in the schema
+ * get schemaOptionalFields - Returns all optional fields defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_optional_fields.get = function () {
-  return this._schema_fields
+prototypeAccessors$2.schemaOptionalFields.get = function () {
+  return this.schemaFields
         .filter( function (field) { return !( field.required || false ); })
         .map( function (field) { return field.model; } );
 };
 
 /**
- * get schema_all_fields - Returns all fields that are defined in the schema
+ * get schemaAllFields - Returns all fields that are defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_all_fields.get = function () {
-  return this._schema_fields.map( function (field) { return field.model; } );
+prototypeAccessors$2.schemaAllFields.get = function () {
+  return this.schemaFields.map( function (field) { return field.model; } );
 };
 
 /**
@@ -8019,7 +8147,7 @@ prototypeAccessors$2.schema_all_fields.get = function () {
  * @param{type} data data to check
  */
 GenericStore.prototype._check_required_fields = function _check_required_fields ( data ) {
-  this.schema_required_fields.forEach(function (required_field) {
+  this.schemaRequiredFields.forEach(function (required_field) {
     if ( !( required_field in data ) ) {
       throw new Error('Required field <' + required_field + '> not present.')
     }
@@ -8059,7 +8187,7 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
   }
 
   // TODO: Convert object to array
-  var schema = this._schema_fields;
+  var schema = this.schemaFields;
   if ( schema && schema.length >= 0 ) {
     /* Check 1: Are required fields present (Disabled for updates) */
     if ( !is_update ) {
@@ -8078,7 +8206,7 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
     var typeRegex = /(?<val>\w+)\s*\[\]/;
 
     /* Check 2: Are provided fields within schema? */
-    var allowed_field_names = this.schema_all_fields;
+    var allowed_field_names = this.schemaAllFields;
     var allowed_field_regex = [];
     var allowed_field_map = {};
 
@@ -8091,18 +8219,18 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
         if ( k.startsWith('/') && k.endsWith('/') ) {
           allowed_field_regex.push( k );
         }
-        return ( obj = {}, obj[k] = this$1._schema_fields[i], obj )
+        return ( obj = {}, obj[k] = this$1.schemaFields[i], obj )
       }));
 
       Object.keys(allowed_field_map).forEach(function (key, i) {
 
-        var type = allowed_field_map[ key ].validate_bolt_type || '';
+        var type = allowed_field_map[ key ].type || '';
 
         if ( mapRegex.test( type ) ) {
           // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
           var regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
           allowed_field_regex.push( regex );
-          allowed_field_map[ regex ] = this$1._schema_fields[i];
+          allowed_field_map[ regex ] = this$1.schemaFields[i];
         }
       });
     }
@@ -8140,7 +8268,7 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
 
         // TODO: Also support Generic types (MyTime<A,B>)
 
-        var type_list = (field.validate_bolt_type || "").split("|");
+        var type_list = (field.type || "").split("|");
         var check = type_list.some(function (typeRaw) {
 
           var type = typeRaw.trim();
@@ -8154,6 +8282,13 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
           if ( mapRegex.test( type ) ) {
             typeInfo = mapRegex.exec( type ).groups;
             type = 'Map';
+          }
+
+          // For non required fields also allow 'null' as a valid input
+          if ( !field.required ) {
+            if ( data[ key ] === null ) {
+              return true;
+            }
           }
 
           return this$1._validate_bolt_type(
@@ -8226,94 +8361,31 @@ GenericStore.prototype._validate_bolt_type = function _validate_bolt_type ( valu
 };
 
 /**
- * get subscriptions - Returns subscriptions that were create by this store
+ * Set the recent caller, this is trigger by the getter that returns $models.
+ * Which means this is called before subscribeList(), when calling it like this:
+ * this.$models.myexample.subscribeList()
+ *    ^               ^
+ *    |               |
+ *    +- _set_caller  +- subscribeList is called
+ *       is called       and can access this._last_caller
  *
- * @return {list} list of subscriptions
  */
-prototypeAccessors$2.subscriptions.get = function () {
-  return subscriptions.get( this );
-};
+GenericStore._set_caller = function _set_caller ( caller ) {
 
-/**
- * _bind_rtdb - Firebase binding
- *
- * Adapted from:
- * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
- *
- * @param {{ key, ref, ops, bindAsArray }} obj - config
- * @param {string} obj.key              - Key where the data is stored locally
- * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
- * @param {type} obj.ops                - operations {init, add, remove, set, set_sync}
- * @param {boolean} obj.bindAsArray.    - bind as list (true), bind as document (false)
- */
-GenericStore.prototype._bind_rtdb = function _bind_rtdb (ref$1) {
-    var key = ref$1.key;
-    var ref = ref$1.ref;
-    var ops = ref$1.ops;
-    var bindAsArray = ref$1.bindAsArray;
-
-  // TODO check ref is valid
-  // TODO check defined in vm
-
-  // TODO: Why do we need subscriptions? isn't that the same as the instance cache and the registry?
-  // subscritions is a liittle bit more fundamental = real listeners
-  // registry = reactive data (but used where?)
-  // instance cache = cached subscriptions (real and 'simulated') as generic models
-
-  var sub = subscriptions.get(this);
-  if (!sub) {
-    sub = Object.create(null);
-    subscriptions.set(this, sub);
+  // Check, if we got a VueComponent instance
+  if ( caller._isVue !== true ) {
+    return false;
   }
 
-  // unbind if ref is already bound
-  if (key in sub) {
-    this._unbind_rtdb(key);
-  }
-
-  // if ( subscriptions.get(key) ) { }
-
-  return new Promise(function (resolve, reject) {
-    sub[ key ] = bindAsArray
-      ? rtdbBindAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
-      : rtdbBindAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
-    // subscriptions.set(key, unsubscribe)
-  })
+  recentModelCallerComponent = caller;
 };
 
 /**
- * _fetch_rtdb - Firebase binding
+ * Returns last VueCompoennt that accessed this.$models (see above).
  *
  */
-GenericStore.prototype._fetch_rtdb = function _fetch_rtdb (ref$1) {
-    var key = ref$1.key;
-    var ref = ref$1.ref;
-    var ops = ref$1.ops;
-    var bindAsArray = ref$1.bindAsArray;
-
-  return new Promise(function (resolve, reject) {
-    bindAsArray
-      ? rtdbFetchAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
-      : rtdbFetchAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
-  })
-};
-
-/**
- * _unbind_rtdb - Unbind firebase from location
- *
- * @param{type} { key } description
- */
-GenericStore.prototype._unbind_rtdb = function _unbind_rtdb (ref) {
-    var key = ref.key;
-
-  var sub = subscriptions.get(this);
-  if (!sub || !sub[key]) { return }
-
-  // subscriptions.delete( key );
-  // const sub = subscriptions.get(key)
-
-  sub[key]();
-  delete sub[key];
+prototypeAccessors$2._last_caller.get = function () {
+  return recentModelCallerComponent
 };
 
 // ---------------------------------------------------------------------------
@@ -8575,7 +8647,10 @@ function install (Vue, options) {
 
   // Define $models
   Object.defineProperty(Vue.prototype, '$models', {
-    get: function get () { return options.models }
+    get: function get () {
+      GenericStore._set_caller( this );
+      return options.models
+    }
   });
 
   // Merge user api with helios API
@@ -8637,7 +8712,7 @@ var StoreManager = {
   // setDefaultDB
   // getRegistryState
   // getAllSyncedPaths
-  // reset_global_instance_cache
+  // resetGlobalInstanceCache
   // get subscriptions()
 };
 
@@ -8689,7 +8764,7 @@ function resetGenericStores( unsubscribe ) {
   for ( var key in stores ) loop( key );
 }
 
-var version = '0.2.2';
+var version = '0.2.3';
 
 var heliosRX = function heliosRX () {};
 

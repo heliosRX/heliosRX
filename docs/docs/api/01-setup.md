@@ -113,23 +113,37 @@ This section is still a work in progress. It will be updated soon.
 :::
 
 ```js
+import Vue from 'vue'
 import heliosRX from 'heliosRX'
+
+let client_env = functions.config().client_env;
+let firebaseConfig = {
+  apiKey:             client_env.firebase_api_key,
+  authDomain:         client_env.firebase_auth_domain,
+  databaseURL:        client_env.firebase_database_url,
+  projectId:          client_env.firebase_project_id,
+  storageBucket:      client_env.firebase_storage_bucket,
+  messagingSenderId:  client_env.firebase_messaging_sender_id
+}
 
 heliosRX.setup({
 
-  //
+  // Should firebase admin sdk be initialized as a user or as admin?
   runAsUser: false | null | <String>,
 
-  //
-  firebaseApp: null | <FirebaseApp>,
+  // Configuration
+  firebaseConfig: null | <object>,
 
-  // Realtime Database instance
-  db: <Database>,
+  // Object that contains all generic stores
+  models: <Models>,
 
+  /*
   // Disable / Enable development mode
   devMode: true / false,
 
-  /*
+  // User defined API
+  userApi: <UserApi>,
+
   // Object that contains all generic stores
   models: <Models>,
 

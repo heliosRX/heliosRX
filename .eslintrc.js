@@ -83,8 +83,16 @@ const config = {
   }
 }
 
-if ( process.VUE_CLI_SERVICE && process.VUE_CLI_SERVICE.pkg.name === 'heliosrx' ) {
+if ( ( process.VUE_CLI_SERVICE
+  && process.VUE_CLI_SERVICE.pkg.name === 'heliosrx' )
+  || process.title == 'linter-eslint helper' ) {
    module.exports = config;
 } else {
-   module.exports = {}
+
+  // Ignore linter, when using package with "yarn link"
+  module.exports = {}
+
+   /* let util = require('util');
+   let fs = require('fs');
+   fs.writeFile("editor-env-settings.js", util.inspect(process), () => {}); */
 }

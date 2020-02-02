@@ -1,30 +1,27 @@
 module.exports = {
   presets: [
-    [require('@babel/preset-env'), { 'modules': false }],
-    // [ '@vue/app', { corejs: 3, useBuiltIns: 'entry' } ]
+    // TODO: We might be able to get rid of babel entirely
+    [require('@babel/preset-env'), { modules: false }],
     // '@babel/env'
   ],
   plugins: [
-    // '@babel/plugin-transform-runtime',
-    // '@babel/plugin-proposal-class-properties',
-    // ['@babel/plugin-transform-for-of'), { assumeArray: true },
+    // '@babel/plugin-transform-named-capturing-groups-regex',
+    // ['@babel/plugin-transform-for-of', { assumeArray: true },
     // ['@babel/plugin-proposal-class-properties', { 'loose': false }],
-    // 'transform-object-rest-spread',
+    // '@babel/plugin-transform-regenerator',
+    // '@babel/plugin-transform-runtime',
   ],
   env: {
     test: {
-      'presets': [
+      presets: [
         [require('@babel/preset-env'), {
-          'useBuiltIns': 'entry',
-          'corejs': 3,
-          'modules': 'auto',
-          'targets': { 'node': 'current' }
+          useBuiltIns: 'entry',
+          corejs: 3,
+          modules: 'auto',
+          targets: { node: 'current' }
         }],
       ],
-      'plugins': [
-        // '@babel/plugin-transform-regenerator',
-        // '@babel/plugin-transform-runtime',
-        // 'transform-es2015-modules-commonjs',
+      plugins: [
       ],
     }
   }

@@ -749,6 +749,13 @@ export default class GenericStore {
               type = 'Map';
             }
 
+            // For non required fields also allow 'null' as a valid input
+            if ( !field.required ) {
+              if ( data[ key ] === null ) {
+                return true;
+              }
+            }
+
             return this._validate_bolt_type(
               data[ key ],
               type,

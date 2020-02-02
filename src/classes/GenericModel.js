@@ -31,6 +31,7 @@ export default class GenericModel {
     this.$idx         = null;
     this.$noaccess    = null;
     this._store_name  = name;
+    this._validation_behaviour = 'WARNING';
 
     Vue.observable( this.$state ); // TODO: Check if we get an error here
     // Vue.observable( this.$ready );

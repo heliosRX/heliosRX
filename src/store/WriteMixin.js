@@ -13,8 +13,15 @@ import { add_custom_actions } from '../classes/utils'
 import factory from '../classes/factory'
 import moment from '../moment'
 
+import { info, trace, warn,
+  INFO_STORE_WRITE,
+  INFO_MOMENT,
+  WARNING_NO_CREATE_FUNCTION,
+  WARNING_INVALID_ID,
+  WARNING_NO_SCHEMA,
+} from "../util/log"
+
 const BACKEND = 'REALTIMEDB';
-const log = (...args) => { console.log(...args) };
 
 // -----------------------------------------------------------------------------
 export default {
@@ -46,8 +53,9 @@ export default {
   */
   add( overwrite_data, new_id, options ) {
     /* if ( this.isSuffixed ) {
-      console.warn('Suffixed stores can not create new items, use unsuffixed'
-                    + ' store instead (e.g. goal instead of goalMeta).')
+      warn(WARNING_DEPRECATED,
+        'Suffixed stores can not create new items, use unsuffixed'
+      + ' store instead (e.g. goal instead of goalMeta).')
     } */
 
     let payload = null;
@@ -77,7 +85,7 @@ export default {
             overwrite_data,
             BACKEND )
         } else {
-          console.warn("No create function found in type definition, using overwrite data as payload.");
+          warn(WARNING_NO_CREATE_FUNCTION, "No create function found in type definition, using overwrite data as payload.");
           payload = overwrite_data;
         }
       } else {
@@ -90,24 +98,24 @@ export default {
       if ( this.modelDefinition.schema ) {
         this._validate_schema( payload, false )
       } else {
-        console.warn("No schema found to validate input");
+        warn(WARNING_NO_SCHEMA, "No schema found to validate input");
       }
     } else {
-      console.warn("No type definition found, using UNVALIDATED overwrite data as payload.");
+      warn(WARNING_NO_SCHEMA, "No type definition found, using UNVALIDATED overwrite data as payload.");
       payload = overwrite_data;
     }
 
     this._convert_moment_objects( payload )
 
-    log("[GENS] Creating at", this.previewPath(new_id), "with payload", payload);
-    // return this.ref.set(payload).then(() => new_id);
-    // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
-    // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
-    /*console.log('new id: ', new_id)
+    info(INFO_STORE_WRITE, "Creating at", this.previewPath(new_id), "with payload", payload);
+
+    /*
     if ('.sv' in new_id) { // server value in key
-      console.log('server value in id detected')
+      warn(WARNING_CLIENT_VALIDATION, 'server value in id detected')
       return this.parentRef.update({ [newPostKey]: payload }).then(() => new_id);
-    } else {*/
+    }
+    */
+
     if ( this.isSuffixed ) {
       return this.childRef( new_id ).update(payload).then(() => new_id);
     } else {
@@ -140,7 +148,7 @@ export default {
 
     if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
-        console.warn("Got invalid id <" + id + ">, but validation is disabled.");
+        warn(WARNING_INVALID_ID, "Got invalid id <" + id + ">, but validation is disabled.");
       } else {
         throw new Error('Got invalid id in update')
       }
@@ -151,14 +159,14 @@ export default {
     if ( this.modelDefinition.schema ) {
       this._validate_schema( data, true );
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     // let path = this.interpolatedPath;
     let payload = data;
     this._convert_moment_objects( payload )
 
-    log("[GENS] Updating at", this.previewPath(id), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -227,7 +235,7 @@ export default {
 
     // TODO: Check schema if sortidx is allowed
 
-    log("[GENS] update at", this.previewPath(), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -265,7 +273,7 @@ export default {
         }
       })
 
-      log("[GENS] batch deleting at", this.path, "with payload", payload);
+      info(INFO_STORE_WRITE, "Batch deleting at", this.path, "with payload", payload);
       return this.parentRef.update(payload);
     }
 
@@ -276,14 +284,14 @@ export default {
     // TODO: Check in schema if soft delete is supported
 
     if ( soft_delete ) {
-      log("[GENS] soft deleting at", this.path, "with", { deleted: true });
+      info(INFO_STORE_WRITE, "Soft deleting at", this.path, "with", { deleted: true });
       return this.update(id, { deleted: true })
       // return this.childRef( id ).update({ deleted: true  });
     }
 
     // TODO: automatically remove listener !!!
 
-    log("[GENS] hard deleting at", this.path);
+    info(INFO_STORE_WRITE, "Hard deleting at", this.path);
     return this.childRef( id ).remove();
   },
 
@@ -406,7 +414,7 @@ export default {
         payload = { [pathB]: objectA };
       }
 
-      log("[GENS] moving data from ", pathA, "to", pathB, "with payload", payload);
+      info(INFO_STORE_WRITE, "Moving data from ", pathA, "to", pathB, "with payload", payload);
       return this.rootRef.update(payload).then(() => propsB['id'])
     });
   },
@@ -444,13 +452,13 @@ export default {
       throw new Error('Transacton must be a function')
     }
 
-    log("[GENS] tranaction on ", targetRef.path.toString() /*, "with", transaction*/);
+    info(INFO_STORE_WRITE, "Tranaction on", targetRef.path.toString() /*, "with", transaction*/);
     return targetRef.transaction(transaction).then((result) => {
       if ( result.committed ) {
-        console.log("[GENS] Transacton successfully committed")
+        info(INFO_STORE_WRITE, "Transacton successfully committed")
         return true
       }
-      console.log("[GENS] Transacton aborted") // To abort transaction return undefined
+      info(INFO_STORE_WRITE, "Transacton aborted") // To abort transaction return undefined
       return false
     });
   },
@@ -514,7 +522,7 @@ export default {
     if ( this.modelDefinition.schema ) {
       this._validate_schema( payload, false )
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     return payload;
@@ -526,7 +534,7 @@ export default {
    */
   _convert_moment_objects( payload ) {
     if ( typeof payload !== 'object' ) {
-      console.log("Got payload", payload, typeof payload);
+      trace(INFO_MOMENT, "Got invalid payload in _convert_moment_objects", payload, typeof payload);
       throw new Error('Expected object, got ' + payload);
     }
     /* payload can either be array or object */

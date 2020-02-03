@@ -20,10 +20,15 @@ import GenericList from '../classes/GenericList'
 import ReadMixin from './ReadMixin'
 import WriteMixin from './WriteMixin'
 
-const slugid = require('slugid');
+import { info, trace, warn,
+  INFO_STORE,
+  WARNING_EMPTY_SCHEMA,
+  WARNING_UKNONWN_VALIDATION_TYPE,
+  WARNING_DEFINE_UNKNOWN_PROP,
+  WARNING_RESET_MAX_DEPTH,
+} from "../util/log"
 
-const log = (...args) => { console.log(...args) };
-const log2 = (...args) => {};
+const slugid = require('slugid');
 
 let defaultDB = null;
 let recentModelCallerComponent = null; // Component, that last called $models
@@ -419,7 +424,7 @@ export default class GenericStore {
 
     /* INFO: In the future this should be refactored to be completly stateless! */
 
-    log("[GENS] settings default user id to: uid =", id);
+    info(INFO_STORE, "settings default user id to: uid =", id);
     _Vue.set( genericStoreGlobalState, 'userId', id)
     // _userId = id;
   }
@@ -430,7 +435,7 @@ export default class GenericStore {
    */
   static resetState() {
     // genericStoreGlobalState.reset();
-    log("[GENS] reset state");
+    info(INFO_STORE, "reset state");
     _Vue.set( genericStoreGlobalState, 'userId', null)
   }
 
@@ -531,7 +536,7 @@ export default class GenericStore {
     let known_field_names = [].concat( this._template_path_field_names, this.additionalProps );
     for ( var prop in props ) {
       if ( !known_field_names.includes( prop ) ) {
-        console.warn("Prop", prop, "not found in template path. Known fields are", known_field_names);
+        warn(WARNING_DEFINE_UNKNOWN_PROP, "Prop", prop, "not found in template path. Known fields are", known_field_names);
       }
     }
     return target; // Allow chaining
@@ -558,13 +563,13 @@ export default class GenericStore {
    */
   reset(level = 1) {
     if ( level === 1 ) {
-      log2("[GENS] resetting", this.name, "with", this._clones.length, "clones")
+      trace(INFO_STORE, "resetting", this.name, "with", this._clones.length, "clones")
     }
 
-    // console.log("[GENS] RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
+    // info(INFO_STORE, "RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
     this.definedProps = {}
     if ( level > 3 ) {
-      console.warn("[GENS] RESET - Stop at recursion level 3", this._clones)
+      warn(WARNING_RESET_MAX_DEPTH, "RESET - Stop at recursion level 3", this._clones)
       return
     }
     this._clones.forEach(clone => {
@@ -696,7 +701,7 @@ export default class GenericStore {
     let allowed_field_map = {}
 
     if ( schema.length === 0 ) {
-      console.warn('Schema for "' + this.name + '" is empty.');
+      warn(WARNING_EMPTY_SCHEMA, 'Schema for "' + this.name + '" is empty.');
     } else {
       allowed_field_map = Object.assign(...allowed_field_names.map((k, i) => {
         if ( k.startsWith('/') && k.endsWith('/') ) {
@@ -836,7 +841,7 @@ export default class GenericStore {
         });
       }
       default:
-        console.warn("Can not validate type '" + type + "'");
+        warn(WARNING_UKNONWN_VALIDATION_TYPE, "Can not validate type '" + type + "'");
         return true;
     }
   }

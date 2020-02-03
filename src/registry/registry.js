@@ -1,5 +1,6 @@
 import { _Vue as Vue } from '../external-deps'
 import genericStoreMutations from './mutations'
+import { info, INFO_REGISTRY } from "../util/log"
 
 // import createPersistedState from 'vuex-persistedstate'
 // import { ENABLE_PERSISTENT_REGISTRY } from '@/features'
@@ -34,7 +35,7 @@ export default {
     },
 
     RESET_REGISTRY(state) {
-      //console.log('RESET_REGISTRY')
+      info(INFO_REGISTRY, 'RESET_REGISTRY')
       // Callend on logout
       Vue.set( state, 'sync',  {})
       Vue.set( state, 'res',   {})
@@ -43,31 +44,28 @@ export default {
     },
 
     ADD_ENTRY(state, { name, data }) {
-      //console.log('ADD_ENTRY')
+      info(INFO_REGISTRY, 'ADD_ENTRY')
       if (!state.sync[name] || state.sync[name] !== data) {
         Vue.set( state.sync, name, data )
       }
     },
 
-    // TODO: Kann das komplett enfallen?
     SET_ENTRY_STATUS( state, { name, value } ) {
-      //console.log('SET_ENTRY_STATUS')
-      // state.sync[ name ].status = value;
+      info(INFO_REGISTRY, 'SET_ENTRY_STATUS')
       if (!state.sync[ name ][status] || state.sync[ name ][status] !== value) {
         Vue.set(state.sync[ name ], 'status', value)
       }
     },
 
     SET_GLOBAL_READY_STATE( state, { name, value } ) {
-      //console.log('SET_GLOBAL_READY_STATE')
-      // state.ready[ name ] = !!value;
+      info(INFO_REGISTRY, 'SET_GLOBAL_READY_STATE')
       if (!state.ready[name] || state.ready[name] !== !!value) {
         Vue.set(state.ready, name, !!value)
       }
     },
 
     REM_GLOBAL_READY_STATE( state, { name } ) {
-      //console.log('REM_GLOBAL_READY_STATE')
+      info(INFO_REGISTRY, 'REM_GLOBAL_READY_STATE')
       Vue.delete(state.ready, name)
     }
   },

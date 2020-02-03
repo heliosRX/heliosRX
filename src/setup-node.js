@@ -2,6 +2,7 @@ import { setDefaultDB } from './helpers.js'
 import { setup as storeSetup } from './store/GenericStore.js'
 import registryModule from './registry/module'
 import setupExternalDeps, { _Vue, _Vuex } from './external-deps'
+import { info, INFO_COMMON } from "./util/log"
 
 /* Usage:
 let client_env = functions.config().client_env;
@@ -44,7 +45,7 @@ export function setupNode( options ) {
 
   if ( options.runAsUser ) {
     if ( usingLocalEmulator ) {
-      console.log("[initializeApp] with default config", process.env.FIREBASE_CONFIG)
+      info(INFO_COMMON, "[initializeApp]", "with default config", process.env.FIREBASE_CONFIG)
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
       });
@@ -62,7 +63,7 @@ export function setupNode( options ) {
 
     const config = options.firebaseConfig;
 
-    console.log("[initializeApp] config", config)
+    info(INFO_COMMON, "[initializeApp]", "config", config)
     admin.initializeApp(config);
   }
 

@@ -1,6 +1,7 @@
 import GenericStore from './store/index.js'
 import { setup as storeSetup } from './store/GenericStore.js'
 import setupExternalDeps, { _Vuex as Vuex } from './external-deps'
+import log, { info, warn, INFO_COMMON, WARNING_COMMON } from "./util/log"
 
 import registryModule from './registry/module'
 
@@ -14,7 +15,7 @@ export function install (Vue, options) {
   if (install.installed && _Vue === Vue) return
   install.installed = true
 
-  console.log("[GENS] Installing Generic API plugin");
+  info(INFO_COMMON, "Installing Generic API plugin");
 
   if ( !options ) {
     throw new Error('heliosRX: Missing configuration. Did you supply config with Vue.use("heliosRx", {...})?')
@@ -59,7 +60,7 @@ export function install (Vue, options) {
 
     (Vue._installedPlugins || []).forEach(plugin => {
       if ( plugin.Store && plugin.mapActions ) {
-         console.warn("Existing Vuex detected. Consider using 'useExistingStore'. See heliosRX documentation.");
+         warn(WARNING_COMMON, "Existing Vuex detected. Consider using 'useExistingStore'. See heliosRX documentation.");
       }
     })
 
@@ -99,6 +100,15 @@ export function install (Vue, options) {
   Object.defineProperty(Vue.prototype, '$api', {
     get () { return mergedApi }
   })
+
+  if ( options.devMode ) {
+    log.setDefaultLevel('info')
+    log.setLevel('info')
+    // TODO: Also allow to set trace
+  } else {
+    log.setDefaultLevel('warn')
+    log.setLevel('warn')
+  }
 
   // Expose everything to developer console
   let isDevEnvironment = process.env.VUE_APP_PRODUCTION === 'false' && process.browser;

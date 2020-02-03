@@ -29,34 +29,29 @@ import factory from '../classes/factory'
 import defer from '../util/defer'
 import { arrayDiffTwoWay } from '../util/array'
 
+import { info, trace, warn,
+  INFO_PERMISSION,
+  INFO_AUTO_UNSUBSCRIBE,
+  INFO_SUBSCRIBE_QUERY,
+  INFO_SUBSCRIBE,
+  INFO_SUBSCRIBE_DETAILS,
+  INFO_READ_INIT,
+  INFO_READ_REMOVE,
+  WARNING_COMMON,
+  WARNING_SYNCING_SUBSET_DATA,
+  WARNING_SYNCING_INDIVIDUAL,
+  WARNING_SYNCING_EXISTING_QUERY_PATH,
+  WARNING_ACCESSING_UNSYNCED_DATA,
+  WARNING_PERMISSION_DENIED,
+} from "../util/log"
+
 const LOCAL_PATH_PREFIX = 'res.';
 
-/* Log levels */
-const _no_log = () => {};
-// eslint-disable-next-line
-const _log = (name, ...args) => {
-  // Enable logging per store instance
-  /*
-  if ( !name.includes('commitmentDailySettings') ) {
-    return
-  }
-  */
-  console.log("[GENS:READ:" + name + "]", ...args)
-};
-// eslint-disable-next-line
-const _log_group = (name, id, ...args) => {
-  console.groupCollapsed('[GENS:READ:' + name + '] ' + ( id ? '{' + id + '}' : '*'));
-  args.forEach(arg => console.log('INFO:', arg));
-  console.trace();
-  console.groupEnd();
-}
-
-const log0 = _no_log;
-const log1 = _no_log;
-const log2 = _no_log;
-const log3 = _no_log;
-const log4 = _no_log;
-const SHOW_SYNCING_INDIVIDUAL_WARNING = false;
+const log0 = (name, ...args) => trace( INFO_SUBSCRIBE_QUERY, `[${name}]`, ...args);
+const log1 = (name, ...args) => trace( INFO_SUBSCRIBE, `[${name}]`, ...args);
+const log2 = (name, ...args) => trace( INFO_SUBSCRIBE_DETAILS, `[${name}]`, ...args);
+const log3 = (name, ...args) => trace( INFO_READ_INIT, `[${name}]`, ...args);
+const log4 = (name, ...args) => trace( INFO_READ_REMOVE, `[${name}]`, ...args);
 
 // const log_stringify = (v) => JSON.stringify(v)
 const log_stringify = (v) => null;
@@ -180,12 +175,12 @@ export default {
     let name = caller.$options.name || caller.$options._componentTag;
     if ( unsubscribeFn ) {
       let keys = unsubscribeFn();
-      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+      info(INFO_AUTO_UNSUBSCRIBE, `%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
         + `accessed this.$models and created a subscriptions. The components \n`
         + `just got destroyed and so did it's subscription to ${JSON.stringify(Object.keys(keys))}.`,
         'color: green');
     } else {
-      console.log(`%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
+      info(INFO_AUTO_UNSUBSCRIBE, `%cIt seems that the VueComponent "${name}" (${caller.$vnode.tag}), \n`
         + `accessed this.$models, but it either didn't create any subscriptions or \n`
         + `the subscription was already removed. The component just got destroyed \n`
         + `so there is nothing to clean up.`, 'color: darkgoldenrod');
@@ -374,8 +369,8 @@ export default {
    * @param  {type} fetchOnce = false }  = {} description
    */
   _sync_individual( id, { overwriteKey = false, fetchOnce = false, customOps = {} }  = {} ) {
-    if ( !this.isSuffixed && !fetchOnce && SHOW_SYNCING_INDIVIDUAL_WARNING ) {
-      console.warn("Syncing individually in " + this.name + ", even though list would be supported");
+    if ( !this.isSuffixed && !fetchOnce ) {
+      warn(WARNING_SYNCING_INDIVIDUAL, "Syncing individually in " + this.name + ", even though list would be supported");
     }
 
     const ref          = this.childRef( id )
@@ -548,7 +543,7 @@ export default {
 
   // ---------------------------------------------------------------------------
   _item_matches_query(query, item) {
-    // console.log("[_item_matches_query]", query, item)
+    // info(INFO_SUBSCRIBE_QUERY, "[_item_matches_query]", query, item)
     // TODO: Implement this function
     return true;
   },
@@ -556,8 +551,8 @@ export default {
   // ---------------------------------------------------------------------------
   _create_context() { // move to generic store
     return {
-      model:    this,
-      models:   _models, // tooo early
+      model:  this,
+      models: _models, // will return undefined, when called before setup
     }
   },
 
@@ -625,7 +620,7 @@ export default {
       if ( existing_path.includes('#') ) {
         let existing_path_without_query = existing_path.split('#').shift()
         if ( requested_path.startsWith( existing_path_without_query ) ) {
-          console.warn("You're trying to sync a path that has already been synced by a query. This is not supported.",
+          warn(WARNING_SYNCING_EXISTING_QUERY_PATH, "You're trying to sync a path that has already been synced by a query. This is not supported.",
             "requested_path", requested_path,
             "existing_path", existing_path);
         }
@@ -641,7 +636,7 @@ export default {
       if ( requested_path.startsWith( existing_path ) ) {
         if ( registry.state.sync[ existing_path_unmodified ].status === 'Ready'
           || registry.state.sync[ existing_path_unmodified ].status === 'Loading' ) {
-          log1(this.name, "Found node of higher hierarchy that is already syncing:",
+          warn(WARNING_SYNCING_SUBSET_DATA, this.name, "Found node of higher hierarchy that is already syncing:",
             existing_path, "vs.", requested_path);
           return existing_path_unmodified
         }
@@ -802,7 +797,7 @@ export default {
               /* Check instance cache */
               let child_entry_name = entry_name.split('#').shift().replace(/\{id\}/g, new_id)
               if ( _resultInstanceCache.has(child_entry_name) ) {
-                console.warn("A new item was added, but there already exists a model instance in the cache for this item. This means the subscription management failed.");
+                warn(WARNING_COMMON, "A new item was added, but there already exists a model instance in the cache for this item. This means the subscription management failed.");
               }
               // todo: also check list cache?
 
@@ -832,20 +827,20 @@ export default {
         return list;
       } else {
         // TODO: This warning should also show, when using subscribeList to return a cached node
-        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
+        warn(WARNING_SYNCING_SUBSET_DATA, "You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
       }
     }
 
     /* todo: remove if this never happens */
     if ( this._match_existing_synced_nodes( entry_name ) === entry_name ) {
       // This will happen, when loading from persistent state
-      console.log(">>>", entry_name, _resultListCache, _resultInstanceCache);
+      trace(INFO_SUBSCRIBE, ">>>", entry_name, _resultListCache, _resultInstanceCache);
       throw new Error('Exact path found, but no cache hit. This should never happen')
     }
 
     if (noSync) {
       log1(this.name, "subscribeList - No Sync, returning");
-      console.warn("You're trying to fetch data at " + entry_name + " that has not been synced yet.");
+      warn(WARNING_ACCESSING_UNSYNCED_DATA, "You're trying to fetch data at " + entry_name + " that has not been synced yet.");
       return null;
     }
 
@@ -882,7 +877,7 @@ export default {
         //       makes sense.
 
         if ( newId in result.items ) {
-          console.warn("An existing item was added twice. This means the subscription management failed.");
+          warn(WARNING_COMMON, "An existing item was added twice. This means the subscription management failed.");
         }
 
         let item = _resultInstanceCache.has(child_entry_name)
@@ -972,11 +967,11 @@ export default {
 
       if ( e.code === 'PERMISSION_DENIED' ) {
 
-        console.warn(e.message)
-        console.log("======================================")
-        console.log(`PERMISSION_DENIED [${this.name}.subscribeList()]`)
-        console.log("queryParams:", queryParams)
-        console.log("======================================")
+        warn(WARNING_PERMISSION_DENIED, e.message)
+        info(INFO_PERMISSION, "======================================")
+        info(INFO_PERMISSION, `PERMISSION_DENIED [${this.name}.subscribeList()]`)
+        info(INFO_PERMISSION, "queryParams:", queryParams)
+        info(INFO_PERMISSION, "======================================")
 
         result.$readyAll = true;
         result.$readySome = true;
@@ -1083,19 +1078,19 @@ export default {
         return model;
 
       } else {
-        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getNode() instead! Sync path:", entry_name_child);
+        warn(WARNING_SYNCING_SUBSET_DATA, "You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getNode() instead! Sync path:", entry_name_child);
       }
     }
 
     /* todo: remove if this never happens */
     if ( this._match_existing_synced_nodes( entry_name_child ) === entry_name_child ) {
       // This will happen, when loading from persistent state
-      console.log(">>>", entry_name_child, _resultListCache, _resultInstanceCache);
+      trace(INFO_SUBSCRIBE, ">>>", entry_name_child, _resultListCache, _resultInstanceCache);
       throw new Error('Exact path found, but no cache hit. This should never happen')
     }
 
     if (noSync) {
-      //console.warn("You're trying to fetch at " + entry_name_child + " that has not been synced yet.");
+      // warn(WARNING_ACCESSING_UNSYNCED_DATA, "You're trying to fetch at " + entry_name_child + " that has not been synced yet.");
       return null;
     }
 
@@ -1144,7 +1139,7 @@ export default {
         /* In some cases, when a node is subscribing and while waiting for the results the list,
            that contains the node is synced as well, it can happen that the list is resetted
            in $registry.state.res (See. ANNOTIATION#1 ) */
-        console.warn(this.name, "subscribeNode - subscribeList took over, while waiting for _sync_individual. subscribeList will handle instance now.")
+        warn(WARNING_COMMON, this.name, "subscribeNode - subscribeList took over, while waiting for _sync_individual. subscribeList will handle instance now.")
 
         /* We need to wait now, until the list is synced, so we can return reactive data. This
            is (hopefully) handled by subscribe List, when picking up 'load_result' from the instance cache */
@@ -1181,11 +1176,11 @@ export default {
 
         // !!! TODO: Also implement for fetchNode, fetchList !!!
 
-        console.warn(e.message)
-        console.log("======================================")
-        console.log(`PERMISSION_DENIED [${this.name}.subscribeNode( ${id} )]`)
+        warn(WARNING_PERMISSION_DENIED, e.message)
+        info(INFO_PERMISSION, "======================================")
+        info(INFO_PERMISSION, `PERMISSION_DENIED [${this.name}.subscribeNode( ${id} )]`)
         // Query parameter for *List
-        console.log("======================================")
+        info(INFO_PERMISSION, "======================================")
 
         registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' })
 
@@ -1433,7 +1428,7 @@ export default {
       return null
     }
 
-    // console.log("[GENS] getData data_path", data_path);
+    // info(INFO_SUBSCRIBE, "getData data_path", data_path);
     if ( USE_NESTED_DATA ) {
       return safe
         ? walkGetObjectSave( registry.state, data_path )
@@ -1476,7 +1471,7 @@ export default {
         instance.reset()
       });
     } catch ( e ) {
-      console.warn("Reseting instances failed", e)
+      warn(WARNING_COMMON, "Reseting instances failed", e)
     }
     _resultInstanceCache.clear()
     _resultListCache.clear()

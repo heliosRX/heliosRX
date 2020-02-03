@@ -1,10 +1,20 @@
 import { _Vue as Vue } from '../external-deps'
 import clonedeep from 'lodash.clonedeep'
-// import { _models } from '../external-deps'
 import { add_custom_getters, add_custom_actions } from '../classes/utils'
 import moment from '../moment'
 import { walkGetPropSave, walkGetObjectSave, walkSetVueProp } from '../registry/utils'
 import { DeleteMode } from '../store/enums'
+
+import { warn, info,
+  INFO_MODEL,
+  WARNING_MODEL_INVALID_MOMENT,
+  WARNING_CLIENT_VALIDATION,
+  WARNING_UNKNOWN_TIMESTAMP_TYPE,
+  WARNING_NAME_CONFLICT,
+  WARNING_WRITING_UNDEFINED,
+  WARNING_INVALID_TIMESTAMP_SERVER,
+  WARNING_NO_SCHEMA,
+} from "../util/log"
 
 const externalVMStore = new WeakMap(); // Exclude vm from instance, so it can be serialized
 const externalModelStore = new WeakMap(); // Stores generic store references
@@ -93,7 +103,9 @@ export default class GenericModel {
     if ( moment.isMoment( value ) ) {
       /* Handle moment object as input */
       if ( !moment.isValidDate( value ) ) {
-        console.warn("Got invalid e-moment object", value, "for prop", propName);
+        warn( WARNING_MODEL_INVALID_MOMENT,
+          "Got invalid (enhanced) moment object",
+          value, "for prop", propName)
       }
       value = value.toRealtimeDB() /* convert to internal timestamp */
       delete this.$invalid[ propName ];
@@ -133,7 +145,7 @@ export default class GenericModel {
         throw new Error(`Validation failed for field '${propName}' with value ${value}.`);
       }
       if ( validation_behaviour === 'WARNING' ) {
-        console.warn(`Validation failed for field '${propName}' with value ${value}.`);
+        warn(WARNING_CLIENT_VALIDATION, `Validation failed for field '${propName}' with value ${value}.`);
       }
       if ( validation_behaviour === 'ELEMENT_VALIDATION' ) {
         // Validation failed, but that's ok - element ui will take care
@@ -184,7 +196,6 @@ export default class GenericModel {
 
     schema.forEach(field => {
       let propName = field.model;
-      // console.log("[_autogenerate_props]", field, propName, data)
 
       if ( data && propName in data ) {
         this.$state[ propName ] = data[ propName ];
@@ -198,7 +209,7 @@ export default class GenericModel {
       }
 
       if ( Object.prototype.hasOwnProperty.call(this, propName ) ) {
-        console.warn(`Name conflict: property "${propName}" has same name as global action/global getter "${propName}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: property "${propName}" has same name as global action/global getter "${propName}" in ${this._store_name}`);
         return
       }
 
@@ -231,13 +242,13 @@ export default class GenericModel {
           if ( value === 0 || value === null ) {
             return value // TODO: Allow null instead of 0
           } else if ( moment.isMoment( value ) ) {
-            console.error("Do not assign moment objects directly.");
+            throw new Error("Assigning moment objects directly to property is not allowed.");
           } else if ( isFinite( value ) && value > min_date && value < max_date ) {
             return moment_conversion_func( value );
           } else if ( value === undefined ) {
             return moment_conversion_func(); // TODO: This is potentially dangerous, since it returns the current time
           } else {
-            console.warn("Schema defined", propName, "as Timestamp, but got invalid data:", value);
+            warn(WARNING_INVALID_TIMESTAMP_SERVER, "Schema defined", propName, "as Timestamp, but got invalid data:", value);
             return value
           }
         }
@@ -266,7 +277,8 @@ export default class GenericModel {
               max_date)
           }
         } else if ( field.type.includes( 'Timestamp' ) ) {
-          console.warn(
+          warn(
+            WARNING_UNKNOWN_TIMESTAMP_TYPE,
             "Found validation type that contains 'Timestamp' but is not recognized:",
             field.type
           );
@@ -293,7 +305,7 @@ export default class GenericModel {
     for ( let key in modelActions ) {
       let action = modelActions[ key ];
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: action "${key}" has same name as property/global action/global getter "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: action "${key}" has same name as property/global action/global getter "${key}" in ${this._store_name}`);
         continue
       }
       Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
@@ -316,7 +328,7 @@ export default class GenericModel {
 
     for ( let key in modelGetters ) {
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: getter "${key}" has same name as property/custom action/global action/global getter "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: getter "${key}" has same name as property/custom action/global action/global getter "${key}" in ${this._store_name}`);
         delete modelGetters[ key ] // ?
         continue
       }
@@ -337,7 +349,7 @@ export default class GenericModel {
   write() {
     // TODO: Nested data
 
-    console.log("Writing $dirty fields", JSON.stringify(this.$dirty));
+    info( INFO_MODEL, "Writing $dirty fields", JSON.stringify(this.$dirty));
 
     let payload = {}
     for ( let prop in this.$dirty ) {
@@ -351,7 +363,7 @@ export default class GenericModel {
         value = this.$state[ prop ];
       }
       if ( typeof value === 'undefined' ) {
-        console.warn("Trying to write undefined for prop", prop);
+        warn(WARNING_WRITING_UNDEFINED, "Trying to write undefined for prop", prop);
         continue
       }
       payload[ prop_path ] = value;
@@ -373,7 +385,7 @@ export default class GenericModel {
     if ( model.modelDefinition && model.modelDefinition.schema ) {
       model._validate_schema( payload, is_update ) // DOPPELT ?
     } else {
-      console.warn("No schema found to validate input", );
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input", );
     }
 
     return model.update( temp_id, payload ).then(() => {
@@ -432,19 +444,8 @@ export default class GenericModel {
     })
   }
 
-  // ---------------------------------------------------------------------------
-  // hotUpdate() {}
-
   // -----------------------------------------------------------------------------
   reset() {
-    // console.log("[GENS] Reset Model -> NOT IMPLEMENTED")
-    // ....
+    // ...
   }
-
-  // ===========================================================================
-  /*
-  customActionExample() {
-    console.log("custom action 1");
-  }
-  */
 }

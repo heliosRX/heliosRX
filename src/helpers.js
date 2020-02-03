@@ -1,4 +1,6 @@
 import GenericStore from './store'
+import { info, INFO_COMMON } from "./util/log"
+
 // import ModelRegistry from './manager/ModelRegistry'
 import { _models } from './external-deps'
 
@@ -37,7 +39,7 @@ export function resetGenericStores( unsubscribe = true ) {
     if ( unsubscribe && sublist ) {
       Object.keys(sublist).forEach(sub => {
         let callback = sublist[ sub ];
-        console.log("Calling unsubscribe for", key, ":", sub);
+        info(INFO_COMMON, "Calling unsubscribe for", key, ":", sub);
         callback();
       })
     }

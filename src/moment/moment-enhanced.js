@@ -7,8 +7,8 @@
 // import "@firebase/database";
 
 import firebase from "./firebase-shim";
-
 import { matchUserInputDuration } from '../util/types'
+import { info, warn, INFO_MOMENT, WARNING_MOMENT_INVALID_DATE } from "../util/log"
 
 const moment = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js")
 
@@ -23,8 +23,6 @@ TODO: Load tz data async:
 TODO: prevent moment from being called directly moment()
 
 *******************************************************************************/
-
-const log = (...args) => { /* console.log(...args) */ };
 
 var localStorage
 if ( !process.browser ) {
@@ -61,7 +59,7 @@ const convert_timezoneNeutral_to_qualifiedMomentObj = (momentObj, userTimezone) 
 
 export function enhanceMomentJS( moment ) {
 
-  log("[EMO] enhanceMomentJS");
+  info(INFO_MOMENT, "enhanceMomentJS");
 
   /* ... */
   moment.isEnhanced = true;
@@ -162,7 +160,7 @@ export function enhanceMomentJS( moment ) {
 
   moment.fromTimezoneNeutral = ( date ) => {
     if ( !moment.isValidDate( date ) ) {
-      console.warn("[fromTimezoneNeutral] Invalid date", date)
+      warn(WARNING_MOMENT_INVALID_DATE, "[fromTimezoneNeutral]", "Invalid date", date)
       return null
     }
     if ( !date.isTimezoneNeutral ) {
@@ -276,7 +274,7 @@ export function enhanceMomentJS( moment ) {
 
 // export function attachTimezoneWatcher( moment, store ) {
 //
-//     log("[EMO] attaching timezone watcher");
+//     info(INFO_MOMENT, "attaching timezone watcher");
 //
 //     /* Install watcher in store and wait until we get the user timezone. This
 //       also means that the store is now initialized and was using a moment
@@ -286,7 +284,7 @@ export function enhanceMomentJS( moment ) {
 //       (state, getters) => getters["app/user_get_timezone"],
 //       user_timezone => {
 //
-//         log("[EMO] got new user_timezone", user_timezone);
+//         info(INFO_MOMENT, "got new user_timezone", user_timezone);
 //
 //         // TODO: The user might not have a timezone configured, in this case
 //         //       we use the timezone of the operating system, which is perfectly
@@ -301,7 +299,7 @@ export function enhanceMomentJS( moment ) {
 //         if ( localStorage.getItem('timezone') !== user_timezone ) {
 //           /* We have a problem: The user has a different timezone then we
 //             assumed, this means the store is fucked up */
-//           console.warn("[EMO] locally saved timezone does not match user timezone",
+//           warn(WARNING_DIFFERENT_LOCAL_TIMZONE, "locally saved timezone does not match user timezone",
 //             localStorage.getItem('timezone'), "!=", user_timezone);
 //
 //           /* Update local storage */
@@ -325,7 +323,7 @@ export function enhanceMomentJS( moment ) {
 //           }
 //         }
 //
-//         log("[EMO] Setting user timezone in moment object");
+//         info(INFO_MOMENT, "Setting user timezone in moment object");
 //
 //         /* Set default timezone */
 //         moment.tz.setDefault(user_timezone)
@@ -341,9 +339,9 @@ export function enhanceMomentJS( moment ) {
 //         // TODO: Testen...
 //         Vue.util.defineReactive(moment, 'user_timezone', user_timezone, null, true)
 //
-//         // log("[EMO] unwatch_user_get_timezone", unwatch_user_get_timezone);
+//         // info(INFO_MOMENT, "unwatch_user_get_timezone", unwatch_user_get_timezone);
 //         if ( unwatch_user_get_timezone ) {
-//           log("[EMO] Self destroying watcher");
+//           info(INFO_MOMENT, "Self destroying watcher");
 //           unwatch_user_get_timezone(); // Self destroy
 //         }
 //       },
@@ -354,8 +352,8 @@ export function enhanceMomentJS( moment ) {
 
 export let localeSetUp = (function () {
 
-  log("[EMO] set up");
-  log("[EMO] localStorage.getItem('timezone')", localStorage.getItem('timezone'));
+  info(INFO_MOMENT, "set up");
+  info(INFO_MOMENT, "localStorage.getItem('timezone')", localStorage.getItem('timezone'));
 
   if ( !localStorage.getItem('timezone') ) {
     /* Let's be optimistic and assume that the user configured the same timezone
@@ -365,7 +363,7 @@ export let localeSetUp = (function () {
 
   /* Set default values */
   let user_timezone = localStorage.getItem('timezone');
-  log("[EMO] Setting user timezone to", user_timezone);
+  info(INFO_MOMENT, "Setting user timezone to", user_timezone);
   moment.tz.setDefault(user_timezone)
   moment.user_timezone = user_timezone;
 

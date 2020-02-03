@@ -1,10 +1,11 @@
 import { _Vue as Vue } from '../external-deps'
+import { warn, WARNING_NAME_CONFLICT } from "../util/log"
 
 // -----------------------------------------------------------------------------
 export function add_custom_getters( context, target, getters ) {
 
   if ( target.getters ) {
-    console.warn(`Name conflict: property getters already exists`);
+    warn(WARNING_NAME_CONFLICT, `Name conflict: property getters already exists`);
   } else {
     target.getters = {}
   }
@@ -18,7 +19,7 @@ export function add_custom_getters( context, target, getters ) {
     /*
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
       let name = context.$model.name;
-      console.warn(`Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
+      warn(WARNING_NAME_CONFLICT, `Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
       continue
     }
     */
@@ -45,7 +46,7 @@ export function add_custom_actions( context, target, actions, reset ) {
     }
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
       let name = context.$model.name;
-      console.warn(`Name conflict: action "${key}" has same name as another method or property "${key}" in ${name}`);
+      warn(WARNING_NAME_CONFLICT, `Name conflict: action "${key}" has same name as another method or property "${key}" in ${name}`);
       continue
     }
     Object.defineProperty( target, key, {

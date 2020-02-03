@@ -1,6 +1,5 @@
 import { _Vue as Vue } from '../external-deps'
-
-const log = (...args) => {}
+import { trace, INFO_DEEPMERGE } from "../util/log"
 
 /**
  *
@@ -155,7 +154,7 @@ export function walkSetVueProp (obj, path, data) {
     return
   } */
 
-  // TODO: Besserer fehler als:
+  // TODO: Improve error message. Something better than:
   // Uncaught (in promise) TypeError: Cannot read property 'res' of undefined
   //  at eval (utils.js?7e75:109)
 
@@ -215,9 +214,9 @@ export function deepMergeVue( target, data, delete_missing_fields = true ) {
 
     delete map[ prop ]
   }
-  // log("GENS:DEEPMERGE] Remaining fields", map, data);
+  // trace( INFO_DEEPMERG, "Remaining fields", map, data);
   for ( let prop in map ) {
-    log("[GENS:DEEPMERGE] Deleting <", prop, ">");
+    trace( INFO_DEEPMERGE, "Deleting <", prop, ">");
     Vue.delete( target, prop )
   }
   return map
@@ -237,11 +236,11 @@ export function walkSetAndMerge (obj, path, data) {
   if ( key in target ) {
     // INFO: Sollte nicht mehr auftreten - trozdem warning ausgeben
     // TODO: What about deleting items?
-    log("[GENS:INIT] Existing data found -> Performing deep merge at '",
+    trace( INFO_DEEPMERGE, "Existing data found -> Performing deep merge at '",
       key, "' of target", target, "with source", data);
 
     if ( '.value' in data && data['.value'] === null ) {
-      log("[GENS:INIT] New data is null, deleting node at <", key, ">");
+      trace( INFO_DEEPMERGE, "New data is null, deleting node at <", key, ">");
       Vue.delete( target, key );
       return
     }

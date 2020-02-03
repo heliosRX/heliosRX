@@ -38,10 +38,8 @@ function get(path, obj, fb = `{${path}}`) {
 export function parseTpl(template, map, fallback) {
   // return template.replace(/\$\{.+?}/g, (match) => {
   return template.replace(/\{.+?}/g, (match) => {
-    // console.log("match", match);
     // const path = match.substr(2, match.length - 3).trim();
     const path = match.substr(1, match.length - 2).trim();
-    // console.log("path", path);
     return get(path, map, fallback);
   });
 }

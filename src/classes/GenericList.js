@@ -1,5 +1,6 @@
 import { _Vue as Vue } from '../external-deps'
 import { add_custom_getters, add_custom_actions } from '../classes/utils'
+import { warn, info, INFO_COLLECTION, WARNING_NAME_CONFLICT } from "../util/log"
 
 function sortidx_sorter(a, b) {
   if (a.sortidx < b.sortidx) return -1;
@@ -37,8 +38,6 @@ export default class GenericList {
 
   // -----------------------------------------------------------------------------
   constructor( name ) {
-    // console.log("[GENS] GenericList");
-
     this.items        = {}; // $items?
     this.$readyAll    = false;
     this.$readySome   = false;
@@ -94,7 +93,7 @@ export default class GenericList {
     for ( let key in listActions ) {
       let action = listActions[ key ];
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
         continue
       }
       Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
@@ -118,7 +117,7 @@ export default class GenericList {
 
     for ( let key in listGetters ) {
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: list getter "${key}" has same name as existing property getter "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: list getter "${key}" has same name as existing property getter "${key}" in ${this._store_name}`);
         delete listGetters[ key ] // ?
         continue
       }
@@ -220,7 +219,7 @@ export default class GenericList {
   // -----------------------------------------------------------------------------
   reset() {
     if ( this._unwatch ) {
-      console.log("Found local unwatcher in", this._store_name)
+      info(INFO_COLLECTION, "Found local un-watcher in", this._store_name)
       this._unwatch();
     }
   }

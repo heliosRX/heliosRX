@@ -84,7 +84,7 @@
     "module-alias": "^2.2.2",
     "rollup": "^1.31.0",
     "rollup-plugin-ignore": "^1.0.5",
-    "rollup-plugin-size-snapshot": "^0.10.0",
+    "rollup-plugin-size-snapshot": "^0.11.0",
     "terser": "^4.6.3"
   },
   "peerDependency": {

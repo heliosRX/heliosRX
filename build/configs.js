@@ -17,25 +17,25 @@ const banner =
 const resolve = _path => path.resolve(__dirname, '../', _path)
 
 const configs = {
-  umdDev: {
+  'umdDev': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.js'),
     format: 'umd',
     env:    'development',
   },
-  umdProd: {
+  'umdProd': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.min.js'),
     format: 'umd',
     env:    'production',
   },
-  commonjs: {
+  'commonjs': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.common.js'),
     format: 'cjs',
     removeImportVue: true,
   },
-  esm: {
+  'esm': {
     input:  resolve('src/index.esm.js'),
     file:   resolve('dist/heliosrx.esm.js'),
     format: 'es'

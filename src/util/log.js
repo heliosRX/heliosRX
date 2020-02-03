@@ -74,12 +74,12 @@ export const INFO_MOMENT            = 'moment';
 export const INFO_REGISTRY          = 'registry';
 export const INFO_DEEPMERGE         = 'deep-merge';
 export const INFO_PERMISSION        = 'permission'
-export const INFO_AUTO_UNSUBSCRIBE  = '';
+export const INFO_AUTO_UNSUBSCRIBE  = 'store/unsubscribe/auto';
 export const INFO_SUBSCRIBE         = 'store/subscribe';
 export const INFO_SUBSCRIBE_QUERY   = 'store/subscurbe/query';
 export const INFO_SUBSCRIBE_DETAILS = 'store/subscribe/details';
-export const INFO_READ_INIT         = 'store/read/init';
-export const INFO_READ_REMOVE       = 'store/read/remove';
+export const INFO_READ_INIT         = 'store/subscribe/init';
+export const INFO_READ_REMOVE       = 'store/unsubscribe';
 
 export const PREFIX_LIST = {
   [INFO_COMMON]:            'heliosRX',

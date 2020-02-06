@@ -29,7 +29,7 @@ for reactive real-time web applications using Firebase Realtime Database and Vue
 <!-- - 🗃️ **Firebase ORM** Object Relation Management for Firebase Realtime Database. -->
 - 🍭 **Firebase ORM** Elegant abstraction layer for Firebase Realtime Database.
 - 🍱 **Model based state management** Declare models with reactive getters and custom actions.
-- ♻️ **One Codebase** Generate Frontend API and Backend API from one Codebase.
+- ♻️ **One codebase** Generate Frontend API and Backend API from one Codebase.
 - ⚡  **Faster development** Significantly reduced development time.
 
 The basic idea behind heliosRX is:
@@ -96,9 +96,9 @@ Usually, this should be pretty straight forward. You can read more in the
 
 ### Configure Firebase Realtime Database
 
-This is really up to you, but one way to do it, is to get your Firebase
-configuration and put it in a new file in `src/firebase.js` that looks
-something like this:
+There is a few ways how you can configure firebase. One way to do it, is to get
+your Firebase configuration and put it in a new file in `src/firebase.js` that
+looks something like this:
 
 ```js
 // file: src/firebase.js
@@ -125,7 +125,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Realtime DB
-export const rtdb = firebase.database();
+export const rtdb = firebase.database(); // < Export a database instance here!
 ```
 
 Please feel free to do this in a way that suits your needs best.
@@ -140,9 +140,10 @@ Next, create the following folder structure:
 ├── rules               - Used for database access rules
 │   └── rules.bolt      - Default access rules
 └── src
-    └── models
-        ├── config.js   - Models are assigned to DB paths here
-        └── *           - Model definitions (Can be accessed through this.$models)
+    └── models          - New models are defined here
+        ├── example/*   - Model definition for 'example'
+        └── config.js   - Models are assigned to DB paths here
+                         (Models we export here, can be accessed through this.$models)
 ```
 
 by running
@@ -154,6 +155,8 @@ helios init
 which will create these files and folders automatically.
 
 ### Add heliosRX to your main.js
+
+heliosRX can be used as a Vue-Plugin:
 
 ```js
 import Vue from 'vue'
@@ -174,11 +177,11 @@ new Vue({
 }).$mount('#app');
 ```
 
+now models are available as `this.$models`.
+
 ## Quickstart
 
 This is an example of a simple To-Do app:
-
-- [Demo](https://heliosrx-demo1.web.app/)
 
 ### 1. Define a Schema
 
@@ -221,7 +224,7 @@ export default {
   },
   computed: {
     tasks() {
-      return this.$models.task.subscribeList();
+      return this.$models.task.subscribeList(); // "connect" tasks to realtime database
     }
   },
   methods: {
@@ -258,7 +261,11 @@ type Task {
 ...
 ```
 
+- [Demo](https://heliosrx-demo1.web.app/)
+- [Code](https://github.com/heliosRX/example-simple-todo)
+
 ## Changelog
+
 See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Related

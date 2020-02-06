@@ -268,6 +268,10 @@ type Task {
 
 See [CHANGELOG.md](./CHANGELOG.md).
 
+## Roadmap
+
+See [ROADMAP](./docs/docs/ROADMAP.md).
+
 ## Related
 
 - [vuefire](https://github.com/vuejs/vuefire)

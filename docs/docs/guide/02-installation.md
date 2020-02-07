@@ -28,13 +28,13 @@ yarn add firebase
 yarn add vuex
 ```
 
-### Install heliosRX Command Line Interface
+### Install the heliosRX command line interface (CLI)
 
 heliosRX comes with a CLI tool, that is required to generate security rules.
 
 ```bash
-npm install -g heliosrx-cli # -g optional
-yarn global add heliosrx-cli    # -g optional
+npm install -g heliosrx-cli   # -g optional
+yarn global add heliosrx-cli  # -g optional
 ```
 
 ### Install global peer dependencies

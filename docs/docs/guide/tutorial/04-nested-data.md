@@ -6,7 +6,7 @@ Imagine your data is nested like this:
 /project/{projectId}/user/{userId}/task/{taskId}
 ```
 
-heliosRX provides a straight forward API to deal with this.
+heliosRX provides a straight forward way to deal with this:
 
 ```js
 this.$models.task
@@ -80,3 +80,12 @@ firebase.auth().onAuthStateChanged( ( user ) => {
   }
 });
 ```
+
+
+::: warning Work in Progress (05/6/2020)
+This section is still a work in progress. It will be updated soon.
+
+This section will cover these use cases:
+
+- Dot-paths
+:::

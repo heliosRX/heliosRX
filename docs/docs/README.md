@@ -8,8 +8,8 @@ tagline: Firebase Realtime Database + Vue + ORM = 🔥
 features:
 - title: 🗃️ Firebase ORM
   details: Object Relation Management for Firebase Realtime Database.
-- title: ♻️ One Codebase
-  details: Generate Frontend API and Backend API from one Codebase.
+- title: ♻️ One codebase
+  details: Generate Frontend API and Backend API from one codebase.
 - title: ⚡ Faster development
   details: Significantly reduced development time of complex realtime applications.
 meta:
@@ -25,15 +25,8 @@ footer: MIT Licensed | Copyright © Thomas Weustenfeld - 2019 (@tw00)
 
 **heliosRX** is a front-end Object-Relational Mapping layer
 for reactive real-time web applications using Firebase Realtime Database.
-<!-- heliosRX allows developers to define models, schemata. -->
 
 <spacer padding="1rem" />
-
-<!--
-<split display-text="Test">
-**fooar** xxx
-</split>
--->
 
 ### 1. Define a Schema
 
@@ -112,20 +105,3 @@ type Task {
 }
 ...
 ```
-
-<!--
-More benefits are:
-
-- 🏢 Used in production
-- ♻️ Use code for backend and frontend
-- 🍭 Easy to use abstraction layer for firebase
-- ⚡ Speeds up development significantly
-- 🔌 Modular architecture (will support other backends in the future)
-- ⏱️ Write fully reactive Realtime Apps
--->
-
-<!--
-- ❤️ asdkmaksldsa
-- ❤️ asdkmaksldsa
-- ❤️ asdasd
--->

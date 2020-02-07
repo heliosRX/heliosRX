@@ -8,10 +8,8 @@ For a more comprehensive example please check out:
 
 - [`heliosRX/example-fitness-tracker`](https://github.com/heliosRX/example-fitness-tracker)
 
-<!-- [`heliosRX/example-team-todo`](https://github.com/tw00/heliosrx-private/tree/master/examples/example-team-todo) -->
-
 ::: warning
-The project `example-fitness-tracker` is still under development.
+The project `example-fitness-tracker` is under ongoing development.
 <!-- The project `example-team-todo` is still under development. -->
 :::
 

@@ -24,16 +24,6 @@ Don't forget to also create a database for your project in the Firebase console.
 
 Next, create the following folder structure:
 
-```bash
-mkdir -p rules
-mkdir -p src/models
-touch rules/rules.bolt
-touch src/models/config.js
-```
-
-after you successfully created these files and folders your directory structure
-should look like this:
-
 ```
 ├── rules               - Used for database access rules
 │   └── rules.bolt      - Default access rules
@@ -42,6 +32,24 @@ should look like this:
         ├── config.js   - Models are assigned to DB paths here
         └── *           - Model definitions (Can be accessed through this.$models)
 ```
+
+by running
+
+```bash
+helios init
+```
+
+Alternatively you can create these files manually:
+
+```bash
+mkdir -p rules
+mkdir -p src/models
+touch rules/rules.bolt
+touch src/models/config.js
+```
+
+After you've successfully created these files and folders your directory structure
+should look like shown above.
 
 ::: warning Create src/models/index.js
 This won't be necessary in future releases, but for now please also create a new file `src/models/index.js`:
@@ -54,14 +62,6 @@ for ( let storeName in GenericStores ) {
 export default GenericStores;
 ```
 :::
-
-alternatively you can run
-
-```bash
-helios init
-```
-
-which will create these files and folders automatically.
 
 ### Add heliosRX to your main.js
 
@@ -88,9 +88,9 @@ new Vue({
 
 ### Configure Firebase Realtime Database
 
-This is really up to you, but one way to do it, is to get your Firebase
-configuration and put it in a new file in `src/firebase.js` that looks
-something like this:
+There is a few ways how you can configure firebase. One way to do it, is to get
+your Firebase configuration and put it in a new file in `src/firebase.js` that
+looks something like this:
 
 ```js
 // file: src/firebase.js
@@ -121,5 +121,5 @@ export const rtdb = firebase.database();
 ```
 
 Please feel free to do this in a way that suits your needs best.
-The important thing here is that we need to import `rtdb` later on,
+The important thing here is that we need to import `rtdb` in our `main.js`,
 which is why we're exporting it here.

@@ -29,7 +29,7 @@ for reactive real-time web applications using Firebase Realtime Database and Vue
 <!-- - 🗃️ **Firebase ORM** Object Relation Management for Firebase Realtime Database. -->
 - 🍭 **Firebase ORM** Elegant abstraction layer for Firebase Realtime Database.
 - 🍱 **Model based state management** Declare models with reactive getters and custom actions.
-- ♻️ **One codebase** Generate Frontend API and Backend API from one Codebase.
+- ♻️ **One codebase** Generate Frontend API and Backend API from one codebase.
 - ⚡  **Faster development** Significantly reduced development time.
 
 The basic idea behind heliosRX is:
@@ -270,7 +270,7 @@ See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Roadmap
 
-See [ROADMAP](./docs/docs/ROADMAP.md).
+See [ROADMAP.md](./docs/docs/ROADMAP.md).
 
 ## Related
 

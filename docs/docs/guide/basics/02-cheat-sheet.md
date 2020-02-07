@@ -27,8 +27,7 @@ import { moment } from 'heliosrx'
 
 export default {
 
-  // Will be called when creating new instances (optional)
-  // Arguments:
+  // Will be called when creating new instances (optional) with arguments:
   // 1. required data
   // 2. optional data
   // 3. backend, which is used ('REALTIMEDB' for now)
@@ -147,7 +146,7 @@ export default {
 
 #### Data types (`type`)
 
-- **Default bolt type:**
+- **Default bolt types:**
 
 ```
 String            - Character strings
@@ -281,9 +280,9 @@ challenge.fetchList()           // Get GenericLists from Cache
 challenge.getList()             // Fetch GenericLists once
 
 // Nodes
-challenge.subscribeNode(id) // Subscribe to node at path and listen for changes
-challenge.fetchNode(id)     // Fetch GenericModel once
-challenge.getNode(id)       // Get GenericModel from Cache
+challenge.subscribeNode(id)     // Subscribe to node at path and listen for changes
+challenge.fetchNode(id)         // Fetch GenericModel once
+challenge.getNode(id)           // Get GenericModel from Cache
 
 ```
 <!--

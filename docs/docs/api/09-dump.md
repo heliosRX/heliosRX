@@ -93,3 +93,8 @@ function get_registry_state()
 ```
 
 TODO: Move to $registry
+
+
+<split display-text="Test">
+**fooar** xxx
+</split>

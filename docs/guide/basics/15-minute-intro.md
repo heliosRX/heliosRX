@@ -18,7 +18,7 @@ in order to setup heliosRX and Firebase.
 
 First, let's create a new model in `src/models/task/` for tasks:
 
-```touch
+```bash
 mkdir -p src/models/task
 touch src/models/task/schema.js
 touch src/models/task/index.js

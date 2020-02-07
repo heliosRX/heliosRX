@@ -6,6 +6,25 @@ meta:
     content: vuepress vue component twitter tweet
 ---
 
+```SQL
+SELECT column1 FROM table_name;
+```
+
+```javascript
+path / {
+  // Do not allow to read to /
+  // Do not write to false to /
+}
+
+path /example is Example[] {
+  // read() { isSignedIn() }
+  // write() { isSignedIn() }
+  read() { true }
+  write() { true }
+}
+
+```
+
 # \_\_ignore\_\_
 
 The generic store provides a unified API to the database.

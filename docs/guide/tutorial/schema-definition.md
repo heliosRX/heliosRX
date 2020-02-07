@@ -94,7 +94,7 @@ configured when setting up heliosRX with `Vue.use(heliosRX, { ... })`.
 The second argument is the model definition as defined in the previous section.
 
 The third argument is an options object. Valid options are for example `isAbstract` or
-`additionalProps`, see [API GenericStore](../../api/01-generic-store).
+`additionalProps`, see [API GenericStore](/api/generic-store).
 
 ## Generate and deploy security rules
 

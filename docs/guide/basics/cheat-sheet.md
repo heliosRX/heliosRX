@@ -163,7 +163,7 @@ Type[]            - An "array-like" type (actually same as Map<String, Type>
 
 - **Additional types:**
 
-```bolt
+```javascript
 Timestamp (extends Number)
 PastTimestamp (extends Number)
 FutureTimestamp (extends Number)

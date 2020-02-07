@@ -2,8 +2,8 @@
   "name": "heliosrx-docs",
   "version": "0.0.1",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:dev": "vuepress dev .",
+    "docs:build": "vuepress build ."
   },
   "dependencies": {
     "glob": "^7.1.6"

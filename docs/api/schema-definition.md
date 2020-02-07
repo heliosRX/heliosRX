@@ -74,7 +74,7 @@ Type[]            - An "array-like" type (actually same as Map<String, Type>
 
 On top of that heliosRX defines some additional types:
 
-```bolt
+```javascript
 type ServerTimestamp extends Number { ... }
 type CurrentTimestamp extends ServerTimestamp { ... }
 type InitialTimestamp extends ServerTimestamp { ... }

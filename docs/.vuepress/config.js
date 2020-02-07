@@ -1,4 +1,4 @@
-const version = require("../../../package.json").version;
+const version = require("../../package.json").version;
 const glob = require('glob');
 
 const isTLD = false; // Only private build
@@ -15,10 +15,10 @@ const tree = {
     'ready-api', // !!!
     'enums',
     'CLI',
-    ifDev('_dump'),
+    // ifDev('_dump'),
   ],
-  'tips': [
-  ],
+  // 'tips': [
+  // ],
   'tips': [
     'designing-good-security-rules',
     'lessons-learned',
@@ -61,8 +61,8 @@ function getChildren( section, prefix = false ) {
   if ( !( section in tree ) ) {
     // read from fs
     return glob
-      .sync('docs/' + section + '/*.md')
-      .map(f => f.substr( 6 + section.length ))
+      .sync(section + '/*.md')
+      .map(f => f.substr( section.length + 1 ))
       .filter(f => !f.includes('README.md'))
       .filter(f => isDev || !f.startsWith('_'))
       .sort()

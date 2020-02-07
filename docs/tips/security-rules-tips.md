@@ -172,12 +172,12 @@ read or write privilege.
 ::: tip Tip 23
 Bolt function definitions can not contain spaces:
 - **WRONG:**
-```bolt
+```javascript
 function isMeGroupMember (groupId) {}
 function isMeGroupMember( groupId ) {}
 ```
 - **RIGHT:**
-```bolt
+```javascript
 function isMeGroupMember(groupId) {}
 ```
 :::

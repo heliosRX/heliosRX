@@ -246,17 +246,19 @@ export default class GenericModel {
           } else if ( isFinite( value ) && value > min_date && value < max_date ) {
             return moment_conversion_func( value );
           } else if ( value === undefined ) {
-            return moment_conversion_func(); // TODO: This is potentially dangerous, since it returns the current time
+            // This is potentially dangerous, since it could return the current time
+            // NaN should usually create an invalid moment object
+            return moment_conversion_func( NaN );
           } else {
             warn(WARNING_INVALID_TIMESTAMP_SERVER, "Schema defined", propName, "as Timestamp, but got invalid data:", value);
-            return value
+            // return value
+            return moment(value)
           }
         }
 
         let prop_getter_original = prop_getter;
 
         if ( field.type === 'Timestamp' ) {
-
           prop_getter = () => {
             const min_date =   200000000 // '1976-05-03'
             const max_date = 30000000000 // '2065-01-24'
@@ -279,7 +281,7 @@ export default class GenericModel {
         } else if ( field.type.includes( 'Timestamp' ) ) {
           warn(
             WARNING_UNKNOWN_TIMESTAMP_TYPE,
-            "Found validation type that contains 'Timestamp' but is not recognized:",
+            "Found validation type that contains 'Timestamp' but is not recognized.",
             field.type
           );
         }

@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Removed all debug output and introduced a log-level system (based on `loglevel`)
 - `task.remove()` now doesnt use soft_delete = true as default anymore
+- Timestamp fields will now ALWAYS return a moment object even when data is invalid
+  (Check for `obj.isValid()` or `moment.isValidDate(obj)`)
 
 ### Removed
 

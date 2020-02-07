@@ -3,6 +3,7 @@ import Vue from 'vue'
 
 import GenericModel from '@/classes/GenericModel'
 import GenericList from '@/classes/GenericList'
+import { DeleteMode } from '@/store/enums.js'
 import factory from '@/classes/factory'
 import { create_context } from './mock-context';
 import moment from '@/moment'
@@ -149,8 +150,16 @@ describe('GenericModel', () => {
       context
     );
 
-    expect(modelInvalid.tsField).toBe("string")
-    expect(modelInvalid.serverField).toBe("string")
+    // console.log("modelInvalid.serverField", modelInvalid.serverField)
+
+    // expect(modelInvalid.tsField).toBe("string")
+    // expect(modelInvalid.serverField).toBe("string")
+
+    expect(modelInvalid.tsField).toBeInstanceOf(moment)
+    expect(modelInvalid.serverField).toBeInstanceOf(moment)
+
+    expect(moment.isValidDate(modelInvalid.tsField)).toBe(false)
+    expect(moment.isValidDate(modelInvalid.serverField)).toBe(false)
 
     let modelUndefined = factory.make_reactive_model(
       modelDefinition,
@@ -160,10 +169,11 @@ describe('GenericModel', () => {
 
     expect(modelUndefined.tsField).toBeInstanceOf(moment)
     expect(modelUndefined.tsField.isValid()).toBe(false)
+    expect(moment.isValidDate(modelInvalid.tsField)).toBe(false)
 
     expect(modelUndefined.serverField).toBeInstanceOf(moment)
-    // TODO !!!
-    // expect(modelUndefined.serverField.isValid()).toBe(false)
+    expect(modelUndefined.serverField.isValid()).toBe(false)
+    expect(moment.isValidDate(modelInvalid.serverField)).toBe(false)
   });
 
   test('custom validators', () => {

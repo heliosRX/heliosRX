@@ -6,6 +6,9 @@ meta:
     content: vuepress vue component twitter tweet
 ---
 
+# Dump
+
+
 ```SQL
 SELECT column1 FROM table_name;
 ```
@@ -24,7 +27,6 @@ path /example is Example[] {
 }
 
 ```
-
 # \_\_ignore\_\_
 
 The generic store provides a unified API to the database.
@@ -114,6 +116,6 @@ function get_registry_state()
 TODO: Move to $registry
 
 
-<split display-text="Test">
+<demo display-text="Test">
 **fooar** xxx
-</split>
+</demo>

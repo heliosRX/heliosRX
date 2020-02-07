@@ -9,6 +9,6 @@
     "glob": "^7.1.6"
   },
   "devDependencies": {
-    "vuepress": "^1.2.0"
+    "vuepress": "^1.3.0"
   }
 }

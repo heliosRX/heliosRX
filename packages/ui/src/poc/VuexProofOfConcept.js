@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex, { mapGetters } from 'vuex';
 
+// Vue.use(Vuex);
+
 let fake_models = null;
 
 // TODO: Replace vuex store with vue instance

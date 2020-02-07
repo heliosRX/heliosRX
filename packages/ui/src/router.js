@@ -9,7 +9,7 @@ import VueRouter from 'vue-router'
 /* ============================ Development ============================ */
 import IndexPage             from "@/pages/IndexPage";
 import GenericAPIDevPage     from "@/pages/GenericAPIDevPage";
-import AsyncGetterDevPage    from "@/pages/AsyncGetterDevPage";
+// import AsyncGetterDevPage    from "@/pages/AsyncGetterDevPage";
 import RegistryDevPage       from "@/pages/RegistryDevPage";
 import BypassWritingPage     from "@/pages/BypassWritingPage";
 import SubscribeQueryPage    from "@/pages/SubscribeQueryPage";
@@ -19,7 +19,7 @@ const routes = []
 routes.push(...[
   { path: "/",                component: IndexPage,          name: "Index"          },
   { path: "/generic-api",     component: GenericAPIDevPage,  name: "GenericAPI"     },
-  { path: "/async-getter",    component: AsyncGetterDevPage, name: "AsyncGetter"    },
+  // { path: "/async-getter",    component: AsyncGetterDevPage, name: "AsyncGetter"    },
   { path: "/registry",        component: RegistryDevPage,    name: "Registry"       },
   { path: "/bypass-writing",  component: BypassWritingPage,  name: "BypassWriting"  },
   { path: "/subscribe-query", component: SubscribeQueryPage, name: "SubscribeQuery" },
@@ -36,4 +36,3 @@ export default new VueRouter({
   base: __dirname,
   routes
 })
-

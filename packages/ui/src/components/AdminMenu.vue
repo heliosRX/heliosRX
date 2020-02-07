@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-menu :default-active="active_menu_id" mode="horizontal" class="hamburger-spacer" @select="onMenuSelect">
-      <el-menu-item index="Home"><strong>heliosRX Dev Env</strong></el-menu-item>
+      <el-menu-item index="Home"><strong>heliosRX UI</strong></el-menu-item>
       <el-menu-item index="GenericAPI">Generic API</el-menu-item>
-      <el-menu-item index="AsyncGetter">Async Getters</el-menu-item>
+      <!-- <el-menu-item index="AsyncGetter">Async Getters</el-menu-item> -->
       <el-menu-item index="Registry">Registry</el-menu-item>
       <el-menu-item index="BypassWriting">Bypass Writing</el-menu-item>
       <el-menu-item index="SubscribeQuery">Subscribe Query</el-menu-item>

@@ -197,10 +197,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import generic_store_list from '@/models'
-import db from "heliosrx/src/global_api"; // TODO
-import { GenericStore, registry } from 'heliosrx'
+import { GenericStore, getRegistry } from 'heliosrx'
 
 // import Vue from 'vue'
 // import VueFormGenerator from 'vue-form-generator'
@@ -238,25 +237,33 @@ export default {
     },
   }),
   created() {
-    this.$db = db;
-    this.$store = registry;
+    let _models = this.$models;
+    this.$db = {
+      getGlobalSubscriptionList() {
+        if ( !_models ) {
+          throw new Error('Subscription list can not be generated.')
+        }
+        let subscriptionList = {}
+        Object.keys( _models ).map(store_key => {
+          // TODO: maybe return sync state instead of unsubscribe calback
+          subscriptionList[ store_key ] = _models[ store_key ].subscriptions || null
+        })
+        return subscriptionList
+      },
+    };
+    this.$registry = getRegistry();
     this.onSelectStore();
   },
   mounted() {
     this.onUpdateStore();
   },
   computed: {
-    /* ...mapGetters("user", [
-      "userAuth"
-    ]), */
     userAuth() {
-      return { id: '0123456798 '};
+      return { id: '0123456798' };
     },
-    ...mapState([
-      'res',
-      'sync',
-      'index',
-    ]),
+    res() { return this.$registry.state.res },
+    sync() { return this.$registry.state.sync },
+    index() { return this.$registry.state.index },
     path_preview() {
       return this.gens_selected
               ? this.gens_selected.previewPath( this.individual_child_id || '*' )
@@ -277,7 +284,7 @@ export default {
 
     onPrintStoreToConsole() {
       console.log("GenStore", this.gens_selected);
-      console.log("onListSync:", this.$store.state.res);
+      console.log("onListSync:", this.$registry.state.res);
     },
 
     createGens() {

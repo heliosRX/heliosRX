@@ -62,10 +62,10 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.8.4",
-    "@firebase/testing": "^0.16.7",
+    "@firebase/testing": "^0.16.8",
     "@rollup/plugin-buble": "^0.21.1",
     "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@rollup/plugin-replace": "^2.3.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",

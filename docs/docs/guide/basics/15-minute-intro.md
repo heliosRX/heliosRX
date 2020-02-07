@@ -3,7 +3,7 @@
 
 ::: tip
 This guide is a quick starter. After going through this guide, you will be able
-to define models, access data through your models, subscribe to realtime data
+to define models, access data through your models, subscribe to real-time data
 and create and update data. We will use a simple **todo app** as an example.
 A working demo of what we're going to build can be found here:
 [Demo](https://heliosrx-demo1.web.app/)
@@ -52,7 +52,7 @@ export default {
 
 This defines a model with a required field `title` and two optional fields.
 Next, we create a `GenericStore`, which gives us access to data stored in
-realtime DB through a object-oriented interface. A `GenericStore` serves
+realtime database through a object-oriented interface. A `GenericStore` serves
 as a factory class, that will spawn model instances and lists of model models
 instances. More on that later. First, edit `src/models/config.js` like this:
 
@@ -100,7 +100,7 @@ otherwise the whole internet can read and write to your project. Probably not wa
 
 If you're not familiar with this, this is the [bolt syntax](https://github.com/FirebaseExtended/bolt).
 heliosRX automatically generates bolt files, which are compiled to security rules
-using the `bolt-compiler`. Learn more [here](./01-intro).
+using the `bolt-compiler`. Learn more [here](./intro/intro).
 
 Now let's also add a `create` function, which (if present) will set default values,
 when a new instance of this model is created:
@@ -337,7 +337,7 @@ export default {
 </script>
 ```
 
-This is all it takes to write a realtime web applications with heliosRX!
+This is all it takes to write a real-time web applications with heliosRX!
 
 ### A few more things
 

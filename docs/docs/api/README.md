@@ -1,10 +1,10 @@
 # Overview
 
-1. [Setup](./01-setup)
-2. [Generic Store](./02-generic-store)
-3. [Model definition](./02-schema-definition)
-4. [Generic Model](./04-generic-model)
-5. [Generic List](./05-generic-list)
-6. [Ready API](./06-ready-api)
-7. [Enums](./07-enums)
-8. [CLI](./08-CLI)
+1. [Setup](./setup)
+2. [Generic Store](./generic-store)
+3. [Model definition](./schema-definition)
+4. [Generic Model](./generic-model)
+5. [Generic List](./generic-list)
+6. [Ready API](./ready-api)
+7. [Enums](./enums)
+8. [CLI](./CLI)

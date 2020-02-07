@@ -38,8 +38,8 @@ This is a details block, which does not work in IE / Edge
 | ------------------------- | ------------------- | ------------ |
 | templatePath              | `string`            | Path where the resource is stored.
 | modelDefinition           | `ModelDefinition`    | Model definition.
-| options.uidMethod         | `string`            | See [UIDMethod](./00-database#UIDMethod)
-| options.defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./00-database#DeleteMode)
+| options.uidMethod         | `string`            | See [UIDMethod](./database#UIDMethod)
+| options.defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./database#DeleteMode)
 
 ```js
 storeA = GenericStore('/goal/{goalId}/user_list/{uid}/task_names/*')

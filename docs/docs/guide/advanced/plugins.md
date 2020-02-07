@@ -1,4 +1,4 @@
-# Plugins (Middleware)
+# Plugins
 
 ::: warning Work in Progress (05/6/2020)
 This section is still a work in progress. It will be updated soon.
@@ -54,7 +54,7 @@ export class CustomDocumentSubscriber extends DocumentSubscriber {
 }
 ```
 
-## Plugin
+### Plugin
 
 ```js
 // file: ./custom-plugin/index.js

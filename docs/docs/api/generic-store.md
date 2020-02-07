@@ -47,8 +47,8 @@ This section is still a work in progress. It will be updated soon.
 
 | Option            | Type                | Description  |
 | ----------------- | ------------------- | ------------ |
-| uidMethod         | `string`            | See [UIDMethod](./00-database#UIDMethod)
-| defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./00-database#DeleteMode)
+| uidMethod         | `string`            | See [UIDMethod](./database#UIDMethod)
+| defaultDeleteMode | `string`            | deleteMode.SOFT or deleteMode.HARD (default), see [deleteMode](./database#DeleteMode)
 | additionalProps   | `array<string>`     | Additional properties |
 | enableTypeValidation   | `boolean`     | Enable validation based on (bolt) types |
 | autoUnsubscribe   | `boolean`     | Automatically unsubscribe from everything a component subscribed to? (triggered on beforeDestroy) |
@@ -142,12 +142,12 @@ example.with({ myUserId: 'a', otherUserId: 'b' }).definedProps
 - **`uidMethod ⇒ UIDMethod`**
 
 Returns the unique id method, which defined how id's for new entries are generated.
-See [UIDMethod](./00-database.md#UIDMethod).
+See [UIDMethod](./database.md#UIDMethod).
 
 ### defaultDeleteMode
 - **`defaultDeleteMode ⇒ DeleteMode`**
 
-Returns the default delete mode. See [DeleteMode](./00-database.md#DeleteMode).
+Returns the default delete mode. See [DeleteMode](./database.md#DeleteMode).
 
 ### path
 - **`get path() ⇒ string`**

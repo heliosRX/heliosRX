@@ -2,6 +2,76 @@ const version = require("../../../package.json").version;
 const glob = require('glob');
 
 const isTLD = false; // Only private build
+const isDev = ( process.env.NODE_ENV === "development");
+const ifDev = ( x ) => isDev ? x : null
+
+const tree = {
+  'api': [
+    'setup',
+    'generic-store',
+    'schema-definition',
+    'generic-model',
+    'generic-list',
+    'ready-api', // !!!
+    'enums',
+    'CLI',
+    ifDev('_dump'),
+  ],
+  'tips': [
+  ],
+  'tips': [
+    'designing-good-security-rules',
+    'lessons-learned',
+    'bolt-cheat-sheet',
+    'security-rules-tips',
+    'how-to-debug-security-rules',
+    ifDev('_database-design'),
+  ],
+  'tips/migration': [
+    'migration-1',
+    'future',
+  ],
+  'guide/intro': [
+    'intro',
+    'installation',
+    'configuration',
+    'example-project',
+    ifDev('_backend'),
+  ],
+  'guide/basics': [
+    '15-minute-intro',
+    'cheat-sheet',
+  ],
+  'guide/tutorial': [
+    'schema-definition',
+    'fetch-and-subscribe',
+    'updating-data',
+    'nested-data',
+    'custom-getters-and-actions',
+    'relations',
+  ],
+  'guide/advanced': [
+    'internals',
+    'backends',
+    'plugins',
+  ],
+};
+
+function getChildren( section, prefix = false ) {
+  if ( !( section in tree ) ) {
+    // read from fs
+    return glob
+      .sync('docs/' + section + '/*.md')
+      .map(f => f.substr( 6 + section.length ))
+      .filter(f => !f.includes('README.md'))
+      .filter(f => isDev || !f.startsWith('_'))
+      .sort()
+      .map(item => ( prefix ? ( '/' + section + '/' ) : '' ) + item)
+  }
+  return tree[ section ]
+    .filter(f => f)
+    .map(item => '/' + section + '/' + item + '.md')
+}
 
 function printConfig(config) {
   console.log("config.themeConfig.sidebar =", config.themeConfig.sidebar)
@@ -17,9 +87,9 @@ module.exports = printConfig({
       }
     }
   },
-  title: `heliosRX (v${version})`,
-  // title: `heliosRX`,
-  description: "Examples of useful vuepress code",
+  // title: `heliosRX (v${version})`,
+  title: `heliosRX`,
+  description: `heliosRX documention (v${version})`,
   head: [
     ['link', { rel: 'icon', href: '/logo-small.png' }]
   ],
@@ -30,17 +100,51 @@ module.exports = printConfig({
     logo: '/logo-small.png',
     repo: "heliosRX/heliosRX",
     repoLabel: "GitHub",
-    displayAllHeaders: true,
+    activeHeaderLinks: true,
+    displayAllHeaders: true, // only guide would be nice
     sidebar: {
-      '/guide/': getGuideSidebar('Guide', 'Basic usage', 'Tutorials', 'Advanced'),
-      '/api/':   getApiSidebar(),
-      '/tips/':  getTipsSidebar('Firebase Security Rules', 'Migration'),
+      '/guide/': [
+        {
+          title: 'Guide',
+          collapsable: false,
+          children: getChildren('guide/intro'),
+          // path: '/foo/',      // optional, which should be a absolute path.
+          // sidebarDepth: 1,    // optional, defaults to 1
+        },
+        {
+          title:  'Basic usage',
+          collapsable: false,
+          children: getChildren('guide/basics'),
+        },
+        {
+          title: 'Tutorials',
+          collapsable: false,
+          children: getChildren('guide/tutorial'),
+        },
+        {
+          title: 'Advanced',
+          collapsable: false,
+          children: getChildren('guide/advanced'),
+        }
+      ],
+      '/api/':  getChildren('api'),
+      '/tips/': [
+        {
+          title: 'Firebase Security Rules',
+          collapsable: false,
+          children: getChildren('tips'),
+        },
+        {
+          title: 'Migration',
+          collapsable: false,
+          children: getChildren('tips/migration'),
+        }
+      ],
     },
     nav: [
-      { text: 'Guide', link: '/guide/01-intro' },
+      { text: 'Guide', link: '/guide/intro/intro.html' },
       { text: 'API',   link: '/api/' },
-      { text: 'Tips', link: '/tips/01-designing-good-security-rules' },
-      // { text: 'GitHub', link: 'https://github.com/heliosRX/heliosRX' }
+      { text: 'Tips',  link: '/tips/designing-good-security-rules.html' },
     ],
   },
   extendMarkdown(md) {
@@ -48,85 +152,23 @@ module.exports = printConfig({
   },
 });
 
-function getApiSidebar() {
-  let markdownFiles = glob
-    .sync('docs/api/**/*.md')
-    .map(f => f.substr(5+4).replace('README.md', ''))
-    .sort();
-
-  return markdownFiles;
-}
-
-function readFileList( name ) {
-  return glob
-    .sync('docs/guide/' + name + '/*.md')
-    .map(f => f.substr(5+6))
-    .filter(f => !f.includes('README.md'))
-    .filter(f => !f.includes('99-'))
-    .sort()
-}
-
-function getGuideSidebar( groupA, groupB, groupC, groupD ) {
-
-  // update the docs/**/*.md pattern with your folder structure
-
-  let markdownFilesBasics = readFileList('');
-  let markdownFilesTutorial = readFileList('tutorial');
-  let markdownFilesAdvanced = readFileList('advanced');
-
-  return [
+if ( isDev ) {
+  module.exports.themeConfig.sidebar['/dev/'] = [
     {
-      title: groupA,
+      title: 'DEV',
       collapsable: false,
-      children: markdownFilesBasics,
+      children: getChildren('dev'),
     },
     {
-      title: groupB,
+      title: 'WIP',
       collapsable: false,
-      children: [
-        'basics/01-5-minute-intro.md',
-        'basics/02-cheat-sheet.md',
-      ],
+      children: getChildren('dev/wip', true),
     },
     {
-      title: groupC,
+      title: 'ROADMAP',
       collapsable: false,
-      children: markdownFilesTutorial,
-    },
-    {
-      title: groupD,
-      collapsable: false,
-      children: markdownFilesAdvanced,
+      children: ['/ROADMAP'],
     }
-  ]
-}
-
-function getTipsSidebar (groupA, groupB) {
-
-  // update the docs/**/*.md pattern with your folder structure
-  let markdownFiles = glob
-    .sync('docs/tips/*.md')
-    .map(f => f.substr(5+5))
-    .filter(f => !f.includes('README.md'))
-    .filter(f => !f.includes('99-'))
-    .sort()
-
-  let markdownFilesMigration = glob
-    .sync('docs/tips/migration/*.md')
-    .map(f => f.substr(5+5))
-    .sort()
-  console.log("markdownFilesMigration", markdownFilesMigration)
-
-  return [
-    {
-      title: groupA,
-      collapsable: false,
-      children: markdownFiles,
-    },
-    {
-      title: groupB,
-      collapsable: false,
-      children: markdownFilesMigration,
-    }
-  ]
+  ],
+  module.exports.themeConfig.nav.push({ text: 'DEV ⚙️', link: '/dev/' });
 }

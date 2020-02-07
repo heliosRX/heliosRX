@@ -2,7 +2,7 @@
 home: true
 heroImage: /logo.png
 actionText: Get started →
-actionLink: /guide/01-intro
+actionLink: /guide/intro/intro
 heroText:
 tagline: Firebase Realtime Database + Vue + ORM = 🔥
 features:

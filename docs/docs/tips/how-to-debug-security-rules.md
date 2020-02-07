@@ -8,4 +8,4 @@
 6. Check if check `database.rules.json` makes sense (and was correctly compiled)
 7. Check if check `database.rules.bolt` is correct
 
-Also, see [Tips](./03-security-rules-tips).
+Also, see [Tips](./security-rules-tips).

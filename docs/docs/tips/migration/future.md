@@ -55,3 +55,66 @@ const store = new Vuex.Store({
   }
 })
 ```
+
+
+## Funtional API vs. Class API
+
+### Functional
+
+```js
+import { xxx } from 'heliosRX'
+import { ref, state, computed } from 'vue'
+
+export default {
+  setup() {
+
+  }
+}
+
+class CustomModel extends Model {
+  setup(props, ctx) {
+
+    // Why not use vue 3 api directly ??
+    const mygetter = computed(() => {
+      ...
+    })
+
+    return { mygetter }
+  }
+}
+```
+
+### Classes
+```js
+class CustomModel extends Model {
+
+  setup() {
+    define_getter( this.mygetter );
+  }
+
+  computed: {
+    mygetter()
+  }
+
+  get mygetter() {
+  }
+
+  myaction(args) {
+    this.$models
+    this.$registry
+  }
+}
+
+class CustomCollection extends Collection {
+  myaction(args)
+}
+
+class CustomStore extends Store {
+  modelDefinition: {},
+  myaction() {
+    this.$registry
+  }
+}
+
+const example = new CustomStore('/example/*');
+```

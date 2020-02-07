@@ -185,7 +185,7 @@ describe('GenericModel', () => {
       context
     );
 
-    // TODO: 'ELEMENT_VALIDATION'
+    // TODO: ELEMENT_VALIDATION
 
     const spy = jest.spyOn(global.console, 'warn')
 
@@ -316,19 +316,32 @@ describe('GenericModel', () => {
     );
 
     model.$id = 'xyz'
+    // console.log("model.$model", model.$model)
 
-    model.update({ numField: 2 }).then(id => {
+    let p1 = model.update({ numField: 2 }).then(id => {
       expect(model.$id).toBe('xyz');
       expect(id).toBe('xyz');
       expect(context.model.update).toHaveBeenCalledWith("xyz", { numField: 2 })
     })
 
-    model.remove().then(() => {
+    let p2 = model.remove(true).then(() => {
       expect(context.model.remove).toHaveBeenCalledWith("xyz", true)
     })
 
-    model.restore().then(() => {
+    model.$model.defaultDeleteMode = DeleteMode.SOFT;
+    let p3 = model.remove().then(() => {
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", true)
+    })
+
+    model.$model.defaultDeleteMode = DeleteMode.HARD;
+    let p4 = model.remove().then(() => {
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", false)
+    })
+
+    let p5 = model.restore().then(() => {
       expect(context.model.restore).toHaveBeenCalledWith("xyz")
     })
+
+    return Promise.all([p1, p2, p3, p4, p5])
   })
 })

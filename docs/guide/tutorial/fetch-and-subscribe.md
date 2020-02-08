@@ -92,7 +92,7 @@ Some other useful properties you can use at this moment are:
 
 GenericList's also provide some basic filter and sort functions, that return a array instead of an object. When data children are returned as array the `id` can still be accessed through `items[0].$id`.
 
-| Array helper functions           | Returns `.items` as array...
+| Array helper functions           | Returns GenericList with `.items` as array...
 |----------------------------------|--------------------------------------------
 | `asArraySorted()`                | ... and sorted by the field `sortidx`
 | `asArraySortedBy(prop)`          | ... and sorted by `<prop>`

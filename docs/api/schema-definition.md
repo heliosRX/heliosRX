@@ -151,7 +151,7 @@ const exampleModelDefinition = {
   // Define additional getters for model instances
   modelGetters: {
     mygetter(
-      $instance, GenericModel,
+      $instance: GenericModel,
       $model: GenricStore,
       $models: Moduel<GenericStore> ) {
       // Will become:
@@ -163,7 +163,7 @@ const exampleModelDefinition = {
   // Define additional actions for model instances
   modelActions: {
     myaction({
-      $instance, GenericModel,
+      $instance: GenericModel,
       $model: GenericStore,
       $models: Module<GenericStore> }, customArg1, customArg2, ...) {
       // Will become:
@@ -175,7 +175,7 @@ const exampleModelDefinition = {
   // Define additional getters for lists
   listGetters: {
     mygetter(
-      $instance, GenericList,
+      $instance: GenericList,
       $model: GenricStore
       $models: Moduel<GenericStore>,
     ) {
@@ -188,7 +188,7 @@ const exampleModelDefinition = {
   // Define additional actions for lists
   listActions: {
     myaction({
-      $instance, GenericList,
+      $instance: GenericList,
       $model: GenricStore,
       $models: Module<GenericStore> }, customArg1, customArg2, ... ) {
       // Will become:

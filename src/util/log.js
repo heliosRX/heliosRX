@@ -1,8 +1,27 @@
 import log from 'loglevel';
+import * as types from  './log-types'
 
 log.noConflict()
 log.setDefaultLevel('warn')
 log.setLevel('warn')
+
+export const PREFIX_LIST = {
+  [types.INFO_COMMON]:            'heliosRX',
+  [types.INFO_MODEL]:             'heliosRX',
+  [types.INFO_COLLECTION]:        'heliosRX',
+  [types.INFO_STORE]:             'heliosRX',
+  [types.INFO_STORE_WRITE]:       'heliosRX:write',
+  [types.INFO_MOMENT]:            'heliosRX:moment',
+  [types.INFO_REGISTRY]:          'heliosRX:REGISTRY',
+  [types.INFO_DEEPMERGE]:         'heliosRX:DEEPMERGE',
+  [types.INFO_PERMISSION]:        'heliosRX:permission',
+  [types.INFO_AUTO_UNSUBSCRIBE]:  'heliosRX:auto-unsubscribe',
+  [types.INFO_SUBSCRIBE]:         'heliosRX:subscribe',
+  [types.INFO_SUBSCRIBE_DETAILS]: 'heliosRX:subscribe',
+  [types.INFO_SUBSCRIBE_QUERY]:   'heliosRX:query',
+  [types.INFO_READ_INIT]:         'heliosRX:moment',
+  [types.INFO_READ_REMOVE]:       'heliosRX:moment',
+};
 
 /*
 USAGE:
@@ -28,78 +47,9 @@ export function trace ( target, ...args ) {
   return log.getLogger( target ).trace( `[${prefix}]`, ...args )
 }
 
-/*
-Enable traces:
-import { heliosLogger } from 'heliosRX'
+log.getLogger( types.WARNING_SYNCING_INDIVIDUAL ).setLevel('silent')
 
-// Disable warning
-heliosLogger.getLogger( heliosLogger.channels.WARNING_DEFINE_UNKNOWN_PROP ).setLevel('silent')
-
-// Enable warning
-heliosLogger.getLogger( heliosLogger.channels.WARNING_DEFINE_UNKNOWN_PROP ).setLevel('warn')
-
-// Enable trace / info
-heliosLogger.getLogger( heliosLogger.channels.INFO_COMMON ).setLevel('trace')
-*/
-
-export const WARNING_DEFINE_UNKNOWN_PROP         = 'store/define-unknown-prop';
-export const WARNING_RESET_MAX_DEPTH             = 'store/reset-max-depth-reached';
-export const WARNING_NO_CREATE_FUNCTION          = 'model/no-create-function';
-export const WARNING_INVALID_ID                  = 'model/invalid-id';
-export const WARNING_EMPTY_SCHEMA                = 'model/empty-schema';
-export const WARNING_UKNONWN_VALIDATION_TYPE     = 'model/unknown-validation-type';
-export const WARNING_MODEL_INVALID_MOMENT        = 'model/invalid-moment';
-export const WARNING_MODEL_OTHER                 = 'model/other';
-export const WARNING_NO_SCHEMA                   = 'model/no-schema';
-export const WARNING_NAME_CONFLICT               = 'model/no-name-conflict';
-export const WARNING_CLIENT_VALIDATION           = 'model/client-validation-failed';
-export const WARNING_UNKNOWN_TIMESTAMP_TYPE      = 'model/unknown-timestamp-type';
-export const WARNING_WRITING_UNDEFINED           = 'model/writing-undefined';
-export const WARNING_INVALID_TIMESTAMP_SERVER    = 'model/invalid-timestamp-from-server'
-export const WARNING_MOMENT_INVALID_DATE         = 'moment/invalid-date';
-export const WARNING_DEPRECATED                  = 'common/deprecated';
-export const WARNING_COMMON                      = 'common/common';
-export const WARNING_SYNCING_SUBSET_DATA         = 'read/sync-subset-data';
-export const WARNING_SYNCING_INDIVIDUAL          = 'read/sync-individial-but-list-supported';
-export const WARNING_SYNCING_EXISTING_QUERY_PATH = 'read/sync-existing-query-path';
-export const WARNING_ACCESSING_UNSYNCED_DATA     = 'read/accessing-unsynced-data';
-export const WARNING_PERMISSION_DENIED           = 'read/permission-denied';
-
-export const INFO_COMMON            = 'common';
-export const INFO_MODEL             = 'model';
-export const INFO_COLLECTION        = 'collection';
-export const INFO_STORE             = 'store';
-export const INFO_STORE_WRITE       = 'store-write';
-export const INFO_MOMENT            = 'moment';
-export const INFO_REGISTRY          = 'registry';
-export const INFO_DEEPMERGE         = 'deep-merge';
-export const INFO_PERMISSION        = 'permission'
-export const INFO_AUTO_UNSUBSCRIBE  = 'store/unsubscribe/auto';
-export const INFO_SUBSCRIBE         = 'store/subscribe';
-export const INFO_SUBSCRIBE_QUERY   = 'store/subscurbe/query';
-export const INFO_SUBSCRIBE_DETAILS = 'store/subscribe/details';
-export const INFO_READ_INIT         = 'store/subscribe/init';
-export const INFO_READ_REMOVE       = 'store/unsubscribe';
-
-export const PREFIX_LIST = {
-  [INFO_COMMON]:            'heliosRX',
-  [INFO_MODEL]:             'heliosRX',
-  [INFO_COLLECTION]:        'heliosRX',
-  [INFO_STORE]:             'heliosRX',
-  [INFO_STORE_WRITE]:       'heliosRX:write',
-  [INFO_MOMENT]:            'heliosRX:moment',
-  [INFO_REGISTRY]:          'heliosRX:REGISTRY',
-  [INFO_DEEPMERGE]:         'heliosRX:DEEPMERGE',
-  [INFO_PERMISSION]:        'heliosRX:permission',
-  [INFO_AUTO_UNSUBSCRIBE]:  'heliosRX:auto-unsubscribe',
-  [INFO_SUBSCRIBE]:         'heliosRX:subscribe',
-  [INFO_SUBSCRIBE_DETAILS]: 'heliosRX:subscribe',
-  [INFO_SUBSCRIBE_QUERY]:   'heliosRX:query',
-  [INFO_READ_INIT]:         'heliosRX:moment',
-  [INFO_READ_REMOVE]:       'heliosRX:moment',
-}
-
-log.getLogger( WARNING_SYNCING_INDIVIDUAL ).setLevel('silent')
+export * from './log-types';
 
 export default log;
 

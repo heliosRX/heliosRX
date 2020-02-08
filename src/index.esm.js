@@ -7,7 +7,8 @@ import { setDefaultDB, setDefaultUser, resetGenericStores } from './helpers.js'
 import { UIDMethod, DeleteMode } from './store/enums.js'
 import moment from './moment/index.js'
 import { getRegistry } from './external-deps'
-import heliosLogger, * as loggerChannel from "./util/log"
+import heliosLogger from "./util/log.js"
+import * as loggerChannel from "./util/log-types.js"
 
 const version = '__VERSION__';
 

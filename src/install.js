@@ -1,7 +1,8 @@
 import GenericStore from './store/index.js'
 import { setup as storeSetup } from './store/GenericStore.js'
 import setupExternalDeps, { _Vuex as Vuex } from './external-deps'
-import log, { info, warn, INFO_COMMON, WARNING_COMMON } from "./util/log"
+import log, { info, warn } from "./util/log"
+import { INFO_STORE_WRITE, INFO_COMMON, WARNING_COMMON }  from "./util/log-types"
 
 import registryModule from './registry/module'
 
@@ -101,10 +102,11 @@ export function install (Vue, options) {
     get () { return mergedApi }
   })
 
+  // TODO: Also allow to set trace / warnings
   if ( options.devMode ) {
     log.setDefaultLevel('info')
     log.setLevel('info')
-    // TODO: Also allow to set trace
+    log.getLogger( INFO_STORE_WRITE ).setLevel('trace')
   } else {
     log.setDefaultLevel('warn')
     log.setLevel('warn')

@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - `task.remove()` now doesnt use soft_delete = true as default anymore
 - Timestamp fields will now ALWAYS return a moment object even when data is invalid
   (Check for `obj.isValid()` or `moment.isValidDate(obj)`)
+- `.reorder()` now also takes an Array of `GenericModel's` as input
 
 ### Removed
 

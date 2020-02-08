@@ -12,6 +12,7 @@ import { parseTpl, analyzeTpl } from '../util/template'
 import { add_custom_actions } from '../classes/utils'
 import factory from '../classes/factory'
 import moment from '../moment'
+import { isString, isNumeric } from '../util/types'
 
 import { info, trace, warn,
   INFO_STORE_WRITE,
@@ -189,13 +190,23 @@ export default {
 
     let sortkey = options.overwriteSortIdxKey || 'sortidx'
 
-    if ( sortidxList.length > 0 && typeof sortidxList[0] !== 'object' ) {
+    if ( sortidxList.length > 0 ) {
+      let first_item = sortidxList[0];
       let sortidx = 0;
-      sortidxList = sortidxList.map((id) => {
-        sortidx = sortidx + 100; // ???
-        return { id: id, sortidx: sortidx }
-        // TODO: Why not $id ?
-      })
+
+      if ( isString( first_item ) || isNumeric( first_item ) ) {
+        sortidxList = sortidxList.map((id) => {
+          sortidx = sortidx + 100;
+          return { id: id, sortidx: sortidx }
+        })
+      }
+
+      if ( '$id' in first_item || first_item.constructor.name === 'GenericModel' ) {
+        sortidxList = sortidxList.map((model) => {
+          sortidx = sortidx + 100;
+          return { id: model.$id, sortidx: sortidx }
+        })
+      }
     }
 
     let batchData = {};

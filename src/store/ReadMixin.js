@@ -1462,6 +1462,8 @@ export default {
 
   // ---------------------------------------------------------------------------
 
+  // TODO: make static
+  //       (would be a little bit of work, since this is an object not a class)
   resetGlobalInstanceCache() {
     try {
       _resultInstanceCache.forEach(instance => {
@@ -1478,54 +1480,4 @@ export default {
   },
 
   // ---------------------------------------------------------------------------
-
-  // hotUpdate() {
-  // TODO
-  // },
-
-  // ---------------------------------------------------------------------------
-
-  // DEPRECATED: See "getData"
-  /*
-  getters () {
-    // Getter --> Resources -> newIndex
-
-    // Generic Store Getter:
-    // - Nach sortidx sortieren
-    // - moment objekte konvertieren
-    // - readiness
-    // - item by all known id's --> get_task_by_goal_id_and_task_id
-    // - make iterable (!)
-
-    // Ressource Getter: (Besser alles als ressource getter, weil dann klar ist ob Ressource geladen ist)
-    // - "Deleted" filtern
-    // - Object-Array auf arrays mappen -> komplett raus
-    // - "Joins"
-    // - index erstellen
-    // - readiness
-
-    return {
-      by_ids(id) {
-        return walkSet( this.global_store_path );
-      },
-      all() {
-        // const key = _infer_local_path_from_ref( ref )
-
-        return walkSet( this.global_store_path );
-
-        // 1. access data in through a generic getter
-        // 2. sort by sortidx
-        // 3. timestamps replace with moment objects (moment.fromRealtimeDB)
-        // 4. make iterable
-        // 5. include readiness -> return promise ?
-
-        return Object.keys(task.checklist)
-          .map((checklist_item_id) => {
-            return { id: checklist_item_id, ...task.checklist[checklist_item_id] };
-          })
-          .sort(util.sorter.by_sortidx);
-      }
-    }
-  },
-  */
 }

@@ -350,6 +350,7 @@ export default class GenericModel {
   // ---------------------------------------------------------------------------
   write() {
     // TODO: Nested data
+    // TODO: Also check if moment objects were changed!
 
     info( INFO_MODEL, "Writing $dirty fields", JSON.stringify(this.$dirty));
 

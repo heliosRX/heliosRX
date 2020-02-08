@@ -54,6 +54,7 @@ const tree = {
     'internals',
     'backends',
     'plugins',
+    ifDev('logging'),
   ],
 };
 

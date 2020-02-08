@@ -44,7 +44,7 @@ export function info ( target, ...args ) {
 
 export function trace ( target, ...args ) {
   let prefix = PREFIX_LIST[ target ] || target;
-  return log.getLogger( target ).trace( `[${prefix}]`, ...args )
+  return log.getLogger( target ).info( `[${prefix}]`, ...args )
 }
 
 log.getLogger( types.WARNING_SYNCING_INDIVIDUAL ).setLevel('silent')

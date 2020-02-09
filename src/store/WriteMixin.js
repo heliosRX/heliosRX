@@ -199,9 +199,7 @@ export default {
           sortidx = sortidx + 100;
           return { id: id, sortidx: sortidx }
         })
-      }
-
-      if ( '$id' in first_item || first_item.constructor.name === 'GenericModel' ) {
+      } else if ( '$id' in first_item || first_item.constructor.name === 'GenericModel' ) {
         sortidxList = sortidxList.map((model) => {
           sortidx = sortidx + 100;
           return { id: model.$id, sortidx: sortidx }

@@ -1,6 +1,6 @@
-# heliosRX 1.0
+# heliosRX 0.3
 
-- [ ] Fix dublicated models in package/ui/src/models*
+- [ ] Fix duplicated models in package/ui/src/models*
 - [ ] Unified store mutations
 - [X] Refactor API
 - [X] Disable Debug output (optionally)
@@ -14,9 +14,10 @@
 - [X] Split into helios cli (global) and helios
 - [X] Implement auto-unsubscribe
 
-# heliosRX 1.1
+# heliosRX 0.4
 
-- [ ] Alternative Backend support / Backend API
+- [ ] Node support
+- [ ] Reduced bundle size
 - [ ] Get rid of momentjs (and other dependencies)
 - [ ] Advanced examples
 - [ ] Plugins
@@ -25,9 +26,14 @@
    - softdelete as plugin
    - attachTimezoneWatcher as Plugin
 
-# heliosRX 1.5
+# heliosRX 0.5
 
-- [ ] Remove Vuex! Why not store stuff directly in models? This might also take care of auto-unsubscribe
+- [ ] Alternative Backend support / Backend API
+- [ ] Unit tests 99% coverage
+
+# heliosRX 1.0
+
+- [ ] Remove Vuex! Why not store stuff directly in models? This might also improve auto-unsubscribe
 - [ ] Rewrite Import system (with CLI/backend in mind)
 - [ ] Real relations management
 - [ ] Type checking for everything -> how to do that?

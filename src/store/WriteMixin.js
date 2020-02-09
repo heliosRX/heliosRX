@@ -191,6 +191,7 @@ export default {
     let sortkey = options.overwriteSortIdxKey || 'sortidx'
 
     if ( sortidxList.length > 0 ) {
+
       let first_item = sortidxList[0];
       let sortidx = 0;
 
@@ -321,8 +322,8 @@ export default {
    * @param {object} contextB - props of the destination path
    *
    */
-  copy(id, contextA, contextB) {
-    return this.move(id, contextA, contextB, { keepOriginal: true, keepId: false });
+  copy(id, contextA, contextB, { keepId = false } = {}) {
+    return this.move(id, contextA, contextB, { keepOriginal: true, keepId });
   },
 
   // ---------------------------------------------------------------------------

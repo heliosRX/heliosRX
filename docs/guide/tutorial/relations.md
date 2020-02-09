@@ -1,6 +1,6 @@
 # Deading with Relations
 
-::: warning Work in Progress (05/6/2020)
+::: warning Work in Progress (06/02/2020)
 This section is still a work in progress. It will be updated soon.
 
 heliosRX currently focuses more on the "O" and "M" not so much the "R" on "ORM".

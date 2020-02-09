@@ -82,7 +82,7 @@ firebase.auth().onAuthStateChanged( ( user ) => {
 ```
 
 
-::: warning Work in Progress (05/6/2020)
+::: warning Work in Progress (06/02/2020)
 This section is still a work in progress. It will be updated soon.
 
 This section will cover these use cases:

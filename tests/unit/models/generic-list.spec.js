@@ -1,7 +1,7 @@
 import GenericModel from '@/classes/GenericModel'
 import GenericList from '@/classes/GenericList'
 import factory from '@/classes/factory'
-import { create_context } from './mock-context';
+import { create_context } from './mock-context';
 
 describe('GenericList', () => {
 
@@ -20,10 +20,10 @@ describe('GenericList', () => {
     },
     schema: {
       fields: {
-        tsField: { validate_bolt_type: 'Timestamp' },
-        strField: { validate_bolt_type: 'String' },
-        boolField: { validate_bolt_type: 'Boolean' },
-        numField: { validate_bolt_type: 'Number' },
+        tsField: { type: 'Timestamp' },
+        strField: { type: 'String' },
+        boolField: { type: 'Boolean' },
+        numField: { type: 'Number' },
       },
     }
   }

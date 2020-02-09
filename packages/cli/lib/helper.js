@@ -1,6 +1,6 @@
 const detectProjectRoot = require("./detectProjectRoot");
 const fs = require("fs");
-const path = require("path");
+// const path = require("path");
 
 module.exports = {
 
@@ -37,14 +37,14 @@ module.exports = {
   readProjectFile() {
     let config_file = ".firebaserc";
 
-    let projectRoot = detectProjectRoot()
-    let outPath = path.normalize(path.join(projectRoot, config_file)); // TODO: RAUS?
+    // let projectRoot = detectProjectRoot()
+    // let outPath = path.normalize(path.join(projectRoot, config_file));
 
     try {
       var content = fs.readFileSync(config_file, "utf8");
       return JSON.parse(content);
     } catch (e) {
-      throw e;
+      throw new Error('Can not read .fireabserc');
     }
   },
 }

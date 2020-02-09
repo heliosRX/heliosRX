@@ -32,8 +32,8 @@ then
   # set version
   npm version $VERSION --message "[release] $VERSION"
 
-  # tag
-  git tag -a "v$VERSION" -m "[release] $VERSION"
+  # tag (is created by npm version)
+  # git tag -a "v$VERSION" -m "[release] $VERSION"
 
   # publish
   # git push origin refs/tags/v$VERSION

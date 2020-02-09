@@ -25,7 +25,7 @@
 
           a (validation: length &leq; 30): <el-input v-model="new_goal.a" />
           b: <el-input v-model="new_goal.b" />
-          <el-button @click="onAddData" :disabled="!new_goal.$isValid()">Add data</el-button>
+          <el-button @click="onAddData" :disabled="!new_goal.$isValid">Add data</el-button>
           <pre>new_goal: {{new_goal}}</pre>
 
         </el-col>
@@ -57,9 +57,9 @@
 </template>
 
 <script>
-// import { fake_models, fake_db } from '@/poc/AsyncGetterProofOfConcept'
-// import { fake_models, fake_db } from '@/poc/RegistryProofOfConcept'
-import { fake_models, fake_db } from '@/poc/VuexProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/AsyncGetterProofOfConcept'
+// import { fake_models, fake_db } from '@/poc/RegistryProofOfConcept'
+import { fake_models, fake_db } from '@/poc/VuexProofOfConcept'
 
 export default {
   data: () => ({
@@ -100,7 +100,7 @@ export default {
       let r4 = this.$models2.magic_store.dynamic_custom_getter;
       return r1 + r2 + r3 + r4;
     },
-    myMagicGetter() {
+    myMagicGetter() {
       return this.$models2.magic_store.dynamic_custom_getter;
     }
   },

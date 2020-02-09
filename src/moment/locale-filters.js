@@ -1,16 +1,17 @@
 import moment from './moment-enhanced.js'
+import { info, INFO_MOMENT } from "../util/log"
 
 export default /* MomentPlugin */ {
 
   install(Vue, options) {
-    console.log("[EMO] Installing momentPlugin");
+    info( INFO_MOMENT, "Installing momentPlugin");
 
     if ( options && options.store ) {
       let unwatch = options.store.watch(
         (state, getters) => getters["app/user_get_dateformat"],
         user_timezone => {
           if ( unwatch ) {
-            console.log("[EMO] Self destroying watcher");
+            info( INFO_MOMENT, "Self destroying watcher");
             unwatch(); // Self destroy
           }
         },

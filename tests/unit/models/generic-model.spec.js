@@ -1,9 +1,12 @@
+// eslint-disable-next-line import/no-unresolved
+import Vue from 'vue'
+
 import GenericModel from '@/classes/GenericModel'
 import GenericList from '@/classes/GenericList'
+import { DeleteMode } from '@/store/enums.js'
 import factory from '@/classes/factory'
-import { create_context } from './mock-context';
+import { create_context } from './mock-context';
 import moment from '@/moment'
-import Vue from 'vue'
 
 const DISABLE_WARNINGS = true;
 
@@ -15,32 +18,33 @@ describe('GenericModel', () => {
 
   factory.configure({ GenericList, GenericModel });
 
+  /* eslint-disable quote-props */
   const modelDefinition = {
     modelGetters: {
-      example: ( $models, $registry, $store ) => {
+      example: ( $model, $models ) => {
         // let myId = $store.definedProps[ 'myId' ]
         return 'return-example'
       },
     },
     modelActions: {
-      exampleAction({ $store, $models }) {
+      exampleAction({ $model, $models }) {
         return "return-action"
       },
     },
     schema: {
       fields: {
-        serverField: { validate_bolt_type: 'ServerTimestamp' },
-        tsField: { validate_bolt_type: 'Timestamp' },
-        strField: { validate_bolt_type: 'String' },
-        boolField: { validate_bolt_type: 'Boolean' },
-        numField: { validate_bolt_type: 'Number' },
-        numField2: { validate_bolt_type: 'Number' },
+        serverField: { type: 'ServerTimestamp' },
+        tsField: { type: 'Timestamp' },
+        strField: { type: 'String' },
+        boolField: { type: 'Boolean' },
+        numField: { type: 'Number' },
+        numField2: { type: 'Number' },
         custValidatorField: {
-          validate_bolt_type: 'String',
+          type: 'String',
           validator: (s) => s.length < 5
         },
-        'x/y': { validate_bolt_type: 'Boolean' },
-        'x.z': { validate_bolt_type: 'Boolean' },
+        'x/y': { type: 'Boolean' },
+        'x.z': { type: 'Boolean' },
       },
     }
   }
@@ -76,7 +80,7 @@ describe('GenericModel', () => {
     expect(model.$id).toBe("id1")
     expect(model.$idx).toBe(null)
     expect(model.$invalid).toMatchObject({})
-    expect(model.$isValid()).toBe(true)
+    expect(model.$isValid).toBe(true)
 
     expect(model.$key).toBe("KEY-teststore-id1")
     expect(model._store_name).toBe("teststore")
@@ -91,7 +95,7 @@ describe('GenericModel', () => {
     expect(model.$exists).toBe(true)
     expect(model.$noaccess).toBe(false)
 
-    expect(model._validation_behaviour).toBeUndefined() // TODO
+    expect(model._validation_behaviour).toBe('WARNING')
 
     model.numField2 = moment('2020-01-01');
     expect(model.numField2).toBe(1577833200)
@@ -146,8 +150,16 @@ describe('GenericModel', () => {
       context
     );
 
-    expect(modelInvalid.tsField).toBe("string")
-    expect(modelInvalid.serverField).toBe("string")
+    // console.log("modelInvalid.serverField", modelInvalid.serverField)
+
+    // expect(modelInvalid.tsField).toBe("string")
+    // expect(modelInvalid.serverField).toBe("string")
+
+    expect(modelInvalid.tsField).toBeInstanceOf(moment)
+    expect(modelInvalid.serverField).toBeInstanceOf(moment)
+
+    expect(moment.isValidDate(modelInvalid.tsField)).toBe(false)
+    expect(moment.isValidDate(modelInvalid.serverField)).toBe(false)
 
     let modelUndefined = factory.make_reactive_model(
       modelDefinition,
@@ -157,10 +169,11 @@ describe('GenericModel', () => {
 
     expect(modelUndefined.tsField).toBeInstanceOf(moment)
     expect(modelUndefined.tsField.isValid()).toBe(false)
+    expect(moment.isValidDate(modelInvalid.tsField)).toBe(false)
 
     expect(modelUndefined.serverField).toBeInstanceOf(moment)
-    // TODO !!!
-    // expect(modelUndefined.serverField.isValid()).toBe(false)
+    expect(modelUndefined.serverField.isValid()).toBe(false)
+    expect(moment.isValidDate(modelInvalid.serverField)).toBe(false)
   });
 
   test('custom validators', () => {
@@ -172,11 +185,11 @@ describe('GenericModel', () => {
       context
     );
 
-    // TODO: 'ELEMENT_VALIDATION'
+    // TODO: ELEMENT_VALIDATION
 
     const spy = jest.spyOn(global.console, 'warn')
 
-    expect(model._validation_behaviour).toBeUndefined() // TODO
+    expect(model._validation_behaviour).toBe('WARNING')
 
     model.setValidationBehaviour('NONE')
     expect(model._validation_behaviour).toBe('NONE')
@@ -235,8 +248,8 @@ describe('GenericModel', () => {
 
     model['x.z'] = true
 
-    expect(model.hasOwnProperty('x.z')).toBe(true)
-    expect(model.hasOwnProperty('x/z')).toBe(false)
+    expect(Object.hasOwnProperty.call(model, 'x.z')).toBe(true)
+    expect(Object.hasOwnProperty.call(model, 'x/z')).toBe(false)
 
     expect(model['x.z']).toBe(true)
     expect(model.$state.x.z).toBe(true)
@@ -290,7 +303,7 @@ describe('GenericModel', () => {
 
     model.write().then(id => {
       expect(id).toBe('abc');
-      expect(context.store.update).toHaveBeenCalledWith("abc", {"numField": 1, "strField": "test"})
+      expect(context.model.update).toHaveBeenCalledWith("abc", {numField: 1, strField: "test"})
     });
   });
 
@@ -303,19 +316,32 @@ describe('GenericModel', () => {
     );
 
     model.$id = 'xyz'
+    // console.log("model.$model", model.$model)
 
-    model.update({ numField: 2 }).then(id => {
+    let p1 = model.update({ numField: 2 }).then(id => {
       expect(model.$id).toBe('xyz');
       expect(id).toBe('xyz');
-      expect(context.store.update).toHaveBeenCalledWith("xyz", { "numField": 2 })
+      expect(context.model.update).toHaveBeenCalledWith("xyz", { numField: 2 })
     })
 
-    model.remove().then(() => {
-      expect(context.store.remove).toHaveBeenCalledWith("xyz", true)
+    let p2 = model.remove(true).then(() => {
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", true)
     })
 
-    model.restore().then(() => {
-      expect(context.store.restore).toHaveBeenCalledWith("xyz")
+    model.$model.defaultDeleteMode = DeleteMode.SOFT;
+    let p3 = model.remove().then(() => {
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", true)
     })
+
+    model.$model.defaultDeleteMode = DeleteMode.HARD;
+    let p4 = model.remove().then(() => {
+      expect(context.model.remove).toHaveBeenCalledWith("xyz", false)
+    })
+
+    let p5 = model.restore().then(() => {
+      expect(context.model.restore).toHaveBeenCalledWith("xyz")
+    })
+
+    return Promise.all([p1, p2, p3, p4, p5])
   })
 })

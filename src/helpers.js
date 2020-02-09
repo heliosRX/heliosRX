@@ -1,8 +1,8 @@
 import GenericStore from './store'
-import StoreManager from './manager'
+import { info, INFO_COMMON } from "./util/log"
 
-// TODO: Load models based on path
-// TODO: Move to generic api folder?
+// import ModelRegistry from './manager/ModelRegistry'
+import { _models } from './external-deps'
 
 export function setDefaultDB(db) {
   GenericStore.setDefaultDB(db)
@@ -20,14 +20,15 @@ export function resetGenericStores( unsubscribe = true ) {
   GenericStore.resetState();
   // GenericStore.defaultUserId = null;
 
-  const stores = StoreManager.getAllStores();
+  // const stores = ModelRegistry.getAllStores();
+  const stores = _models;
 
   for ( var key in stores ) {
-    // if ( key === '_prototype' ) { // ???
+
+    // if ( key === '_prototype' ) {
     //   continue
     // }
 
-    // xxx-eslint-disable-next-line import/namespace
     let model = stores[ key ];
     let sublist = model.subscriptions;
 
@@ -38,7 +39,7 @@ export function resetGenericStores( unsubscribe = true ) {
     if ( unsubscribe && sublist ) {
       Object.keys(sublist).forEach(sub => {
         let callback = sublist[ sub ];
-        console.log("Calling unsubscribe for", key, ":", sub);
+        info(INFO_COMMON, "Calling unsubscribe for", key, ":", sub);
         callback();
       })
     }

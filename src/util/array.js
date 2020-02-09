@@ -36,8 +36,8 @@ export function partition(array, isValid) {
 }
 
 export function arrayEqual(array1, array2) {
-  return array1.length === array2.length &&
-         array1.sort().every((value, index) => value === array2.sort()[index] );
+  return array1.length === array2.length
+      && array1.sort().every((value, index) => value === array2.sort()[index] );
 }
 
 export function arrayDiff( array1, array2 ) {
@@ -46,7 +46,7 @@ export function arrayDiff( array1, array2 ) {
 
 export function arrayDiffTwoWay( new_list, old_list ) {
   return {
-    'removed': arrayDiff( old_list, new_list ),
-    'added':   arrayDiff( new_list, old_list )
+    removed: arrayDiff( old_list, new_list ),
+    added:   arrayDiff( new_list, old_list )
   }
 }

@@ -35,8 +35,8 @@ const testCaseList = [
 // type: 'Map<String,String>',
 testCaseList.push({
   value: {
-    's1': 'bar',
-    's2': 'foo',
+    s1: 'bar',
+    s2: 'foo',
   },
   types: ['Map', "Array", 'Object', "Any"],
   info: {
@@ -48,8 +48,8 @@ testCaseList.push({
 // type: 'Map<String,Number>',
 testCaseList.push({
   value: {
-    'n1': 4,
-    'n2': 6,
+    n1: 4,
+    n2: 6,
   },
   types: ['Map', "Array", 'Object', "Any"],
   info: {
@@ -63,7 +63,7 @@ function generateTestCases() {
   for ( let type of types ) {
     for ( let testCase of testCaseList ) {
       let expectedResult = testCase.types.includes( type );
-      testMatrix.push([ testCase.value, type, testCase.info || {}, expectedResult ])
+      testMatrix.push([ testCase.value, type, testCase.info || {}, expectedResult ])
       // store._validate_bolt_type( testCase.value, type, expectedResult );
     }
   }
@@ -88,5 +88,5 @@ test('_validate_bolt_type', () => {
   expect( store._validate_bolt_type( {}, 'Array' ) ).toBe(true)
   expect( store._validate_bolt_type( true, 'String' ) ).toBe(false)
   expect( store._validate_bolt_type( true, 'string' ) ).toBe(false)
-  expect( store._validate_bolt_type( { [3]: "foo" }, 'Map', { key: 'String', val: 'String' } ) ).toBe(true)
+  expect( store._validate_bolt_type( { 3: "foo" }, 'Map', { key: 'String', val: 'String' } ) ).toBe(true)
 })

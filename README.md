@@ -1,72 +1,40 @@
 <h1 align="center">heliosRX</h1>
 
-![heliosRX](./docs/docs/.vuepress/public/helios-rx.png)
+![heliosRX](./docs/.vuepress/public/helios-rx.png)
 
 <p align="center">
-  <a href="http://badge.fury.io/js/heliosrx" alt="NPM">
-    <img src="https://badge.fury.io/js/heliosrx.svg" />
+  <a href="http://badge.fury.io/js/heliosrx">
+    <img src="https://badge.fury.io/js/heliosrx.svg" alt="NPM" />
   </a>
-  <a href="https://github.com/heliosrx/heliosrx/pulse" alt="Activity">
-    <img src="https://img.shields.io/github/commit-activity/m/heliosrx/heliosrx" />
+  <a href="https://github.com/heliosrx/heliosrx/pulse">
+    <img src="https://img.shields.io/github/commit-activity/m/heliosrx/heliosrx" alt="Activity" />
   </a>
-  <a href="https://github.com/heliosRX/heliosRX/actions?query=workflow%3ACI" alt="CI">
-    <img src="https://github.com/heliosRX/heliosRX/workflows/CI/badge.svg?branch=master" />
+  <a href="https://github.com/heliosRX/heliosRX/actions?query=workflow%3ACI" >
+    <img src="https://github.com/heliosRX/heliosRX/workflows/CI/badge.svg?branch=master" alt="CI" />
   </a>
-  <a href="https://discord.gg/2Hg3eq" alt="Discord">
-    <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" />
+  <a href="https://codecov.io/gh/heliosRX/heliosRX" alt="Codecov">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/gh/heliosrx/heliosrx">
+  </a>
+  <a href="https://discord.gg/2Hg3eq">
+    <img src="https://img.shields.io/discord/655646290507464743?label=discord&logo=discord" alt="Discord"/>
   </a>
   <a href="https://twitter.com/intent/follow?screen_name=helios_rx">
-    <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="follow on Twitter">
+    <img src="https://img.shields.io/twitter/follow/helios_rx?style=social&logo=twitter" alt="Follow on Twitter">
   </a>
-  <!--
-  <a href="https://cdnjs.com/libraries/heliosrx" alt="CDNJS">
-    <img src="https://img.shields.io/cdnjs/v/heliosrx.svg" />
-  </a>
-  <a href="https://github.com/heliosrx/heliosrx/graphs/contributors" alt="Contributors">
-    <img src="https://img.shields.io/github/contributors/heliosrx/heliosrx" />
-  </a>
-  <a href="#backers" alt="Backers on Open Collective">
-    <img src="https://img.shields.io/opencollective/backers/shields" />
-  </a>
-  <a href="#sponsors" alt="Sponsors on Open Collective">
-    <img src="https://img.shields.io/opencollective/sponsors/shields" />
-  </a>
-  <a href="https://github.com/heliosrx/heliosrx/compare/dev...master">
-    <img src="https://img.shields.io/github/commits-since/heliosrx/heliosrx/dev?label=commits%20to%20be%20deployed" alt="commits to be deployed">
-  </a>
-  <a href="https://circleci.com/gh/heliosrx/heliosrx/tree/master">
-    <img src="https://img.shields.io/circleci/project/github/heliosrx/heliosrx/master" alt="build status" />
-  </a>
-  <a href="https://circleci.com/gh/heliosrx/daily-tests">
-    <img src="https://img.shields.io/circleci/project/github/heliosrx/daily-tests?label=service%20tests" alt="service-test status">
-  </a>
-  <a href="https://travis-ci.org/heliosrx/heliosrx" alt="Travis CI">
-    <img src="https://travis-ci.org/heliosrx/heliosrx.png" />
-  </a>
-  <a href="https://coveralls.io/github/heliosrx/heliosrx">
-    <img src="https://img.shields.io/coveralls/github/heliosrx/heliosrx" alt="coverage">
-  </a>
-  <a href="https://lgtm.com/projects/g/heliosrx/heliosrx/alerts/">
-    <img src="https://img.shields.io/lgtm/alerts/g/heliosrx/heliosrx" alt="Total alerts"/>
-  </a>
-  -->
 </p>
 
 **heliosRX** is a front-end ORM (Object-Relational Mapping) layer
 for reactive real-time web applications using Firebase Realtime Database and Vue.
-heliosRX allows developers to define `models` based on schema files.
 
-<!--
-Firebase Realtime Database is a managed NoSQL database hosted on
-the Google Cloud infrastructure, that allows to save and retrieve data from a
-JSON-like structure.
--->
+<!-- - 🗃️ **Firebase ORM** Object Relation Management for Firebase Realtime Database. -->
+- 🍭 **Firebase ORM** Elegant abstraction layer for Firebase Realtime Database.
+- 🍱 **Model based state management** Declare models with reactive getters and custom actions.
+- ♻️ **One codebase** Generate Frontend API and Backend API from one codebase.
+- ⚡  **Faster development** Significantly reduced development time.
 
-- ✌️ Currently supports Vue and Firebase.
-- 🍭 Easy to use abstraction layer for firebase
-- ⚡ Speeds up development significantly
-- 🔌 Modular architecture (will support other backends in the future)
-- ⏱️ Write fully reactive Realtime Apps
+The basic idea behind heliosRX is:
+
+> Describe your data structures by providing a schema. Based on that schema heliosRX will generate a client (with automatic client-side validation) and a server ( = security rules).
 
 ## Documentation
 
@@ -74,20 +42,21 @@ JSON-like structure.
 
 ## When should I use heliosRX?
 
-If you're using Firebase as your backend and if you're building a SPA that
-is a little bit more complex then a simple to-do list, then heliosRX is
-probably very useful for you. Some benefits of using heliosRX over
-just Firebase Client API are:
+If you're using Firebase as your backend and if you're building something that
+is a little bit more complex then just a simple to-do list, then heliosRX is
+probably very useful for you. Some reasons why you might chose heliosRX over just Firebase
+Client API are:
 
-- ➡️ Easy, straight forward API based on model definitions/schemata
-- ➡️ Define schemas and locations for your data
-- ➡️ Consistent data validation on client and server
-- ➡️ Automatically generate Security Rules based on schemata
-- ➡️ Allows easy sorting of objects
-- ➡️ Automatic type conversion for timestamps to moment-js
-- ➡️ Additional layer of abstraction and therefore less vendor lock-in
-- ➡️ State management, no `Vuex` needed (although heliosRX uses Vuex internally)
-- ➡️ Write significantly less code
+- ➡️ You want to develop a SPA with Vue and Firebase
+- ➡️ You want object oriented state management
+- ➡️ You want to write significantly less code
+- ➡️ You want consistent data validation on client and server
+- ➡️ You want an additional layer of abstraction and therfore less vendor lock-in
+- ➡️ You want automatic type conversion for timestamps
+
+heliosRX will likely support other backends in the future.
+
+You can read more about it in the [announcement post](https://tw00.dev/post/heliosrx/annoucement/).
 
 ## Install
 
@@ -103,7 +72,7 @@ npm install --save heliosrx
 yarn add heliosrx
 ```
 
-heliosRX comes with CLI:
+heliosRX comes with a CLI:
 
 ```bash
 npm install -g heliosrx-cli
@@ -111,7 +80,7 @@ npm install -g heliosrx-cli
 yarn global add heliosrxc-cli
 ```
 
-heliosRX requires bolt-compiler as a peer dependency, so please run:
+heliosRX requires `bolt-compiler` as a peer dependency, so please run:
 
 ```bash
 npm install -g bolt-compiler
@@ -122,13 +91,14 @@ yarn add -g bolt-compiler
 ## Configuration
 
 Before you can start using heliosRX, you have to configure Firebase and heliosRX.
-Usually, this should be very simple.
+Usually, this should be pretty straight forward. You can read more in the
+[documentation](https://heliosrx.github.io/guide/03-configuration.html).
 
 ### Configure Firebase Realtime Database
 
-This is really up to you, but one way to do it, is to get your Firebase
-configuration and put it in a new file in `src/firebase.js` that looks
-something like this:
+There is a few ways how you can configure firebase. One way to do it, is to get
+your Firebase configuration and put it in a new file in `src/firebase.js` that
+looks something like this:
 
 ```js
 // file: src/firebase.js
@@ -155,7 +125,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Realtime DB
-export const rtdb = firebase.database();
+export const rtdb = firebase.database(); // < Export a database instance here!
 ```
 
 Please feel free to do this in a way that suits your needs best.
@@ -167,13 +137,13 @@ which is why we're exporting it here.
 Next, create the following folder structure:
 
 ```
-└── rules
-    └── rules.bolt      - Database access rules
+├── rules               - Used for database access rules
+│   └── rules.bolt      - Default access rules
 └── src
-    ├── api             - Additional user API
-    └── models
-        ├── config.js   - Models are assigned to DB paths here
-        └── *           - Model definitions (Can be accessed through this.$models)
+    └── models          - New models are defined here
+        ├── example/*   - Model definition for 'example'
+        └── config.js   - Models are assigned to DB paths here
+                         (Models we export here, can be accessed through this.$models)
 ```
 
 by running
@@ -186,6 +156,8 @@ which will create these files and folders automatically.
 
 ### Add heliosRX to your main.js
 
+heliosRX can be used as a Vue-Plugin:
+
 ```js
 import Vue from 'vue'
 import heliosRX from 'heliosRX'
@@ -194,8 +166,8 @@ import models from '@/models'
 
 Vue.use(heliosRX, {
   userModels:  models, // 'src/models',
-  devMode:     true,
   firebaseDb:  rtdb
+  devMode:     true,
 })
 
 ...
@@ -205,11 +177,11 @@ new Vue({
 }).$mount('#app');
 ```
 
+now models are available as `this.$models`.
+
 ## Quickstart
 
-This is an example on a simple To-Do App:
-
-- [Demo](https://heliosrx-demo1.web.app/)
+This is an example of a simple To-Do app:
 
 ### 1. Define a Schema
 
@@ -217,9 +189,9 @@ This is an example on a simple To-Do App:
 const taskModelDefinition = {
   schema: {
     fields: {
-      title:     { validate_bolt_type: 'String', required: true },
-      createdAt: { validate_bolt_type: 'ServerTimestamp' },
-      isDone:    { validate_bolt_type: 'Boolean' },
+      title:     { type: 'String', required: true },
+      createdAt: { type: 'ServerTimestamp' },
+      isDone:    { type: 'Boolean' },
     }
   }
 };
@@ -236,10 +208,10 @@ export const task = new GenericStore( '/user/{userId}/task/*', taskModelDefiniti
     <li v-for="task in tasks.items" :key="task.$key">
       <input type="checkbox" @input="onCheckTask( task )">
       {{task.title}}
-      <a href="#" @click.prevent="onDeleteTask( task )" />
+      <a href="#" @click.prevent="onDeleteTask( task )">del</a>
     </li>
     <input v-model="title" />
-    <button @click="onAddTask" />
+    <button @click="onAddTask">add</button>
   </ul>
 </template>
 
@@ -252,13 +224,14 @@ export default {
   },
   computed: {
     tasks() {
-      return this.$models.task.subscribeList();
+      return this.$models.task.subscribeList(); // "connect" tasks to realtime database
     }
   },
   methods: {
     onCheckTask( task ) {
+      task = task.clone()
       task.isDone = !task.isDone;
-      task.save();
+      task.write();
       // or: this.$models.task.update( task.$id, { isDone: !task.isDone } )
     },
     onAddTask() {
@@ -288,20 +261,22 @@ type Task {
 ...
 ```
 
-<!--
-## Backers
-TODO
--->
+- [Demo](https://heliosrx-demo1.web.app/)
+- [Code](https://github.com/heliosRX/example-simple-todo)
 
-<!--
 ## Changelog
-See [CHANGELOG.md](./CHANGELOG.md).
--->
 
-<!--
-## Generate documentation
-Run `npx gulp api` which will build the documentation files and place them in the api folder.
--->
+See [CHANGELOG.md](./CHANGELOG.md).
+
+## Roadmap
+
+See [ROADMAP.md](./docs/ROADMAP.md).
+
+## Related
+
+- [vuefire](https://github.com/vuejs/vuefire)
+- [Vuex ORM](https://github.com/vuex-orm/vuex-orm)
+  - Vuex ORM takes a similar approach, but has no Firebase backend
 
 ## Pull request
 

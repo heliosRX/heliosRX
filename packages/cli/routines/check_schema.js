@@ -33,9 +33,9 @@ export async function main( { filename }, environment, dry, verbose, printJson )
       return;
     }
 
-    store._schema_fields.forEach(field => {
-      if ( field.validation_bolt_type ) {
-        console.error('['+storeName+' -> '+field.model+']', chalk.red("validation_bolt_type should be validate_bolt_type"))
+    store.schemaFields.forEach(field => {
+      if ( field.validation_bolt_type || field.validate_bolt_type ) {
+        console.error('['+storeName+' -> '+field.model+']', chalk.red("validation_bolt_type/validate_bolt_type should be type"))
       }
     })
 

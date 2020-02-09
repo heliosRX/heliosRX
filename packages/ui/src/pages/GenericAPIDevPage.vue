@@ -197,10 +197,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import generic_store_list from '@/models'
-import db from "heliosrx/src/global_api"; // TODO
-import { GenericStore, registry } from 'heliosrx'
+import { GenericStore, getRegistry } from 'heliosrx'
 
 // import Vue from 'vue'
 // import VueFormGenerator from 'vue-form-generator'
@@ -238,28 +237,36 @@ export default {
     },
   }),
   created() {
-    this.$db = db;
-    this.$store = registry;
+    let _models = this.$models;
+    this.$db = {
+      getGlobalSubscriptionList() {
+        if ( !_models ) {
+          throw new Error('Subscription list can not be generated.')
+        }
+        let subscriptionList = {}
+        Object.keys( _models ).map(store_key => {
+          // TODO: maybe return sync state instead of unsubscribe calback
+          subscriptionList[ store_key ] = _models[ store_key ].subscriptions || null
+        })
+        return subscriptionList
+      },
+    };
+    this.$registry = getRegistry();
     this.onSelectStore();
   },
   mounted() {
     this.onUpdateStore();
   },
   computed: {
-    /* ...mapGetters("user", [
-      "userAuth"
-    ]), */
     userAuth() {
-      return { id: '0123456798 '};
+      return { id: '0123456798' };
     },
-    ...mapState([
-      'res',
-      'sync',
-      'index',
-    ]),
+    res() { return this.$registry.state.res },
+    sync() { return this.$registry.state.sync },
+    index() { return this.$registry.state.index },
     path_preview() {
       return this.gens_selected
-              ? this.gens_selected._previewPath( this.individual_child_id || '*' )
+              ? this.gens_selected.previewPath( this.individual_child_id || '*' )
               : '';
     },
     schema_for_selected_gens() {
@@ -277,7 +284,7 @@ export default {
 
     onPrintStoreToConsole() {
       console.log("GenStore", this.gens_selected);
-      console.log("onListSync:", this.$store.state.res);
+      console.log("onListSync:", this.$registry.state.res);
     },
 
     createGens() {
@@ -300,19 +307,19 @@ export default {
     },
 
     onListSync( fetchOnce ) {
-      this.gens_selected.sync_list({ fetchOnce }); // fetchOnce  // TODO!!
+      this.gens_selected._sync_list({ fetchOnce }); // fetchOnce  // TODO!!
       this.onUpdateStore();
     },
 
     onIndividualSync( id, fetchOnce ) {
-      this.gens_selected.sync_individual( id, { fetchOnce }); // TODO!!
+      this.gens_selected._sync_individual( id, { fetchOnce }); // TODO!!
       this.onUpdateStore();
     },
 
     onUnsubscribe(store, id) {
       store = typeof store === 'string' ? this.generic_store_list[ store ] : store;
       if ( id === undefined ) {
-        store.unsync_all()
+        store.unsyncAll()
         // store.unsync()
       } else {
         store.unsync( id );
@@ -323,7 +330,7 @@ export default {
     onUpdateStore() {
       // "Manual reactivity"
       if (!this.gens_selected) return;
-      this.info.preview_path = this.gens_selected._previewPath('<ID>'); // ??
+      this.info.preview_path = this.gens_selected.previewPath('<ID>'); // ??
       // this.info.subscriptions = this.gens_selected.subscriptions;
       setTimeout(() => {
         this.info.subscriptions = this.$db.getGlobalSubscriptionList();
@@ -376,7 +383,7 @@ export default {
         return this.$message.error('Error in JSON: ' + e);
       }
 
-      let required_arguments = this.gens_selected.schema_required_fields;
+      let required_arguments = this.gens_selected.schemaRequiredFields;
 
       let ok = required_arguments.every(arg => ( arg in required_input_json ) )
       if (!ok) {
@@ -395,8 +402,8 @@ export default {
     },
 
     onCreateTemplate() {
-      let required_arguments = this.gens_selected.schema_required_fields;
-      let optional_arguments = this.gens_selected.schema_optional_fields;
+      let required_arguments = this.gens_selected.schemaRequiredFields;
+      let optional_arguments = this.gens_selected.schemaOptionalFields;
 
       this.required_input_json = JSON.stringify(
         required_arguments.reduce(array_to_obj_reducer, {}),
@@ -410,7 +417,7 @@ export default {
     },
 
     onCreateTemplateUpdate() {
-      let all_arguments = this.gens_selected.schema_all_fields;
+      let all_arguments = this.gens_selected.schemaAllFields;
 
       // TODO: Insert current value!
       this.update_input_json = JSON.stringify(

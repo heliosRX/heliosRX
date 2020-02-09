@@ -142,7 +142,7 @@ const fake_models = {
     },
 
     /* ------------------------------------------------------------------ new */
-    new() {
+    new() {
       let model = make_reactive_model( fake_schema );
       // let model = make_reactive_model( fake_schema, true );
       model.customAction = function() {
@@ -152,7 +152,7 @@ const fake_models = {
     }
   },
 
-  timeslot_collection: { }
+  timeslot_collection: { }
 }
 
 /* -------------------------------------------------------- custom getter */
@@ -218,4 +218,4 @@ const API = {
 }
 */
 
-export { fake_models, fake_db };
+export { fake_models, fake_db };

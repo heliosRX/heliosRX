@@ -1,9 +1,11 @@
+// eslint-disable-next-line import/no-unresolved
 import Vue from 'vue'
+
 import firebase from 'firebase'
 import GenericStore from '@/store'
 import { setup } from '@/store/GenericStore'
 import { DeleteMode, UIDMethod } from '@/store/enums'
-import { isValidId } from '@/util/types.js'
+// import { isValidId } from '@/util/types.js'
 
 setup({ Vue, firebase });
 
@@ -81,6 +83,7 @@ test('abstracStore', () => {
   }).not.toThrow();
 })
 
+/* eslint-disable no-new */
 test('creating invalid stores', () => {
   expect(() => {
     new GenericStore( "" );
@@ -141,8 +144,8 @@ test('create substore with "with"', () => {
   expect(store.isSuffixed).toBe(true)
   expect(newStore.definedProps['itemId']).toBe(1)
   expect(newStore.path).toBe("/foo/1/bar/{id}/sub")
-  expect(newStore._previewPath(5)).toBe("/foo/1/bar/5/sub")
-  expect(newStore._previewPath()).toBe("/foo/1/bar/{id}/sub")
+  expect(newStore.previewPath(5)).toBe("/foo/1/bar/5/sub")
+  expect(newStore.previewPath()).toBe("/foo/1/bar/{id}/sub")
 })
 
 test('reset store', () => {
@@ -170,6 +173,7 @@ test('uid methods', () => {
 expect.extend({
   toBeValidId(received) {
     // const pass = isValidId( received );
+    // eslint-disable-next-line no-control-regex, no-useless-escape
     const pass = /^((?![\/\[\]\.\#\$\/\u0000-\u001F\u007F]).)*$/.test( received )
     if (pass) {
       return {

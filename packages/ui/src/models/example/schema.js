@@ -1,4 +1,4 @@
-import { moment } from 'heliosrx'
+import { moment } from 'heliosrx'
 
 export default {
 
@@ -24,38 +24,38 @@ export default {
   fields: [
     {
       model: 'createdAt',
-      validate_bolt_type: 'ServerTimestamp',
+      type: 'ServerTimestamp',
     },
     {
       model: 'name',
       validator: () => true,
-      validate_bolt_type: 'String',
+      type: 'String',
       required: true,
       abbrv: 'n'
     },
     {
       model: 'a',
-      validate_bolt_type: 'String',
+      type: 'String',
       validate: v => v.length < 30
     },
     {
       model: 'b',
-      validate_bolt_type: 'Boolean',
+      type: 'Boolean',
       validator: () => true
     },
     {
       model: 'someNumber',
-      validate_bolt_type: 'Number',
+      type: 'Number',
       validator: () => true
     },
     {
       model: 'created',
-      validate_bolt_type: 'InitialTimestamp',
+      type: 'InitialTimestamp',
       validator: () => true
     },
     {
       model: 'modified',
-      validate_bolt_type: 'CurrentTimestamp',
+      type: 'CurrentTimestamp',
       validator: () => true
     }
   ],

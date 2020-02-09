@@ -1,5 +1,5 @@
 /**
- * heliosRX v0.2.2
+ * heliosRX v0.2.4
  * (c) 2020 Thomas Weustenfeld
  * @license MIT
  */
@@ -9,6 +9,447 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var Vue = _interopDefault(require('vue'));
 var Vuex = _interopDefault(require('vuex'));
+
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var loglevel = createCommonjsModule(function (module) {
+/*
+* loglevel - https://github.com/pimterry/loglevel
+*
+* Copyright (c) 2013 Tim Perry
+* Licensed under the MIT license.
+*/
+(function (root, definition) {
+    if ( module.exports) {
+        module.exports = definition();
+    } else {
+        root.log = definition();
+    }
+}(commonjsGlobal, function () {
+
+    // Slightly dubious tricks to cut down minimized file size
+    var noop = function() {};
+    var undefinedType = "undefined";
+    var isIE = (typeof window !== undefinedType) && (
+        /Trident\/|MSIE /.test(window.navigator.userAgent)
+    );
+
+    var logMethods = [
+        "trace",
+        "debug",
+        "info",
+        "warn",
+        "error"
+    ];
+
+    // Cross-browser bind equivalent that works at least back to IE6
+    function bindMethod(obj, methodName) {
+        var method = obj[methodName];
+        if (typeof method.bind === 'function') {
+            return method.bind(obj);
+        } else {
+            try {
+                return Function.prototype.bind.call(method, obj);
+            } catch (e) {
+                // Missing bind shim or IE8 + Modernizr, fallback to wrapping
+                return function() {
+                    return Function.prototype.apply.apply(method, [obj, arguments]);
+                };
+            }
+        }
+    }
+
+    // Trace() doesn't print the message in IE, so for that case we need to wrap it
+    function traceForIE() {
+        if (console.log) {
+            if (console.log.apply) {
+                console.log.apply(console, arguments);
+            } else {
+                // In old IE, native console methods themselves don't have apply().
+                Function.prototype.apply.apply(console.log, [console, arguments]);
+            }
+        }
+        if (console.trace) { console.trace(); }
+    }
+
+    // Build the best logging method possible for this env
+    // Wherever possible we want to bind, not wrap, to preserve stack traces
+    function realMethod(methodName) {
+        if (methodName === 'debug') {
+            methodName = 'log';
+        }
+
+        if (typeof console === undefinedType) {
+            return false; // No method possible, for now - fixed later by enableLoggingWhenConsoleArrives
+        } else if (methodName === 'trace' && isIE) {
+            return traceForIE;
+        } else if (console[methodName] !== undefined) {
+            return bindMethod(console, methodName);
+        } else if (console.log !== undefined) {
+            return bindMethod(console, 'log');
+        } else {
+            return noop;
+        }
+    }
+
+    // These private functions always need `this` to be set properly
+
+    function replaceLoggingMethods(level, loggerName) {
+        /*jshint validthis:true */
+        for (var i = 0; i < logMethods.length; i++) {
+            var methodName = logMethods[i];
+            this[methodName] = (i < level) ?
+                noop :
+                this.methodFactory(methodName, level, loggerName);
+        }
+
+        // Define log.log as an alias for log.debug
+        this.log = this.debug;
+    }
+
+    // In old IE versions, the console isn't present until you first open it.
+    // We build realMethod() replacements here that regenerate logging methods
+    function enableLoggingWhenConsoleArrives(methodName, level, loggerName) {
+        return function () {
+            if (typeof console !== undefinedType) {
+                replaceLoggingMethods.call(this, level, loggerName);
+                this[methodName].apply(this, arguments);
+            }
+        };
+    }
+
+    // By default, we use closely bound real methods wherever possible, and
+    // otherwise we wait for a console to appear, and then try again.
+    function defaultMethodFactory(methodName, level, loggerName) {
+        /*jshint validthis:true */
+        return realMethod(methodName) ||
+               enableLoggingWhenConsoleArrives.apply(this, arguments);
+    }
+
+    function Logger(name, defaultLevel, factory) {
+      var self = this;
+      var currentLevel;
+      var storageKey = "loglevel";
+      if (name) {
+        storageKey += ":" + name;
+      }
+
+      function persistLevelIfPossible(levelNum) {
+          var levelName = (logMethods[levelNum] || 'silent').toUpperCase();
+
+          if (typeof window === undefinedType) { return; }
+
+          // Use localStorage if available
+          try {
+              window.localStorage[storageKey] = levelName;
+              return;
+          } catch (ignore) {}
+
+          // Use session cookie as fallback
+          try {
+              window.document.cookie =
+                encodeURIComponent(storageKey) + "=" + levelName + ";";
+          } catch (ignore) {}
+      }
+
+      function getPersistedLevel() {
+          var storedLevel;
+
+          if (typeof window === undefinedType) { return; }
+
+          try {
+              storedLevel = window.localStorage[storageKey];
+          } catch (ignore) {}
+
+          // Fallback to cookies if local storage gives us nothing
+          if (typeof storedLevel === undefinedType) {
+              try {
+                  var cookie = window.document.cookie;
+                  var location = cookie.indexOf(
+                      encodeURIComponent(storageKey) + "=");
+                  if (location !== -1) {
+                      storedLevel = /^([^;]+)/.exec(cookie.slice(location))[1];
+                  }
+              } catch (ignore) {}
+          }
+
+          // If the stored level is not valid, treat it as if nothing was stored.
+          if (self.levels[storedLevel] === undefined) {
+              storedLevel = undefined;
+          }
+
+          return storedLevel;
+      }
+
+      /*
+       *
+       * Public logger API - see https://github.com/pimterry/loglevel for details
+       *
+       */
+
+      self.name = name;
+
+      self.levels = { "TRACE": 0, "DEBUG": 1, "INFO": 2, "WARN": 3,
+          "ERROR": 4, "SILENT": 5};
+
+      self.methodFactory = factory || defaultMethodFactory;
+
+      self.getLevel = function () {
+          return currentLevel;
+      };
+
+      self.setLevel = function (level, persist) {
+          if (typeof level === "string" && self.levels[level.toUpperCase()] !== undefined) {
+              level = self.levels[level.toUpperCase()];
+          }
+          if (typeof level === "number" && level >= 0 && level <= self.levels.SILENT) {
+              currentLevel = level;
+              if (persist !== false) {  // defaults to true
+                  persistLevelIfPossible(level);
+              }
+              replaceLoggingMethods.call(self, level, name);
+              if (typeof console === undefinedType && level < self.levels.SILENT) {
+                  return "No console available for logging";
+              }
+          } else {
+              throw "log.setLevel() called with invalid level: " + level;
+          }
+      };
+
+      self.setDefaultLevel = function (level) {
+          if (!getPersistedLevel()) {
+              self.setLevel(level, false);
+          }
+      };
+
+      self.enableAll = function(persist) {
+          self.setLevel(self.levels.TRACE, persist);
+      };
+
+      self.disableAll = function(persist) {
+          self.setLevel(self.levels.SILENT, persist);
+      };
+
+      // Initialize with the right level
+      var initialLevel = getPersistedLevel();
+      if (initialLevel == null) {
+          initialLevel = defaultLevel == null ? "WARN" : defaultLevel;
+      }
+      self.setLevel(initialLevel, false);
+    }
+
+    /*
+     *
+     * Top-level API
+     *
+     */
+
+    var defaultLogger = new Logger();
+
+    var _loggersByName = {};
+    defaultLogger.getLogger = function getLogger(name) {
+        if (typeof name !== "string" || name === "") {
+          throw new TypeError("You must supply a name when creating a logger.");
+        }
+
+        var logger = _loggersByName[name];
+        if (!logger) {
+          logger = _loggersByName[name] = new Logger(
+            name, defaultLogger.getLevel(), defaultLogger.methodFactory);
+        }
+        return logger;
+    };
+
+    // Grab the current global log variable in case of overwrite
+    var _log = (typeof window !== undefinedType) ? window.log : undefined;
+    defaultLogger.noConflict = function() {
+        if (typeof window !== undefinedType &&
+               window.log === defaultLogger) {
+            window.log = _log;
+        }
+
+        return defaultLogger;
+    };
+
+    defaultLogger.getLoggers = function getLoggers() {
+        return _loggersByName;
+    };
+
+    return defaultLogger;
+}));
+});
+
+var WARNING_DEFINE_UNKNOWN_PROP         = 'store/define-unknown-prop';
+var WARNING_RESET_MAX_DEPTH             = 'store/reset-max-depth-reached';
+var WARNING_NO_CREATE_FUNCTION          = 'model/no-create-function';
+var WARNING_INVALID_ID                  = 'model/invalid-id';
+var WARNING_EMPTY_SCHEMA                = 'model/empty-schema';
+var WARNING_UKNONWN_VALIDATION_TYPE     = 'model/unknown-validation-type';
+var WARNING_MODEL_INVALID_MOMENT        = 'model/invalid-moment';
+var WARNING_MODEL_OTHER                 = 'model/other';
+var WARNING_NO_SCHEMA                   = 'model/no-schema';
+var WARNING_NAME_CONFLICT               = 'model/no-name-conflict';
+var WARNING_CLIENT_VALIDATION           = 'model/client-validation-failed';
+var WARNING_UNKNOWN_TIMESTAMP_TYPE      = 'model/unknown-timestamp-type';
+var WARNING_WRITING_UNDEFINED           = 'model/writing-undefined';
+var WARNING_INVALID_TIMESTAMP_SERVER    = 'model/invalid-timestamp-from-server';
+var WARNING_MOMENT_INVALID_DATE         = 'moment/invalid-date';
+var WARNING_DEPRECATED                  = 'common/deprecated';
+var WARNING_COMMON                      = 'common/common';
+var WARNING_SYNCING_SUBSET_DATA         = 'read/sync-subset-data';
+var WARNING_SYNCING_INDIVIDUAL          = 'read/sync-individial-but-list-supported';
+var WARNING_SYNCING_EXISTING_QUERY_PATH = 'read/sync-existing-query-path';
+var WARNING_ACCESSING_UNSYNCED_DATA     = 'read/accessing-unsynced-data';
+var WARNING_PERMISSION_DENIED           = 'read/permission-denied';
+
+var INFO_COMMON            = 'common';
+var INFO_MODEL             = 'model';
+var INFO_COLLECTION        = 'collection';
+var INFO_STORE             = 'store';
+var INFO_STORE_WRITE       = 'store-write';
+var INFO_MOMENT            = 'moment';
+var INFO_REGISTRY          = 'registry';
+var INFO_DEEPMERGE         = 'deep-merge';
+var INFO_PERMISSION        = 'permission';
+var INFO_AUTO_UNSUBSCRIBE  = 'store/unsubscribe/auto';
+var INFO_SUBSCRIBE         = 'store/subscribe';
+var INFO_SUBSCRIBE_QUERY   = 'store/subscurbe/query';
+var INFO_SUBSCRIBE_DETAILS = 'store/subscribe/details';
+var INFO_READ_INIT         = 'store/subscribe/init';
+var INFO_READ_REMOVE       = 'store/unsubscribe';
+
+var loggerChannel = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	WARNING_DEFINE_UNKNOWN_PROP: WARNING_DEFINE_UNKNOWN_PROP,
+	WARNING_RESET_MAX_DEPTH: WARNING_RESET_MAX_DEPTH,
+	WARNING_NO_CREATE_FUNCTION: WARNING_NO_CREATE_FUNCTION,
+	WARNING_INVALID_ID: WARNING_INVALID_ID,
+	WARNING_EMPTY_SCHEMA: WARNING_EMPTY_SCHEMA,
+	WARNING_UKNONWN_VALIDATION_TYPE: WARNING_UKNONWN_VALIDATION_TYPE,
+	WARNING_MODEL_INVALID_MOMENT: WARNING_MODEL_INVALID_MOMENT,
+	WARNING_MODEL_OTHER: WARNING_MODEL_OTHER,
+	WARNING_NO_SCHEMA: WARNING_NO_SCHEMA,
+	WARNING_NAME_CONFLICT: WARNING_NAME_CONFLICT,
+	WARNING_CLIENT_VALIDATION: WARNING_CLIENT_VALIDATION,
+	WARNING_UNKNOWN_TIMESTAMP_TYPE: WARNING_UNKNOWN_TIMESTAMP_TYPE,
+	WARNING_WRITING_UNDEFINED: WARNING_WRITING_UNDEFINED,
+	WARNING_INVALID_TIMESTAMP_SERVER: WARNING_INVALID_TIMESTAMP_SERVER,
+	WARNING_MOMENT_INVALID_DATE: WARNING_MOMENT_INVALID_DATE,
+	WARNING_DEPRECATED: WARNING_DEPRECATED,
+	WARNING_COMMON: WARNING_COMMON,
+	WARNING_SYNCING_SUBSET_DATA: WARNING_SYNCING_SUBSET_DATA,
+	WARNING_SYNCING_INDIVIDUAL: WARNING_SYNCING_INDIVIDUAL,
+	WARNING_SYNCING_EXISTING_QUERY_PATH: WARNING_SYNCING_EXISTING_QUERY_PATH,
+	WARNING_ACCESSING_UNSYNCED_DATA: WARNING_ACCESSING_UNSYNCED_DATA,
+	WARNING_PERMISSION_DENIED: WARNING_PERMISSION_DENIED,
+	INFO_COMMON: INFO_COMMON,
+	INFO_MODEL: INFO_MODEL,
+	INFO_COLLECTION: INFO_COLLECTION,
+	INFO_STORE: INFO_STORE,
+	INFO_STORE_WRITE: INFO_STORE_WRITE,
+	INFO_MOMENT: INFO_MOMENT,
+	INFO_REGISTRY: INFO_REGISTRY,
+	INFO_DEEPMERGE: INFO_DEEPMERGE,
+	INFO_PERMISSION: INFO_PERMISSION,
+	INFO_AUTO_UNSUBSCRIBE: INFO_AUTO_UNSUBSCRIBE,
+	INFO_SUBSCRIBE: INFO_SUBSCRIBE,
+	INFO_SUBSCRIBE_QUERY: INFO_SUBSCRIBE_QUERY,
+	INFO_SUBSCRIBE_DETAILS: INFO_SUBSCRIBE_DETAILS,
+	INFO_READ_INIT: INFO_READ_INIT,
+	INFO_READ_REMOVE: INFO_READ_REMOVE
+});
+
+loglevel.noConflict();
+loglevel.setDefaultLevel('warn');
+loglevel.setLevel('warn');
+
+var PREFIX_LIST = {};
+PREFIX_LIST[INFO_COMMON] = 'heliosRX';
+PREFIX_LIST[INFO_MODEL] = 'heliosRX';
+PREFIX_LIST[INFO_COLLECTION] = 'heliosRX';
+PREFIX_LIST[INFO_STORE] = 'heliosRX';
+PREFIX_LIST[INFO_STORE_WRITE] = 'heliosRX:write';
+PREFIX_LIST[INFO_MOMENT] = 'heliosRX:moment';
+PREFIX_LIST[INFO_REGISTRY] = 'heliosRX:REGISTRY';
+PREFIX_LIST[INFO_DEEPMERGE] = 'heliosRX:DEEPMERGE';
+PREFIX_LIST[INFO_PERMISSION] = 'heliosRX:permission';
+PREFIX_LIST[INFO_AUTO_UNSUBSCRIBE] = 'heliosRX:auto-unsubscribe';
+PREFIX_LIST[INFO_SUBSCRIBE] = 'heliosRX:subscribe';
+PREFIX_LIST[INFO_SUBSCRIBE_DETAILS] = 'heliosRX:subscribe';
+PREFIX_LIST[INFO_SUBSCRIBE_QUERY] = 'heliosRX:query';
+PREFIX_LIST[INFO_READ_INIT] = 'heliosRX:moment';
+PREFIX_LIST[INFO_READ_REMOVE] = 'heliosRX:moment';
+
+/*
+USAGE:
+import { warn, WARNING_MODEL_INVALID_MOMENT } from "../util/log"
+warn( WARNING_MODEL_INVALID_MOMENT, ... )
+*/
+function warn ( warning ) {
+  var ref;
+
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  return (ref = loglevel.getLogger( warning )).warn.apply( ref, args )
+}
+
+/*
+USAGE:
+import { info, INFO_MODEL } from "../util/log"
+info( INFO_MODEL, ... )
+*/
+function info ( target ) {
+  var ref;
+
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  var prefix = PREFIX_LIST[ target ] || target;
+  return (ref = loglevel.getLogger( target )).info.apply( ref, [ ("[" + prefix + "]") ].concat( args ) )
+}
+
+function trace ( target ) {
+  var ref;
+
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  var prefix = PREFIX_LIST[ target ] || target;
+  return (ref = loglevel.getLogger( target )).info.apply( ref, [ ("[" + prefix + "]") ].concat( args ) )
+}
+
+loglevel.getLogger( WARNING_SYNCING_INDIVIDUAL ).setLevel('silent');
+
+/*
+const _log_group = (name, id, ...args) => {
+  console.groupCollapsed('[GENS:READ:' + name + '] ' + ( id ? '{' + id + '}' : '*'));
+  args.forEach(arg => console.log('INFO:', arg));
+  console.trace();
+  console.groupEnd();
+}
+*/
+
+/*
+const _log = (name, ...args) => {
+  // Enable logging per store instance
+  if ( !name.includes('commitmentDailySettings') ) {
+    return
+  }
+  console.log("[GENS:READ:" + name + "]", ...args)
+};
+*/
+
+/* let originalFactory = log.methodFactory;
+
+log.methodFactory = function (methodName, logLevel, loggerName) {
+  let rawMethod = originalFactory(methodName, logLevel, loggerName);
+
+  return function (message) {
+    rawMethod("Newsflash: " + message);
+  };
+}; */
 
 function isValidId( id ) {
   // length slugid = 22, length pushid = 20
@@ -63,9 +504,7 @@ var firebase = {
 };
 
 /* momen plugin for helios specific date time conversions */
-// import { _Vue as Vue } from '../external-deps'
-// import moment from "moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
-// const moment = {}
+
 var moment = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js");
 
 /*******************************************************************************
@@ -79,11 +518,6 @@ TODO: Load tz data async:
 TODO: prevent moment from being called directly moment()
 
 *******************************************************************************/
-
-var log = function () {
-  var args = [], len = arguments.length;
-  while ( len-- ) args[ len ] = arguments[ len ];
- /* console.log(...args) */ };
 
 var localStorage;
 if ( !process.browser ) {
@@ -120,7 +554,7 @@ var convert_timezoneNeutral_to_qualifiedMomentObj = function (momentObj, userTim
 
 function enhanceMomentJS( moment ) {
 
-  log("[EMO] enhanceMomentJS");
+  info(INFO_MOMENT, "enhanceMomentJS");
 
   /* ... */
   moment.isEnhanced = true;
@@ -135,9 +569,9 @@ function enhanceMomentJS( moment ) {
       ( Also we have to check if it is used anywhere else )
     */
 
-    if ( firestoreDatetimeObject &&
-         typeof firestoreDatetimeObject === 'object' &&
-         firestoreDatetimeObject.constructor.name === 'Timestamp' ) { // TODO: might not work in production
+    if ( firestoreDatetimeObject
+      && typeof firestoreDatetimeObject === 'object'
+      && firestoreDatetimeObject.constructor.name === 'Timestamp' ) { // TODO: might not work in production
       return moment( firestoreDatetimeObject.toDate() );
     } else {
       return moment( firestoreDatetimeObject )
@@ -221,7 +655,7 @@ function enhanceMomentJS( moment ) {
 
   moment.fromTimezoneNeutral = function ( date ) {
     if ( !moment.isValidDate( date ) ) {
-      console.warn("[fromTimezoneNeutral] Invalid date", date);
+      warn(WARNING_MOMENT_INVALID_DATE, "[fromTimezoneNeutral]", "Invalid date", date);
       return null
     }
     if ( !date.isTimezoneNeutral ) {
@@ -238,10 +672,10 @@ function enhanceMomentJS( moment ) {
   /* ------------------------------------------------------------------------ */
 
   moment.isValidDate = function(obj) {
-    return obj &&
-           moment.isMoment(obj) &&
-           !!obj.isEnhanced &&
-           obj.isValid();
+    return obj
+        && moment.isMoment(obj)
+        && !!obj.isEnhanced
+        && obj.isValid();
     // TODO: move util function here
   };
 
@@ -303,7 +737,7 @@ function enhanceMomentJS( moment ) {
     if ( referenceTime === void 0 ) referenceTime = null;
 
     var formats = ["HH:mm", "HH:mm A", "HH A", "HH"];
-    input = (input || '').trim();
+    input = (input || '').trim();
     if ( !input ) {
       return null
     }
@@ -337,7 +771,7 @@ function enhanceMomentJS( moment ) {
 
 // export function attachTimezoneWatcher( moment, store ) {
 //
-//     log("[EMO] attaching timezone watcher");
+//     info(INFO_MOMENT, "attaching timezone watcher");
 //
 //     /* Install watcher in store and wait until we get the user timezone. This
 //       also means that the store is now initialized and was using a moment
@@ -347,7 +781,7 @@ function enhanceMomentJS( moment ) {
 //       (state, getters) => getters["app/user_get_timezone"],
 //       user_timezone => {
 //
-//         log("[EMO] got new user_timezone", user_timezone);
+//         info(INFO_MOMENT, "got new user_timezone", user_timezone);
 //
 //         // TODO: The user might not have a timezone configured, in this case
 //         //       we use the timezone of the operating system, which is perfectly
@@ -362,7 +796,7 @@ function enhanceMomentJS( moment ) {
 //         if ( localStorage.getItem('timezone') !== user_timezone ) {
 //           /* We have a problem: The user has a different timezone then we
 //             assumed, this means the store is fucked up */
-//           console.warn("[EMO] locally saved timezone does not match user timezone",
+//           warn(WARNING_DIFFERENT_LOCAL_TIMZONE, "locally saved timezone does not match user timezone",
 //             localStorage.getItem('timezone'), "!=", user_timezone);
 //
 //           /* Update local storage */
@@ -386,7 +820,7 @@ function enhanceMomentJS( moment ) {
 //           }
 //         }
 //
-//         log("[EMO] Setting user timezone in moment object");
+//         info(INFO_MOMENT, "Setting user timezone in moment object");
 //
 //         /* Set default timezone */
 //         moment.tz.setDefault(user_timezone)
@@ -402,9 +836,9 @@ function enhanceMomentJS( moment ) {
 //         // TODO: Testen...
 //         Vue.util.defineReactive(moment, 'user_timezone', user_timezone, null, true)
 //
-//         // log("[EMO] unwatch_user_get_timezone", unwatch_user_get_timezone);
+//         // info(INFO_MOMENT, "unwatch_user_get_timezone", unwatch_user_get_timezone);
 //         if ( unwatch_user_get_timezone ) {
-//           log("[EMO] Self destroying watcher");
+//           info(INFO_MOMENT, "Self destroying watcher");
 //           unwatch_user_get_timezone(); // Self destroy
 //         }
 //       },
@@ -415,8 +849,8 @@ function enhanceMomentJS( moment ) {
 
 var localeSetUp = (function () {
 
-  log("[EMO] set up");
-  log("[EMO] localStorage.getItem('timezone')", localStorage.getItem('timezone'));
+  info(INFO_MOMENT, "set up");
+  info(INFO_MOMENT, "localStorage.getItem('timezone')", localStorage.getItem('timezone'));
 
   if ( !localStorage.getItem('timezone') ) {
     /* Let's be optimistic and assume that the user configured the same timezone
@@ -426,7 +860,7 @@ var localeSetUp = (function () {
 
   /* Set default values */
   var user_timezone = localStorage.getItem('timezone');
-  log("[EMO] Setting user timezone to", user_timezone);
+  info(INFO_MOMENT, "Setting user timezone to", user_timezone);
   moment.tz.setDefault(user_timezone);
   moment.user_timezone = user_timezone;
 
@@ -496,17 +930,15 @@ function get(path, obj, fb) {
 function parseTpl(template, map, fallback) {
   // return template.replace(/\$\{.+?}/g, (match) => {
   return template.replace(/\{.+?}/g, function (match) {
-    // console.log("match", match);
     // const path = match.substr(2, match.length - 3).trim();
     var path = match.substr(1, match.length - 2).trim();
-    // console.log("path", path);
     return get(path, map, fallback);
   });
 }
 
 /* Example:
   analyzeTpl(parseTpl("/test/${test}/${uid}/ABC/${abc}", {abc: 1}))
-  (2) ["test", "uid"]
+  (2) ["test", "uid"]
 */
 
 function analyzeTpl(template) {
@@ -518,169 +950,6 @@ function analyzeTpl(template) {
 const template = 'Example text: ${text}';
 const result = interpolate(template, { text: 'Foo Boo' });
 */
-
-// -----------------------------------------------------------------------------
-function rtdbFetchAsObject (ref) {
-  var document = ref.document;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  document.once('value', function (snapshot) {
-
-    // INFO: This is not called, when the data does not exist
-
-    var data = snapshot.val();
-    if ( !snapshot.exists() ) {
-      data = { '.exists': false };
-    }
-    ops.set( target, data );
-    resolve( data );
-
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return function () {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbFetchAsArray (ref) {
-  var collection = ref.collection;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  collection.once('value', function (snapshot) {
-    var data = snapshot.val();
-    ops.once(target, data, snapshot.exists());
-    resolve(data);
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  return function () {}
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsObject (ref) {
-  var document = ref.document;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  /* INFO: Single value is not supported */
-
-  // const target = {};
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  var listener = document.on(
-    'value',
-    function (snapshot) {
-      // let target = snapshot.ref.path.toString();
-      var data = snapshot.val();
-
-      // TODO: Handle snapshot.exists
-      if ( !snapshot.exists() ) {
-        data = { '.exists': false };
-      }
-
-      ops.set( target, data );
-      resolve( data ); // Only one argument allowed!
-    }, function (err) {
-      if ( err ) {
-        reject(err);
-      }
-    }
-  );
-
-  return function () {
-    document.off('value', listener);
-  }
-}
-
-// -----------------------------------------------------------------------------
-function rtdbBindAsArray (ref) {
-  var collection = ref.collection;
-  var ops = ref.ops;
-  var resolve = ref.resolve;
-  var reject = ref.reject;
-
-  // const target = {}; // []
-  var ref$1 = ops.init();
-  var target = ref$1.target;
-
-  // TODO: Handle snapshot.exists
-
-  collection.once('value', function (snapshot) {
-    ops.once(target, snapshot.val(), snapshot.exists());
-    resolve();
-  }, function (err) {
-    if ( err ) {
-      reject(err);
-    }
-  });
-
-  var childAdded = collection.on(
-    'child_added',
-    function (snapshot, prevKey) {
-      // TWE: We're not really intersted in the order, since we ensure order via sortidx
-      // TODO: Add sortidx for ordered queries
-      ops.add(target, snapshot.key, snapshot.val());
-    },
-    reject
-  );
-
-  var childRemoved = collection.on(
-    'child_removed',
-    function (snapshot) {
-      ops.remove(target, snapshot.key);
-    },
-    reject
-  );
-
-  var childChanged = collection.on(
-    'child_changed',
-    function (snapshot) {
-      ops.set( target, snapshot.key, snapshot.val() );
-    },
-    reject
-  );
-
-  var childMoved = collection.on( // ATTENTION: This is also used for orderByChild
-    'child_moved',
-    function (snapshot, prevKey) {
-      // const index = indexForKey(target, snapshot.key)
-      // const oldRecord = ops.remove(target, index)[0]
-      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
-      // ops.add(target, newIndex, oldRecord)
-
-      // TODO: Update target.sortidx
-      // oldKey = prevKey
-      // newKey = snapshot.key
-      // ops.order(  )
-    },
-    reject
-  );
-
-  return function () {
-    collection.off('child_added',   childAdded);
-    collection.off('child_changed', childChanged);
-    collection.off('child_removed', childRemoved);
-    collection.off('child_moved',   childMoved);
-  }
-}
 
 // TODO: Make sure it's the same 'Vue'
 
@@ -705,6 +974,8 @@ function getRegistry() {
   return _registry;
 }
 
+// import { info, INFO_HMR } from "../util/log"
+
 var factory = {
 
   configure: function configure(ref) {
@@ -722,7 +993,7 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    var name = context.store.name;
+    var name = context.model.name;
     var reactive_list = new this.GenericList( name );
 
     if ( dataList ) {
@@ -736,14 +1007,16 @@ var factory = {
       reactive_list.$numReady = Object.keys( dataList ).length;
     }
 
+    // TODO: Implementd custom global actions / getters here too
+
     if ( modelDefinition.listActions ) {
-      reactive_list.decorate_actions( modelDefinition.listActions, context );
+      reactive_list._decorate_actions( modelDefinition.listActions, context );
     }
 
     if ( modelDefinition.listGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      reactive_list.decorate_getters( modelDefinition.listGetters, context.registry );
+      reactive_list._decorate_getters( modelDefinition.listGetters, context );
     }
 
     _Vue.observable( reactive_list );
@@ -764,16 +1037,14 @@ var factory = {
 
     // TODO: Error when not inintialized
 
-    var name = context.store.name;
+    var name = context.model.name;
     var load_result = new this.GenericModel( null, null, name );
-    load_result._set_generic_store( context.store );
-
-    // console.log( "[GENS:make_reactive_model] name", name, "data", data );
+    load_result._set_generic_store( context.model );
 
     if ( modelDefinition.schema && modelDefinition.schema.fields ) {
-      load_result.autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
+      load_result._autogenerate_props( modelDefinition.schema.fields, data, is_dirty );
     } else {
-      console.warn('Making a reactive model without schema. This means props are not autogenerated and only accessible through model.$state. Please provide a schema for ' + name + '.');
+      warn(WARNING_NO_SCHEMA, 'Making a reactive model without schema. This means props are not autogenerated and only accessible through model.$state. Please provide a schema for ' + name + '.');
     }
 
     if ( data ) {
@@ -782,7 +1053,7 @@ var factory = {
     }
 
     if ( modelDefinition.modelActions ) {
-      load_result.decorate_actions( modelDefinition.modelActions, context );
+      load_result._decorate_actions( modelDefinition.modelActions, context );
     }
 
     /* add model getters:
@@ -793,10 +1064,12 @@ var factory = {
     if ( modelDefinition.modelGetters
          && !no_reactive_getters
          && !modelDefinition.no_reactive_getters ) {
-      load_result.decorate_getters( modelDefinition.modelGetters, context.registry );
+      load_result._decorate_getters( modelDefinition.modelGetters, context );
     }
 
     /*
+    TODO: Implement HMR
+
     if ( module.hot && modelDefinition.hotUpdate ) {
       // TODO: Testen
       let hotUpdateList = modelDefinition.hotUpdate();
@@ -805,12 +1078,12 @@ var factory = {
         let filename = './src/models/' + name + '/' + relative_filename;
         filelist.push( filename )
       }
-      console.log("[HMR] list", filelist);
+      info(INFO_HMR, "list", filelist);
       module.hot.accept([filelist], (updated_file, deps) => {
-        console.log("[HMR] update model", updated_file, deps);
+        info(INFO_HMR, "update model", updated_file, deps);
         // Parse "./src/api/<moduleName>.js"
         let moduleName = updated_file[0].split('/').pop();
-        console.log("[HMR] update model %c<" + moduleName + ">", 'color: #42b983');
+        info(INFO_HMR, "update model %c<" + moduleName + ">", 'color: #42b983');
         let target = hotUpdateList[ moduleName ];
         let moduleData = require('./src/models/' + name + '/' + moduleName)
         for ( var prop in moduleData ) {
@@ -821,19 +1094,11 @@ var factory = {
     }
     */
 
-    // Vue.observable( load_result.$state ); // DOPPELT
     _Vue.observable( load_result );
 
-    // console.log( "[GENS:make_reactive_model] load_result", load_result );
     return load_result;
   }
 };
-
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
 
 var lodash_clonedeep = createCommonjsModule(function (module, exports) {
 /**
@@ -2590,7 +2855,7 @@ module.exports = cloneDeep;
 function add_custom_getters( context, target, getters ) {
 
   if ( target.getters ) {
-    console.warn("Name conflict: property getters already exists");
+    warn(WARNING_NAME_CONFLICT, "Name conflict: property getters already exists");
   } else {
     target.getters = {};
   }
@@ -2599,27 +2864,19 @@ function add_custom_getters( context, target, getters ) {
   var loop = function ( key ) {
 
     var fn = getters[key];
-    // computed[ key ] = () => fn( context )
-    // computed[ key ] = () => fn( ...context )
-    // computed[ key ] = () => fn.apply(target, Object.values(context))
-    computed[ key ] = function () { return fn.apply(target, context); }; // TODO: Test if works with reactivty
+    computed[ key ] = function () { return fn.apply(target, context); };
 
     /*
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      let name = context.store.name;
-      console.warn(`Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
+      let name = context.$model.name;
+      warn(WARNING_NAME_CONFLICT, `Name conflict: property "${key}" has same name as an existing class property "${key}" in ${name}`);
       continue
     }
     */
 
-    // TODO: Assign to target.getters ?
-
-    // Object.defineProperty( target.getters.prototype, key, {
     Object.defineProperty( target.getters, key, {
       get: function () { return _vm[key]; },
-      // get: function() { return _vm[key].apply( target ) }, // Does not work
-      // enumerable: false
-      enumerable: true // schon ok
+      enumerable: true
     });
   };
 
@@ -2640,18 +2897,21 @@ function add_custom_actions( context, target, actions, reset ) {
       delete target[ key ];
     }
     if ( Object.prototype.hasOwnProperty.call( target, key ) ) {
-      var name = context.$store.name;
-      console.warn(("Name conflict: action \"" + key + "\" has same name as another property \"" + key + "\" in " + name));
+      var name = context.$model.name;
+      warn(WARNING_NAME_CONFLICT, ("Name conflict: action \"" + key + "\" has same name as another method or property \"" + key + "\" in " + name));
       return
     }
-    // Object.defineProperty( target, key, { value: () => action(context) } )
     Object.defineProperty( target, key, {
       value: function () {
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
+        // Assign $models at run time
+        if ( context.$modelsGetter ) {
+          context.$models = context.$modelsGetter();
+        }
         return action.apply(target, [context ].concat( args) );
-    },
+      },
       enumerable: true // otherwise not cloned
     });
   };
@@ -2660,11 +2920,6 @@ function add_custom_actions( context, target, actions, reset ) {
 }
 
 // export default from './moment-enhanced';
-
-var log$1 = function () {
-  var args = [], len = arguments.length;
-  while ( len-- ) args[ len ] = arguments[ len ];
-};
 
 /**
  *
@@ -2743,7 +2998,7 @@ function walkSetVueProp (obj, path, data) {
     return
   } */
 
-  // TODO: Besserer fehler als:
+  // TODO: Improve error message. Something better than:
   // Uncaught (in promise) TypeError: Cannot read property 'res' of undefined
   //  at eval (utils.js?7e75:109)
 
@@ -2805,9 +3060,9 @@ function deepMergeVue( target, data, delete_missing_fields ) {
 
     delete map[ prop ];
   }
-  // log("GENS:DEEPMERGE] Remaining fields", map, data);
+  // trace( INFO_DEEPMERG, "Remaining fields", map, data);
   for ( var prop$1 in map ) {
-    log$1("[GENS:DEEPMERGE] Deleting <", prop$1, ">");
+    trace( INFO_DEEPMERGE, "Deleting <", prop$1, ">");
     _Vue.delete( target, prop$1 );
   }
   return map
@@ -2827,11 +3082,11 @@ function walkSetAndMerge (obj, path, data) {
   if ( key in target ) {
     // INFO: Sollte nicht mehr auftreten - trozdem warning ausgeben
     // TODO: What about deleting items?
-    log$1("[GENS:INIT] Existing data found -> Performing deep merge at '",
+    trace( INFO_DEEPMERGE, "Existing data found -> Performing deep merge at '",
       key, "' of target", target, "with source", data);
 
     if ( '.value' in data && data['.value'] === null ) {
-      log$1("[GENS:INIT] New data is null, deleting node at <", key, ">");
+      trace( INFO_DEEPMERGE, "New data is null, deleting node at <", key, ">");
       _Vue.delete( target, key );
       return
     }
@@ -2870,13 +3125,14 @@ var GenericModel = function GenericModel( schema, data, name ) {
   this.$idx       = null;
   this.$noaccess  = null;
   this._store_name= name;
+  this._validation_behaviour = 'WARNING';
 
   _Vue.observable( this.$state ); // TODO: Check if we get an error here
   // Vue.observable( this.$ready );
   // this.$state = Vue.oberservable({});
 };
 
-var prototypeAccessors = { $key: { configurable: true },$vm: { configurable: true },$model: { configurable: true },$exists: { configurable: true } };
+var prototypeAccessors = { $isValid: { configurable: true },$key: { configurable: true },$vm: { configurable: true },$model: { configurable: true },$exists: { configurable: true } };
 
 // ---------------------------------------------------------------------------
 GenericModel.prototype._update_data = function _update_data ( data, schema, make_dirty ) {
@@ -2904,7 +3160,7 @@ GenericModel.prototype.clone = function clone () {
   copy.$state = lodash_clonedeep( copy.$state );
   copy.$dirty = lodash_clonedeep( copy.$dirty );
   copy.$invalid = lodash_clonedeep( copy.$invalid );
-  copy.autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
+  copy._autogenerate_props( this.$model.modelDefinition.schema.fields, copy.$state, false );
   copy._set_generic_store( this.$model );
   externalVMStore.set( copy, this.$vm );
   return copy;
@@ -2937,7 +3193,9 @@ GenericModel.prototype._update_field = function _update_field ( propName, value,
   if ( moment.isMoment( value ) ) {
     /* Handle moment object as input */
     if ( !moment.isValidDate( value ) ) {
-      console.warn("Got invalid e-moment object", value, "for prop", propName);
+      warn( WARNING_MODEL_INVALID_MOMENT,
+        "Got invalid (enhanced) moment object",
+        value, "for prop", propName);
     }
     value = value.toRealtimeDB(); /* convert to internal timestamp */
     delete this.$invalid[ propName ];
@@ -2977,20 +3235,20 @@ GenericModel.prototype._update_field = function _update_field ( propName, value,
       throw new Error(("Validation failed for field '" + propName + "' with value " + value + "."));
     }
     if ( validation_behaviour === 'WARNING' ) {
-      console.warn(("Validation failed for field '" + propName + "' with value " + value + "."));
+      warn(WARNING_CLIENT_VALIDATION, ("Validation failed for field '" + propName + "' with value " + value + "."));
     }
   }
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype._onRemove = function _onRemove () {
+GenericModel.prototype._on_remove = function _on_remove () {
   this.$deleted = true; // TODO
   // This is called when the item is going to be removed
   //- maybe allow subscribers and call them here
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.$isValid = function $isValid () {
+prototypeAccessors.$isValid.get = function () {
   return Object.keys( this.$invalid ).length === 0;
 };
 
@@ -3015,7 +3273,7 @@ prototypeAccessors.$exists.get = function () {
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema, data, is_dirty ) {
+GenericModel.prototype._autogenerate_props = function _autogenerate_props ( schema, data, is_dirty ) {
     var this$1 = this;
     if ( is_dirty === void 0 ) is_dirty = false;
  // TODO: move to util
@@ -3028,7 +3286,6 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
 
   schema.forEach(function (field) {
     var propName = field.model;
-    // console.log("[autogenerate_props]", field, propName, data)
 
     if ( data && propName in data ) {
       this$1.$state[ propName ] = data[ propName ];
@@ -3042,7 +3299,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
     }
 
     if ( Object.prototype.hasOwnProperty.call(this$1, propName ) ) {
-      console.warn(("Name conflict: property \"" + propName + "\" has same name as global action/global getter \"" + propName + "\" in " + (this$1._store_name)));
+      warn(WARNING_NAME_CONFLICT, ("Name conflict: property \"" + propName + "\" has same name as global action/global getter \"" + propName + "\" in " + (this$1._store_name)));
       return
     }
 
@@ -3069,27 +3326,29 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
       field.is_nested = false;
     }
 
-    if ( field.validate_bolt_type ) {
+    if ( field.type ) {
 
       var validate_timestamp = function (value, moment_conversion_func, min_date, max_date) {
         if ( value === 0 || value === null ) {
           return value // TODO: Allow null instead of 0
         } else if ( moment.isMoment( value ) ) {
-          console.error("Do not assign moment objects directly.");
+          throw new Error("Assigning moment objects directly to property is not allowed.");
         } else if ( isFinite( value ) && value > min_date && value < max_date ) {
           return moment_conversion_func( value );
         } else if ( value === undefined ) {
-          return moment_conversion_func(); // TODO: This is potentially dangerous, since it returns the current time
+          // This is potentially dangerous, since it could return the current time
+          // NaN should usually create an invalid moment object
+          return moment_conversion_func( NaN );
         } else {
-          console.warn("Schema defined", propName, "as Timestamp, but got invalid data:", value);
-          return value
+          warn(WARNING_INVALID_TIMESTAMP_SERVER, "Schema defined", propName, "as Timestamp, but got invalid data:", value);
+          // return value
+          return moment(value)
         }
       };
 
       var prop_getter_original = prop_getter;
 
-      if ( field.validate_bolt_type === 'Timestamp' ) {
-
+      if ( field.type === 'Timestamp' ) {
         prop_getter = function () {
           var min_date = 200000000; // '1976-05-03'
           var max_date = 30000000000; // '2065-01-24'
@@ -3099,7 +3358,7 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
             min_date,
             max_date)
         };
-      } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.validate_bolt_type ) ) {
+      } else if ( SERVER_TIMESTAMP_ALIASES.includes( field.type ) ) {
         prop_getter = function () {
           var min_date = 200000000 * 1000; // '1976-05-03'
           var max_date = 30000000000 * 1000; // '2065-01-24'
@@ -3109,10 +3368,11 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
             min_date,
             max_date)
         };
-      } else if ( field.validate_bolt_type.includes( 'Timestamp' ) ) {
-        console.warn(
-          "Found validation type that contains 'Timestamp' but is not recognized:",
-          field.validate_bolt_type
+      } else if ( field.type.includes( 'Timestamp' ) ) {
+        warn(
+          WARNING_UNKNOWN_TIMESTAMP_TYPE,
+          "Found validation type that contains 'Timestamp' but is not recognized.",
+          field.type
         );
       }
 
@@ -3127,42 +3387,48 @@ GenericModel.prototype.autogenerate_props = function autogenerate_props ( schema
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.decorate_actions = function decorate_actions ( modelActions, context ) {
-    var this$1 = this;
- // TODO: move to util
+GenericModel.prototype._decorate_actions = function _decorate_actions ( modelActions, context ) {
   if ( !modelActions ) {
     return
   }
-  context.model = this; // HACK
-  var loop = function ( key ) {
-    var action = modelActions[ key ];
-    if ( Object.prototype.hasOwnProperty.call( this$1, key ) ) {
-      console.warn(("Name conflict: action \"" + key + "\" has same name as property/global action/global getter \"" + key + "\" in " + (this$1._store_name)));
-      return
-    }
-    Object.defineProperty( this$1, key, { value: function () { return action(context); } } ); // TODO: bind this?
-  };
 
-    for ( var key in modelActions ) loop( key );
+  /*
+  context.model = this; // HACK
+  for ( let key in modelActions ) {
+    let action = modelActions[ key ];
+    if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
+      warn(WARNING_NAME_CONFLICT, `Name conflict: action "${key}" has same name as property/global action/global getter "${key}" in ${this._store_name}`);
+      continue
+    }
+    Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
+  }
+  */
+
+  var action_context = {
+    $instance: this,
+    $model: context.model,
+    $models: context.models,
+  };
+  add_custom_actions( action_context, this, modelActions, false );
 };
 
 // ---------------------------------------------------------------------------
-GenericModel.prototype.decorate_getters = function decorate_getters ( modelGetters, context ) { // TODO: move to util
+GenericModel.prototype._decorate_getters = function _decorate_getters ( modelGetters, context ) { // TODO: move to util
   if ( !modelGetters ) {
     return
   }
 
   for ( var key in modelGetters ) {
     if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-      console.warn(("Name conflict: getter \"" + key + "\" has same name as property/custom action/global action/global getter \"" + key + "\" in " + (this._store_name)));
+      warn(WARNING_NAME_CONFLICT, ("Name conflict: getter \"" + key + "\" has same name as property/custom action/global action/global getter \"" + key + "\" in " + (this._store_name)));
       delete modelGetters[ key ]; // ?
       continue
     }
   }
 
   /* Embed getter in vue instance */
-  context.model = this; // HACK
-  var vm = add_custom_getters( context, this, modelGetters );
+  var getter_context = [ this, context.model, context.models ];
+  var vm = add_custom_getters( getter_context, this, modelGetters );
   externalVMStore.set( this, vm );
 };
 
@@ -3176,8 +3442,9 @@ GenericModel.prototype.write = function write () {
     var this$1 = this;
 
   // TODO: Nested data
+  // TODO: Also check if moment objects were changed!
 
-  console.log("Writing $dirty fields", JSON.stringify(this.$dirty));
+  info( INFO_MODEL, "Writing $dirty fields", JSON.stringify(this.$dirty));
 
   var payload = {};
   for ( var prop in this.$dirty ) {
@@ -3191,7 +3458,7 @@ GenericModel.prototype.write = function write () {
       value = this.$state[ prop ];
     }
     if ( typeof value === 'undefined' ) {
-      console.warn("Trying to write undefined for prop", prop);
+      warn(WARNING_WRITING_UNDEFINED, "Trying to write undefined for prop", prop);
       continue
     }
     payload[ prop_path ] = value;
@@ -3213,7 +3480,7 @@ GenericModel.prototype.write = function write () {
   if ( model.modelDefinition && model.modelDefinition.schema ) {
     model._validate_schema( payload, is_update ); // DOPPELT ?
   } else {
-    console.warn("No schema found to validate input" );
+    warn(WARNING_NO_SCHEMA, "No schema found to validate input" );
   }
 
   return model.update( temp_id, payload ).then(function () {
@@ -3253,11 +3520,14 @@ GenericModel.prototype.update = function update ( payload ) {
 };
 
 /* ------------------------------------------------------------------------ */
-GenericModel.prototype.remove = function remove (soft_delete) {
+GenericModel.prototype.remove = function remove ( soft_delete ) {
     var this$1 = this;
-    if ( soft_delete === void 0 ) soft_delete = true;
+    if ( soft_delete === void 0 ) soft_delete = null;
 
   var model = this._get_model_for_write();
+  if ( soft_delete == null ) {
+    soft_delete = model.defaultDeleteMode === DeleteMode.SOFT;
+  }
   return model.remove( this.$id, soft_delete ).then(function () {
     if ( soft_delete ) {
       delete this$1.$dirty[ 'deleted' ]; // ?
@@ -3276,13 +3546,9 @@ GenericModel.prototype.restore = function restore () {
   })
 };
 
-// ---------------------------------------------------------------------------
-// hotUpdate() {}
-
 // -----------------------------------------------------------------------------
 GenericModel.prototype.reset = function reset () {
-  // console.log("[GENS] Reset Model -> NOT IMPLEMENTED")
-  // ....
+  // ...
 };
 
 Object.defineProperties( GenericModel.prototype, prototypeAccessors );
@@ -3299,13 +3565,13 @@ function make_property_sorter(prop) {
   var sorter = null;
   if ( prop[0] === '-' ) {
     prop = prop.slice(1);
-     sorter = function (a,b) {
+     sorter = function (a, b) {
       if (a[prop] < b[prop]) { return 1; }
       if (a[prop] > b[prop]) { return -1; }
       return 0;
     };
   } else {
-    sorter = function (a,b) {
+    sorter = function (a, b) {
       if (a[prop] < b[prop]) { return -1; }
       if (a[prop] > b[prop]) { return 1; }
       return 0;
@@ -3320,8 +3586,6 @@ var externalVMStore$1 = new WeakMap(); // Exclude vm from instance, so it can be
 //       This is rather an exception, since we would normally use getNode instead
 
 var GenericList = function GenericList( name ) {
-  // console.log("[GENS] GenericList");
-
   this.items      = {}; // $items?
   this.$readyAll  = false;
   this.$readySome = false;
@@ -3332,9 +3596,10 @@ var GenericList = function GenericList( name ) {
   this.$numChildren = 0;
   this._store_name= name;
   this._unwatch   = null;
+  // this.$lastUpdated = null;
 };
 
-var prototypeAccessors$1 = { $vm: { configurable: true },itemsSorted: { configurable: true },$id_list: { configurable: true } };
+var prototypeAccessors$1 = { $vm: { configurable: true },itemsSorted: { configurable: true },$idList: { configurable: true } };
 
 // -----------------------------------------------------------------------------
 GenericList.prototype._clone = function _clone () {
@@ -3346,7 +3611,7 @@ GenericList.prototype._clone = function _clone () {
 GenericList.prototype._add_child = function _add_child ( id, child ) {
   // TODO: Check if this.items is an array
   this.$readySome = true;
-  this.$lastUpdate = Date.now();
+  // this.$lastUpdated = Date.now();
   _Vue.set( this.items, id, child );
   this.$numChildren += 1;
   this.items[ id ].$idx = this.$numChildren;
@@ -3356,7 +3621,7 @@ GenericList.prototype._add_child = function _add_child ( id, child ) {
 GenericList.prototype._rem_child = function _rem_child ( id ) {
   // TODO: Check if this.items is an array
   if ( id in this.items ) {
-    this.items[ id ]._onRemove();
+    this.items[ id ]._on_remove();
   }
   _Vue.delete( this.items, id );
   this.$numChildren -= 1;
@@ -3368,42 +3633,49 @@ prototypeAccessors$1.$vm.get = function () {
 };
 
 // -----------------------------------------------------------------------------
-GenericList.prototype.decorate_actions = function decorate_actions ( listActions, context ) {
-    var this$1 = this;
- // TODO: move to util
+GenericList.prototype._decorate_actions = function _decorate_actions ( listActions, context ) {
   if ( !listActions ) {
     return
   }
+
+  /*
   context.model = this; // HACK
-  var loop = function ( key ) {
-    var action = listActions[ key ];
-    if ( Object.prototype.hasOwnProperty.call( this$1, key ) ) {
-      console.warn(("Name conflict: list action \"" + key + "\" has same name as existing method \"" + key + "\" in " + (this$1._store_name)));
-      return
+  for ( let key in listActions ) {
+    let action = listActions[ key ];
+    if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
+      warn(WARNING_NAME_CONFLICT, `Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
+      continue
     }
-    Object.defineProperty( this$1, key, { value: function () { return action(context); } } ); // TODO: bind this?
+    Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
+  }
+  */
+
+  var action_context = {
+    $instance: this,
+    $model: context.model,
+    $models: context.models,
   };
 
-    for ( var key in listActions ) loop( key );
+  add_custom_actions( action_context, this, listActions, false );
 };
 
 // -----------------------------------------------------------------------------
-GenericList.prototype.decorate_getters = function decorate_getters ( listGetters, context ) { // TODO: move to util
+GenericList.prototype._decorate_getters = function _decorate_getters ( listGetters, context ) { // TODO: move to util
   if ( !listGetters ) {
     return
   }
 
   for ( var key in listGetters ) {
     if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-      console.warn(("Name conflict: list getter \"" + key + "\" has same name as existing property getter \"" + key + "\" in " + (this._store_name)));
+      warn(WARNING_NAME_CONFLICT, ("Name conflict: list getter \"" + key + "\" has same name as existing property getter \"" + key + "\" in " + (this._store_name)));
       delete listGetters[ key ]; // ?
       continue
     }
   }
 
   /* Embed getter in vue instance */
-  context.model = this; // HACK
-  var vm = add_custom_getters( context, this, listGetters );
+  var getter_context = [ this, context.model, context.models ];
+  var vm = add_custom_getters( getter_context, this, listGetters );
   externalVMStore$1.set( this, vm );
 
   // "Self destroy"
@@ -3491,7 +3763,7 @@ GenericList.prototype.itemsAsArrayOnlyDeleted = function itemsAsArrayOnlyDeleted
 };
 
 // -----------------------------------------------------------------------------
-prototypeAccessors$1.$id_list.get = function () {
+prototypeAccessors$1.$idList.get = function () {
   // TODO: Here or static in $models.example?
   return Object.keys( this.items );
 };
@@ -3499,7 +3771,7 @@ prototypeAccessors$1.$id_list.get = function () {
 // -----------------------------------------------------------------------------
 GenericList.prototype.reset = function reset () {
   if ( this._unwatch ) {
-    console.log("Found local unwatcher in", this._store_name);
+    info(INFO_COLLECTION, "Found local un-watcher in", this._store_name);
     this._unwatch();
   }
 };
@@ -3556,6 +3828,170 @@ export const HELIOSRX_SET_GLOBAL_READY_STATE   = 'heliosrx/SET_GLOBAL_READY_STAT
 export const HELIOSRX_REM_GLOBAL_READY_STATE   = 'heliosrx/REM_GLOBAL_READY_STATE'
 */
 
+// -----------------------------------------------------------------------------
+function rtdbFetchAsObject (ref) {
+  var document = ref.document;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  document.once('value', function (snapshot) {
+
+    // INFO: This is not called, when the data does not exist
+
+    var data = snapshot.val();
+    if ( !snapshot.exists() ) {
+      data = { '.exists': false };
+    }
+    ops.set( target, data );
+    resolve( data );
+
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return function () {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbFetchAsArray (ref) {
+  var collection = ref.collection;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  collection.once('value', function (snapshot) {
+    var data = snapshot.val();
+    ops.once(target, data, snapshot.exists());
+    resolve(data);
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  return function () {}
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsObject (ref) {
+  var document = ref.document;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  /* INFO: Single value is not supported */
+
+  // const target = {};
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  var listener = document.on(
+    'value',
+    function (snapshot) {
+      // let target = snapshot.ref.path.toString();
+      var data = snapshot.val();
+
+      // TODO: Handle snapshot.exists
+      if ( !snapshot.exists() ) {
+        data = { '.exists': false };
+      }
+
+      ops.set( target, data ); // TODO: Also pass { .exists } here?
+      resolve( data ); // Only one argument allowed!
+    }, function (err) {
+      if ( err ) {
+        reject(err);
+      }
+    }
+  );
+
+  return function () {
+    document.off('value', listener);
+  }
+}
+
+// -----------------------------------------------------------------------------
+function rtdbBindAsArray (ref) {
+  var collection = ref.collection;
+  var ops = ref.ops;
+  var resolve = ref.resolve;
+  var reject = ref.reject;
+
+  // const target = {}; // []
+  var ref$1 = ops.init();
+  var target = ref$1.target;
+
+  // TODO: Handle snapshot.exists
+
+  collection.once('value', function (snapshot) {
+    // INFO: This operation is currently unused!
+    ops.once(target, snapshot.val(), snapshot.exists());
+    resolve();
+  }, function (err) {
+    if ( err ) {
+      reject(err);
+    }
+  });
+
+  var childAdded = collection.on(
+    'child_added',
+    function (snapshot, prevKey) {
+      // TWE: We're not really intersted in the order, since we ensure order via sortidx
+      // TODO: Add sortidx for ordered queries
+      ops.add(target, snapshot.key, snapshot.val());
+    },
+    reject
+  );
+
+  var childRemoved = collection.on(
+    'child_removed',
+    function (snapshot) {
+      ops.remove(target, snapshot.key);
+    },
+    reject
+  );
+
+  var childChanged = collection.on(
+    'child_changed',
+    function (snapshot) {
+      ops.set( target, snapshot.key, snapshot.val() );
+    },
+    reject
+  );
+
+  var childMoved = collection.on( // ATTENTION: This is also used for orderByChild
+    'child_moved',
+    function (snapshot, prevKey) {
+      // const index = indexForKey(target, snapshot.key)
+      // const oldRecord = ops.remove(target, index)[0]
+      // const newIndex = prevKey ? indexForKey(target, prevKey) + 1 : 0
+      // ops.add(target, newIndex, oldRecord)
+
+      // TODO: Update target.sortidx
+      // oldKey = prevKey
+      // newKey = snapshot.key
+      // ops.order(  )
+    },
+    reject
+  );
+
+  return function () {
+    collection.off('child_added',   childAdded);
+    collection.off('child_changed', childChanged);
+    collection.off('child_removed', childRemoved);
+    collection.off('child_moved',   childMoved);
+  }
+}
+
 /* Defines a promise that can be resolved outside of it's scope
 *
 * Usage:
@@ -3610,8 +4046,8 @@ function arrayDiff( array1, array2 ) {
 
 function arrayDiffTwoWay( new_list, old_list ) {
   return {
-    'removed': arrayDiff( old_list, new_list ),
-    'added':   arrayDiff( new_list, old_list )
+    removed: arrayDiff( old_list, new_list ),
+    added:   arrayDiff( new_list, old_list )
   }
 }
 
@@ -3626,53 +4062,215 @@ function arrayDiffTwoWay( new_list, old_list ) {
 
 var LOCAL_PATH_PREFIX = 'res.';
 
-/* Log levels */
-var _no_log = function () {};
+var log0 = function (name) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
 
-var log0 = _no_log;
-var log1 = _no_log;
-var log2 = _no_log;
-var log3 = _no_log;
-var log4 = _no_log;
-var SHOW_SYNCING_INDIVIDUAL_WARNING = false;
+  return trace.apply( void 0, [ INFO_SUBSCRIBE_QUERY, ("[" + name + "]") ].concat( args ));
+};
+var log1 = function (name) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
 
+  return trace.apply( void 0, [ INFO_SUBSCRIBE, ("[" + name + "]") ].concat( args ));
+};
+var log2 = function (name) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  return trace.apply( void 0, [ INFO_SUBSCRIBE_DETAILS, ("[" + name + "]") ].concat( args ));
+};
+var log3 = function (name) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  return trace.apply( void 0, [ INFO_READ_INIT, ("[" + name + "]") ].concat( args ));
+};
+var log4 = function (name) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  return trace.apply( void 0, [ INFO_READ_REMOVE, ("[" + name + "]") ].concat( args ));
+};
+
+// const log_stringify = (v) => JSON.stringify(v)
+var log_stringify = function (v) { return null; };
+
+var subscriptions        = new WeakMap();
+var _autoUnsubscribeMap  = new Map();
 var _resultInstanceCache = new Map();
-var _resultListCache = new Map();
+var _resultListCache     = new Map();
 
 if ( String(process.env.VUE_APP_PRODUCTION) === 'false' ) {
-  window.helioRxDev = window.helioRxDev || {};
+  window.helioRxDev = window.helioRxDev || {};
   window.helioRxDev._resultInstanceCache = _resultInstanceCache;
-  window.helioRxDev._resultListCache = _resultListCache;
+  window.helioRxDev._resultListCache     = _resultListCache;
+  window.helioRxDev._autoUnsubscribeMap  = _autoUnsubscribeMap;
 }
 
 // -----------------------------------------------------------------------------
 var ReadMixin = {
 
   // ---------------------------------------------------------------------------
-  read_mixin_init: function read_mixin_init() {
-    log2(this.name);
+  _read_mixin_init: function _read_mixin_init() {
+    log2(this.name, "[GENS:LOADER] init");
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticGetters ) {
-        // const context = {
-        //   state:   registry.state,
-        //   getters: registry.staticGetters,
-        //   model:   this,
-          // $models: _models, can be imported directly
-          // TODO
-          // state,       // will be module local state if defined in a module.
-          // getters,     // module local getters of the current module
-          // rootState,   // global state
-          // rootGetters  // all getters
-        // }
-
-        // Syntax: getter: ( $models, $registry, $UIStore?, $store ) => {...}
         // Careful: $store will point to the root instance not a with/clone-instance!
 
-        var context = [ _models, _registry, this ];
+        // const context = [ this, _models, registry ];
+        // const context = this._create_context()
+        var context = [ this, _models ];
         this._vm = add_custom_getters( context, this, this.modelDefinition.staticGetters );
       }
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * get subscriptions - Returns subscriptions that were create by this store
+   *
+   * @return {list} list of subscriptions
+   */
+  get subscriptions() { // TODO: might not work
+    return subscriptions.get( this );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _bind_rtdb - Firebase binding
+   *
+   * Adapted from:
+   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
+   *
+   * @param {{ key, ref, ops, bindAsArray }} obj - config
+   * @param {string} obj.key                - Key where the data is stored locally
+   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
+   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
+   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
+   */
+  _bind_rtdb: function _bind_rtdb(ref$1) {
+    var this$1 = this;
+    var key = ref$1.key;
+    var ref = ref$1.ref;
+    var ops = ref$1.ops;
+    var bindAsArray = ref$1.bindAsArray;
+
+    // TODO check ref is valid
+    // TODO check defined in vm
+
+    // INFO: Why do we need subscriptions? Isn't that the same as the instance cache and the registry?
+    //       subscritions is a liittle bit more fundamental = real listeners
+
+    // registry = reactive data (but used where?)
+    // instance cache = cached subscriptions (real and 'simulated') as generic models
+
+    // Keep track of of Vue components that subscribed to data and automatically
+    // unsubscribe when the component is destroyed.
+    var last_caller = this._last_caller || null;
+    if ( this.autoUnsubscribe && last_caller ) {
+
+      // Create or update an existing unsubscribe function nd save it to _autoUnsubscribeMap
+      var unsubscribeFn = function () {
+        var obj;
+
+        this$1._unbind_rtdb(key);
+        return ( obj = {}, obj[key] = true, obj );
+      };
+      var existingFn = _autoUnsubscribeMap.get( last_caller.uid );
+      if ( existingFn ) {
+        unsubscribeFn = joint([ unsubscribeFn, existingFn ]);
+      }
+      _autoUnsubscribeMap.set( last_caller._uid, unsubscribeFn );
+
+      // Register beforeDestroy life-cycle hook on the vue component.
+      // TODO: Maybe _autoUnsubscribeMap can be removed entirely
+      last_caller.$once('hook:beforeDestroy', function () {
+        this$1._clean_up_refs( last_caller );
+      });
+    }
+
+    var sub = subscriptions.get(this);
+    if (!sub) {
+      sub = Object.create(null);
+      subscriptions.set(this, sub);
+    }
+
+    // unbind if ref is already bound
+    if (key in sub) {
+      this._unbind_rtdb(key);
+    }
+
+    // if ( subscriptions.get(key) ) { }
+
+    return new Promise(function (resolve, reject) {
+      sub[ key ] = bindAsArray
+        ? rtdbBindAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
+        : rtdbBindAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
+      // subscriptions.set(key, unsubscribe)
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * Will be called on hook:beforeDestroy for each VueComponent that accessed
+   * this.$models and then made a subscription (via _bind_rtdb).
+   *
+   */
+  _clean_up_refs: function _clean_up_refs( caller ) {
+    var unsubscribeFn = _autoUnsubscribeMap.get( caller._uid );
+    var name = caller.$options.name || caller.$options._componentTag;
+    if ( unsubscribeFn ) {
+      var keys = unsubscribeFn();
+      info(INFO_AUTO_UNSUBSCRIBE, "%cIt seems that the VueComponent \"" + name + "\" (" + (caller.$vnode.tag) + "), \n"
+        + "accessed this.$models and created a subscriptions. The components \n"
+        + "just got destroyed and so did it's subscription to " + (JSON.stringify(Object.keys(keys))) + ".",
+        'color: green');
+    } else {
+      info(INFO_AUTO_UNSUBSCRIBE, "%cIt seems that the VueComponent \"" + name + "\" (" + (caller.$vnode.tag) + "), \n"
+        + "accessed this.$models, but it either didn't create any subscriptions or \n"
+        + "the subscription was already removed. The component just got destroyed \n"
+        + "so there is nothing to clean up.", 'color: darkgoldenrod');
+    }
+    _autoUnsubscribeMap.delete( caller._uid );
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _fetch_rtdb - Firebase binding
+   *
+   */
+  _fetch_rtdb: function _fetch_rtdb(ref$1) {
+    var key = ref$1.key;
+    var ref = ref$1.ref;
+    var ops = ref$1.ops;
+    var bindAsArray = ref$1.bindAsArray;
+
+    return new Promise(function (resolve, reject) {
+      bindAsArray
+        ? rtdbFetchAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
+        : rtdbFetchAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
+    })
+  },
+
+  // ---------------------------------------------------------------------------
+  /**
+   * _unbind_rtdb - Unbind firebase from location
+   *
+   * @param  {type} { key } description
+   */
+  _unbind_rtdb: function _unbind_rtdb(ref) {
+    var key = ref.key;
+
+    var sub = subscriptions.get(this);
+    if (!sub || !sub[key]) { return }
+
+    // subscriptions.delete( key );
+    // const sub = subscriptions.get(key)
+
+    sub[key]();
+    delete sub[key];
   },
 
   // ---------------------------------------------------------------------------
@@ -3711,15 +4309,15 @@ var ReadMixin = {
     if ( ref === void 0 ) ref = {};
     var clean_up = ref.clean_up; if ( clean_up === void 0 ) clean_up = false;
 
-    log2(this.name);
+    log2(this.name, "[GENS] unsync", id, clean_up);
 
-    // TODO: Document difference between unsync( without id ) and unsync_all()
+    // TODO: Document difference between unsync( without id ) and unsyncAll()
 
     var key = id !== null
             ? this.global_store_path_array[ id ]
             : this.global_store_path;
 
-    if ( key ) {
+    if ( key ) {
       this._unbind_rtdb({ key: key });
     }
 
@@ -3735,7 +4333,7 @@ var ReadMixin = {
     }
 
     if ( clean_up ) {
-      log4(this.name);
+      log4(this.name, "unsync: clean up state. id:", id, "path:", key);
 
       // Find entry in GenericList and delete model
       if ( id !== null && _resultListCache.has( this.path ) ) {
@@ -3746,7 +4344,7 @@ var ReadMixin = {
       /*
       // TODO: Use this._match_existing_synced_nodes?
       let existing_path = id !== null
-          ? this._previewPath( id )
+          ? this.previewPath( id )
           : this.path
 
       if ( _resultInstanceCache.has( existing_path ) ) {
@@ -3766,31 +4364,30 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * unsync_all - Stop sycning all subscriptions of this store.
+   * unsyncAll - Stop sycning all subscriptions of this store.
    *
    * @param  {type} { clean_up = false } = {} description
    */
-  unsync_all: function unsync_all(ref) {
+  unsyncAll: function unsyncAll(ref) {
     var this$1 = this;
     if ( ref === void 0 ) ref = {};
     var clean_up = ref.clean_up; if ( clean_up === void 0 ) clean_up = false;
 
-    log2(this.name);
+    log2(this.name, "[GENS] unsyncAll", clean_up);
 
     // Make sure there is only one sync per store
     // Currently it is possible to sync, then change prop, then sync again - but never unsync
 
-    var sub = this.subscriptions;
-    if (!sub) { return }
+    if (!subscriptions) { return }
 
     // TODO: Testen!
     if ( clean_up && _resultListCache.has( this.path ) ) {
       var list = _resultListCache.get( this.path );
-      list.$id_list.forEach(function (id) { return list._rem_child( id ); });
+      list.$idList.forEach(function (id) { return list._rem_child( id ); });
       list.reset(); // ?/
     }
 
-    Object.keys(sub).forEach(function (key) {
+    Object.keys(subscriptions).forEach(function (key) {
 
       this$1._unbind_rtdb({ key: key });
 
@@ -3807,17 +4404,17 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
   /**
-   * fetch_individual - fetch an individual item of the collection
+   * _fetch_individual - fetch an individual item of the collection
    *
    * @param  {type} id                            description
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_individual: function fetch_individual( id, ref ) {
+  _fetch_individual: function _fetch_individual( id, ref ) {
     if ( ref === void 0 ) ref = {};
     var overwriteKey = ref.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
     var customOps = ref.customOps; if ( customOps === void 0 ) customOps = {};
 
-    return this.sync_individual(id, { overwriteKey: overwriteKey, customOps: customOps, fetchOnce: true })
+    return this._sync_individual(id, { overwriteKey: overwriteKey, customOps: customOps, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
@@ -3826,32 +4423,32 @@ var ReadMixin = {
    *
    * @param  {type} { overwriteKey = false } = {} description
    */
-  fetch_list: function fetch_list( ref ) {
+  _fetch_list: function _fetch_list( ref ) {
     if ( ref === void 0 ) ref = {};
     var overwriteKey = ref.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
     var customOps = ref.customOps; if ( customOps === void 0 ) customOps = {};
     var customRef = ref.customRef; if ( customRef === void 0 ) customRef = null;
 
-    return this.sync_list({ overwriteKey: overwriteKey, customOps: customOps, customRef: customRef, fetchOnce: true })
+    return this._sync_list({ overwriteKey: overwriteKey, customOps: customOps, customRef: customRef, fetchOnce: true })
   },
 
   // ---------------------------------------------------------------------------
   /**
-   * sync_individual - sync an individual item of the collection
+   * _sync_individual - sync an individual item of the collection
    *
    * @param  {type} id                        description
    * @param  {type} { overwriteKey = false    description
    * @param  {type} fetchOnce = false }  = {} description
    */
-  sync_individual: function sync_individual( id, ref$1 ) {
+  _sync_individual: function _sync_individual( id, ref$1 ) {
     var this$1 = this;
     if ( ref$1 === void 0 ) ref$1  = {};
     var overwriteKey = ref$1.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
     var fetchOnce = ref$1.fetchOnce; if ( fetchOnce === void 0 ) fetchOnce = false;
     var customOps = ref$1.customOps; if ( customOps === void 0 ) customOps = {};
 
-    if ( !this.isSuffixed && !fetchOnce && SHOW_SYNCING_INDIVIDUAL_WARNING ) {
-      console.warn("Syncing individually in " + this.name + ", even though list would be supported");
+    if ( !this.isSuffixed && !fetchOnce ) {
+      warn(WARNING_SYNCING_INDIVIDUAL, "Syncing individually in " + this.name + ", even though list would be supported");
     }
 
     var ref          = this.childRef( id );
@@ -3860,16 +4457,16 @@ var ReadMixin = {
 
     this.global_store_path_array[ id ] = key;
 
-    log1(this.name, "sync_individual:", this.name);
+    log1(this.name, "_sync_individual:", this.name, key, overwriteKey, fetchOnce);
     log2(this.name, "[GENS] - sync ref", ref.path.toString());
-    log2(this.name);
+    log2(this.name, "[GENS] - sync key", key);
     log2(this.name, "[GENS] - sync target", this.global_store_path_array[ id ]);
 
     var ops = {
       init: function () {
         /* We have to make sure, we don't trigger init here and 'set' of a list at the same time */
         var data = {};
-        log2(this$1.name);
+        log2(this$1.name, '[OPS:INIT (individual)]', data);
         _registry.commit(HELIOSRX_INIT_VALUE,
           { path: this$1.global_store_path_array[ id ], data: data },
           { root: true });
@@ -3878,7 +4475,7 @@ var ReadMixin = {
       set: function ( target, data ) {
         /* When using Server.TIMESTAMP this will get triggered twice.
          * Throtteling this function by approx 100ms should avoid unnecessary updates. */
-        log2(this$1.name);
+        log2(this$1.name, '[OPS:SET (individual)]', target, log_stringify());
 
         // Check if data[.exists] = false ?
         _registry.commit(HELIOSRX_SET,
@@ -3890,12 +4487,12 @@ var ReadMixin = {
     if ( fetchOnce ) {
       ops = {
         init: function () {
-          log3(this$1.name);
+          log3(this$1.name, '[OPS:INIT] (fetch, individial)');
           var data = {};
           return { target: data }
         },
         set: function (target, data) {
-          log3(this$1.name);
+          log3(this$1.name, '[OPS:SET] (fetch, individial)', target, log_stringify());
         }
       };
     }
@@ -3920,7 +4517,7 @@ var ReadMixin = {
    *  Returns a promise, that will resolve, when all items are ready
    *
    */
-  sync_list: function sync_list( ref$1 ) {
+  _sync_list: function _sync_list( ref$1 ) {
     var this$1 = this;
     if ( ref$1 === void 0 ) ref$1  = {};
     var overwriteKey = ref$1.overwriteKey; if ( overwriteKey === void 0 ) overwriteKey = false;
@@ -3933,13 +4530,13 @@ var ReadMixin = {
       throw new Error('Suffixed store does not support bind to array')
     }
 
-    var ref          = customRef || this.parentRef;
+    var ref          = customRef || this.parentRef;
     var key_from_ref = overwriteKey || this._infer_local_path_from_ref( ref );
     var key          = LOCAL_PATH_PREFIX + key_from_ref;
 
-    log1(this.name, "sync:", this.name);
+    log1(this.name, "sync:", this.name, key, overwriteKey, fetchOnce);
     log2(this.name, "[GENS] - ref", this.parentRef);
-    log2(this.name);
+    log2(this.name, "[GENS] - key", key);
 
     this.global_store_path = key; // ??
 
@@ -3952,19 +4549,19 @@ var ReadMixin = {
 
         var data = {};
 
-        /* Check if there is existing data, if yes it means sync_individual already synced data, which we should keep. */
+        /* Check if there is existing data, if yes it means _sync_individual already synced data, which we should keep. */
         var existing_data = walkGetObjectSave( _registry.state, this$1.global_store_path );
         if ( Object.keys(existing_data).length > 0 ) {
-          log2(this$1.name);
+          log2(this$1.name, "[OPS:INIT] existing_data", existing_data);
           data = existing_data;
         }
 
-        log2(this$1.name);
+        log2(this$1.name, "[OPS:INIT] data", log_stringify());
         _registry.commit(HELIOSRX_INIT_VALUE, { path: this$1.global_store_path, data: data }, commitOptions);
         return { target: data }
       },
       add: function (target, newId, data) {
-        log2(this$1.name);
+        log2(this$1.name, '[OPS:ADD]', target, newId, data, log_stringify());
         _registry.commit(HELIOSRX_ARRAY_ADD, { target: target, newId: newId, data: data }, commitOptions);
       },
       remove: function (target, oldId) {
@@ -3974,16 +4571,16 @@ var ReadMixin = {
         // Check if this data is still needed by another query
         var synced_queries = this$1._match_all_existing_synced_queries( this$1.path );
 
-        log4(this$1.name);
+        log4(this$1.name, '[OPS:REMOVE]', target, oldId);
         log4(this$1.name, "entry_name", this$1.path );
-        log4(this$1.name);
-        log4(this$1.name);
+        log4(this$1.name, "deleted_item", deleted_item );
+        log4(this$1.name, "_match_existing_synced_nodes", synced_queries );
 
         for ( var idx in synced_queries ) {
           var query = synced_queries[idx].query;
 
-          if ( this$1._itemMatchesQuery( query, deleted_item ) ) {
-            log4(this$1.name);
+          if ( this$1._item_matches_query( query, deleted_item ) ) {
+            log4(this$1.name, "ITEM STILL IN USE", oldId, deleted_item);
             return // Cancel deletion of entry
           }
         }
@@ -3992,10 +4589,11 @@ var ReadMixin = {
         // return [ target[ oldId ] ]
       },
       set: function (target, currentId, data) {
-        log2(this$1.name);
+        log2(this$1.name, '[OPS:SET]', target, currentId, data);
         _registry.commit(HELIOSRX_ARRAY_SET, { target: target, currentId: currentId, data: data }, commitOptions);
       },
       once: function (target, data, exists) {
+        log2("[OPS:ONCE]", data, exists);
       }
       // set_sync: (target, path, value ) => {
       //   registry.commit(HELIOSRX_SET_SYNC_STATE, { target, path, value }, commitOptions)
@@ -4005,12 +4603,12 @@ var ReadMixin = {
     if ( fetchOnce ) {
       ops = {
         init: function () {
-          log3(this$1.name);
+          log3(this$1.name, '[OPS:INIT] (fetch)', key);
           var data = {};
           return { target: data }
         },
         once: function (target, data, exists) {
-          log3(this$1.name);
+          log3(this$1.name, "[OPS:ONCE] (fetch)", data, exists);
         }
       };
     }
@@ -4020,8 +4618,8 @@ var ReadMixin = {
       ops[ op ] = joint([ ops[ op ], customOps[ op ] ]);
     });
 
-    log2(this.name);
-    log2(this.name);
+    log2(this.name, "[GENS] - ops", ops);
+    log2(this.name, "[GENS] - payload", { key: key, ref: ref, ops: ops, bindAsArray: true });
 
     return fetchOnce
       ? this._fetch_rtdb({ key: key, ref: ref, ops: ops, bindAsArray: true })
@@ -4029,17 +4627,17 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  _itemMatchesQuery: function _itemMatchesQuery(query, item) {
-    console.log("[itemMatchesQuery]", query, item);
+  _item_matches_query: function _item_matches_query(query, item) {
+    // info(INFO_SUBSCRIBE_QUERY, "[_item_matches_query]", query, item)
     // TODO: Implement this function
     return true;
   },
 
   // ---------------------------------------------------------------------------
-  _create_context: function _create_context() {
+  _create_context: function _create_context() { // move to generic store
     return {
-      registry: _registry,
-      store: this
+      model:  this,
+      models: _models, // will return undefined, when called before setup
     }
   },
 
@@ -4060,9 +4658,9 @@ var ReadMixin = {
       if ( requested_path.startsWith( existing_path_without_query ) ) {
 
         var existing_query = _registry.state.sync[ existing_path ];
-        if ( !( only_active && (
-            existing_query.status === 'Ready' ||
-            existing_query.status === 'Loading' ) ) ) {
+        if ( !( only_active
+           && ( existing_query.status === 'Ready'
+             || existing_query.status === 'Loading' ) ) ) {
           continue;
         }
 
@@ -4109,7 +4707,7 @@ var ReadMixin = {
       if ( existing_path.includes('#') ) {
         var existing_path_without_query = existing_path.split('#').shift();
         if ( requested_path.startsWith( existing_path_without_query ) ) {
-          console.warn("You're trying to sync a path that has already been synced by a query. This is not supported.",
+          warn(WARNING_SYNCING_EXISTING_QUERY_PATH, "You're trying to sync a path that has already been synced by a query. This is not supported.",
             "requested_path", requested_path,
             "existing_path", existing_path);
         }
@@ -4123,9 +4721,10 @@ var ReadMixin = {
       }
 
       if ( requested_path.startsWith( existing_path ) ) {
-        if ( _registry.state.sync[ existing_path_unmodified ].status === 'Ready' ||
-             _registry.state.sync[ existing_path_unmodified ].status === 'Loading' ) {
-          log1(this.name);
+        if ( _registry.state.sync[ existing_path_unmodified ].status === 'Ready'
+          || _registry.state.sync[ existing_path_unmodified ].status === 'Loading' ) {
+          warn(WARNING_SYNCING_SUBSET_DATA, this.name, "Found node of higher hierarchy that is already syncing:",
+            existing_path, "vs.", requested_path);
           return existing_path_unmodified
         }
       }
@@ -4143,7 +4742,7 @@ var ReadMixin = {
     if ( ref === void 0 ) ref = {};
     var noReactiveGetter = ref.noReactiveGetter; if ( noReactiveGetter === void 0 ) noReactiveGetter = false;
 
-    log1(this.name);
+    log1(this.name, "getList", idList || '*');
     return this.subscribeList( idList, {
       noSync: true,
       createModelFromExistingCache: true,
@@ -4156,7 +4755,7 @@ var ReadMixin = {
     if ( ref === void 0 ) ref = {};
     var noReactiveGetter = ref.noReactiveGetter; if ( noReactiveGetter === void 0 ) noReactiveGetter = false;
 
-    log1(this.name);
+    log1(this.name, "getNode", id);
     if ( !id ) {
       throw new Error('getNode: got invalid id: ' + id )
     }
@@ -4188,15 +4787,15 @@ var ReadMixin = {
 
     if ( queryParams ) {
       customRef  = this.buildQueryRef( queryParams );
-      queryHash  = this.queryHash( queryParams );
+      queryHash  = this._query_hash( queryParams );
       entry_name = entry_name + '#' + queryHash;
 
-      log0(this.name);
+      log0(this.name, 'QUERYHASH:' + entry_name, "Using query hash in entry_name", entry_name);
     }
 
-    log1(this.name);
+    log1(this.name, "subscribeList", entry_name);
     if ( _resultListCache.get(entry_name) ) {
-      log1(this.name);
+      log1(this.name, "subscribeList - returning list cache");
       return _resultListCache.get(entry_name);
     }
 
@@ -4204,7 +4803,7 @@ var ReadMixin = {
     // TODO: Check if data is in 'res'
 
     if ( registry_entry ) {
-      log1(this.name);
+      log1(this.name, "subscribeList - WARN - found registry entry, but no local cache!");
     }
 
     /*
@@ -4226,7 +4825,7 @@ var ReadMixin = {
          * already here. We can use the data to create a model */
 
         var existing_data = this.getData(); // Should automatically return the correct data node
-        log1(this.name);
+        log1(this.name, "Found node in existing synced data making list model from existing data", existing_data);
 
         // TODO: This model is not reactive for some reason
 
@@ -4240,15 +4839,15 @@ var ReadMixin = {
         list.$promise = defer(); // new Deferer()
 
         var sync_state = this._get_sync_state( existing_path  );
-        log1(this.name);
+        log1(this.name, "checking sync state - is data already fully synced?", sync_state );
         if ( sync_state === 'Ready' ) {
           list.$promise.resolve(true);
         }
 
-        log4(this.name);
+        log4(this.name, "[Watcher] Registering Watcher");
         var unwatch = _registry.watch(
           function (state) {
-            log4(this$1.name);
+            log4(this$1.name, "[Watcher]  -- asking for value");
             // ONLY FOR TESTING:
             // log4(this.name, "[Watcher]  -- existing_data", existing_data)
             // log4(this.name, "[Watcher]  -- reference", state.res.goal["BWpG75DcRs-kqVPPdRbxzg"].meta.commitment_meta)
@@ -4256,12 +4855,12 @@ var ReadMixin = {
             return this$1.getData(null, true) // should be safe, when unsyncing data of a higher hierachy node
           },
           function (new_value, old_value) {
-            log4(this$1.name);
+            log4(this$1.name, "[Watcher]  -- watcher triggered", new_value, old_value);
 
             if ( new_value === undefined || new_value === null ) {
               /* This means the list was deleted */
-              list.$id_list.forEach(function (old_id) {
-                log4(this$1.name);
+              list.$idList.forEach(function (old_id) {
+                log4(this$1.name, "[Watcher]  -- ELIMINATIING LIST", old_id);
                 list._rem_child( old_id );
               });
               list.$numReady = false;
@@ -4274,26 +4873,26 @@ var ReadMixin = {
 
             var ids_new = Object.keys( new_value );
             var ids_old_via_watcher = old_value ? Object.keys( old_value ) : [];
-            var ids_old = list.$id_list;
+            var ids_old = list.$idList;
 
             if ( ids_new.toString() === ids_old_via_watcher.toString() ) {
-              log4(this$1.name);
+              log4(this$1.name, "[Watcher] Watcher values are the same? WHY? ", ids_new, ids_old_via_watcher);
             }
 
             var diff = arrayDiffTwoWay( ids_new, ids_old );
-            log4(this$1.name);
+            log4(this$1.name, "[Watcher] DIFF", diff, ids_new, ids_old);
             diff.removed.forEach(function (id) {
-              log4(this$1.name);
+              log4(this$1.name, "[Watcher]  -- REMOVED", id);
               list._rem_child( id );
               list.$numReady--;
             });
             diff.added.forEach(function (new_id) {
-              log4(this$1.name);
+              log4(this$1.name, "[Watcher]  -- ADDED", new_id);
 
               /* Check instance cache */
               var child_entry_name = entry_name.split('#').shift().replace(/\{id\}/g, new_id);
               if ( _resultInstanceCache.has(child_entry_name) ) {
-                console.warn("A new item was added, but there already exists a model instance in the cache for this item. This means the subscription management failed.");
+                warn(WARNING_COMMON, "A new item was added, but there already exists a model instance in the cache for this item. This means the subscription management failed.");
               }
               // todo: also check list cache?
 
@@ -4323,46 +4922,46 @@ var ReadMixin = {
         return list;
       } else {
         // TODO: This warning should also show, when using subscribeList to return a cached node
-        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
+        warn(WARNING_SYNCING_SUBSET_DATA, "You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getList() or getNode() instead! Sync path:", entry_name);
       }
     }
 
     /* todo: remove if this never happens */
     if ( this._match_existing_synced_nodes( entry_name ) === entry_name ) {
       // This will happen, when loading from persistent state
-      console.log(">>>", entry_name, _resultListCache, _resultInstanceCache);
+      trace(INFO_SUBSCRIBE, ">>>", entry_name, _resultListCache, _resultInstanceCache);
       throw new Error('Exact path found, but no cache hit. This should never happen')
     }
 
     if (noSync) {
-      log1(this.name);
-      console.warn("You're trying to fetch data at " + entry_name + " that has not been synced yet.");
+      log1(this.name, "subscribeList - No Sync, returning");
+      warn(WARNING_ACCESSING_UNSYNCED_DATA, "You're trying to fetch data at " + entry_name + " that has not been synced yet.");
       return null;
     }
 
-    log0(this.name);
+    log0(this.name, null, "*new* subscribeList", entry_name);
 
     // TODO: Move to sync?
     registry_entry = {
       query: queryParams,
       status: 'Loading',
     };
-    _registry.commit('ADD_ENTRY', { name: entry_name, data: registry_entry });
+    _registry.commit('ADD_ENTRY', { name: entry_name, data: registry_entry });
     // TODO: registry.add_entry( registry_entry)
 
     var result = factory.make_reactive_list( this.modelDefinition, null, this._create_context() );
     _resultListCache.set(entry_name, result);
     result.$promise = defer();
 
-    log1(this.name);
+    log1(this.name, "subscribeList - Created reactive list, made registry entry, started sync request for", registry_entry, result);
     var customOps = {
       add: function (target, newId, data) {
         _registry.commit('SET_ENTRY_STATUS', { name: entry_name, value: 'Ready' });
-        log1(this$1.name, "subscribeList:add - Child ready", this$1.name);
+        log1(this$1.name, "subscribeList:add - Child ready", this$1.name, entry_name, newId );
 
         var child_entry_name = entry_name.split('#').shift().replace(/\{id\}/g, newId);
         if ( _resultInstanceCache.has(child_entry_name) ) {
-          log1(this$1.name);
+          log1(this$1.name, "subscribeList:add - Reactive model already exists in instance cache");
         }
 
         // INFO: Data was not updated here with item._update_data() -> Why did it work?
@@ -4373,7 +4972,7 @@ var ReadMixin = {
         //       makes sense.
 
         if ( newId in result.items ) {
-          console.warn("An existing item was added twice. This means the subscription management failed.");
+          warn(WARNING_COMMON, "An existing item was added twice. This means the subscription management failed.");
         }
 
         var item = _resultInstanceCache.has(child_entry_name)
@@ -4389,12 +4988,14 @@ var ReadMixin = {
         result._add_child( newId, item );
 
         if ( _resultInstanceCache.has(child_entry_name) ) {
+          /* Update item */
+          log1("subscribeList:add - Updating existing item (previously synced with subscribeNode) with", data );
           item._update_data( data );
 
           /* It is possible, that the node was already synced and is now waiting for results (see ANNOTATION#1).
              This means, subscribeList is now responsible */
 
-          /* This will not happen! If a sub-node is already synced via sync_individual, child_added for this node
+          /* This will not happen! If a sub-node is already synced via _sync_individual, child_added for this node
              will NOT be called. */
 
           /*
@@ -4410,15 +5011,15 @@ var ReadMixin = {
         }
       },
       init: function () {
-        log1(this$1.name);
+        log1(this$1.name, "subscribeList:init");
         return {}
       },
       remove: function (target, oldId) {
-        log4(this$1.name);
+        log4(this$1.name, "subscribeList:remove", oldId);
         result._rem_child( oldId );
       },
       set: function (target, currentId, data) {
-        log1(this$1.name);
+        log1(this$1.name, "subscribeList:set", currentId, data);
 
         /* Not 100% clear why we need to update here -
            for some reason dependencies are not triggered when
@@ -4440,7 +5041,7 @@ var ReadMixin = {
           var data_reactive = this$1.getData( currentId );
           /* BUG: At this point data_reactive is outdated ! */
           item._update_data( data_reactive, this$1.modelDefinition.schema.fields );
-          log1(this$1.name);
+          log1(this$1.name, "subscribeList:set [B] - updating model", data_reactive);
 
           /*
           log1(this.name, "subscribeList:set [B] - updating model", data)
@@ -4453,7 +5054,7 @@ var ReadMixin = {
       },
     };
 
-    this.sync_list({ customOps: customOps, customRef: customRef }).then(function () {
+    this._sync_list({ customOps: customOps, customRef: customRef }).then(function () {
       /* This promise is resolved when data is first fetched */
       result.$readyAll = true;
       result.$promise.resolve(true);
@@ -4461,18 +5062,18 @@ var ReadMixin = {
 
       if ( e.code === 'PERMISSION_DENIED' ) {
 
-        console.warn(e.message);
-        console.log("======================================");
-        console.log(("PERMISSION_DENIED [" + (this$1.name) + ".subscribeList()]"));
-        console.log("queryParams:", queryParams);
-        console.log("======================================");
+        warn(WARNING_PERMISSION_DENIED, e.message);
+        info(INFO_PERMISSION, "======================================");
+        info(INFO_PERMISSION, ("PERMISSION_DENIED [" + (this$1.name) + ".subscribeList()]"));
+        info(INFO_PERMISSION, "queryParams:", queryParams);
+        info(INFO_PERMISSION, "======================================");
 
         result.$readyAll = true;
         result.$readySome = true;
         result.$noaccess = true;
 
         /* TODO ? -> probably not
-        result.$id_list.forEach(old_id => {
+        result.$idList.forEach(old_id => {
           registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' })
           let data_reactive = this.getData( id );
           data_reactive[ '.noaccess' ] = true;
@@ -4508,21 +5109,21 @@ var ReadMixin = {
     // TODO: Figure out if list is loading or item
 
     /* 1. Check if data already exists */
-    var entry_name_child = this._previewPath( id ); // HACK
+    var entry_name_child = this.previewPath( id ); // HACK
     var entry_name_list = this.path;
 
-    log1(this.name);
+    log1(this.name, "subscribeNode", entry_name_child);
 
     /* Check if item already exists in list cache. */
     if ( _resultListCache.get(entry_name_list) ) {
       if ( id in _resultListCache.get(entry_name_list).items ) {
-        log1(this.name);
+        log1(this.name, "subscribeNode - returning from list cache");
         return _resultListCache.get(entry_name_list).items[ id ];
       }
     }
 
     if ( _resultInstanceCache.has(entry_name_child) ) {
-      log1(this.name);
+      log1(this.name, "subscribeNode - returning from instance cache");
       return _resultInstanceCache.get(entry_name_child);
     }
 
@@ -4556,7 +5157,7 @@ var ReadMixin = {
     if ( this._match_existing_synced_nodes( entry_name_child ) ) {
       if ( createModelFromExistingCache ) {
         var existing_data = this.getData( id ); // Should automatically return the correct data node
-        log1(this.name);
+        log1(this.name, "Found node in existing synced data making model from existing data", existing_data);
 
         var model = factory.make_reactive_model(
           this.modelDefinition,
@@ -4570,27 +5171,27 @@ var ReadMixin = {
         // model._update_data( existing_data, this.modelDefinition.schema.fields )
 
         _resultInstanceCache.set( entry_name_child, model );
-        log1(this.name);
+        log1(this.name, "made model", model);
         return model;
 
       } else {
-        console.warn("You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getNode() instead! Sync path:", entry_name_child);
+        warn(WARNING_SYNCING_SUBSET_DATA, "You're trying to sync data, that is already synced by a node higher up in the hierarchy. This will result in undefined behaviour. Try using getNode() instead! Sync path:", entry_name_child);
       }
     }
 
     /* todo: remove if this never happens */
     if ( this._match_existing_synced_nodes( entry_name_child ) === entry_name_child ) {
       // This will happen, when loading from persistent state
-      console.log(">>>", entry_name_child, _resultListCache, _resultInstanceCache);
+      trace(INFO_SUBSCRIBE, ">>>", entry_name_child, _resultListCache, _resultInstanceCache);
       throw new Error('Exact path found, but no cache hit. This should never happen')
     }
 
     if (noSync) {
-      //console.warn("You're trying to fetch at " + entry_name_child + " that has not been synced yet.");
+      // warn(WARNING_ACCESSING_UNSYNCED_DATA, "You're trying to fetch at " + entry_name_child + " that has not been synced yet.");
       return null;
     }
 
-    log0(this.name);
+    log0(this.name, id, "*new* subscribeNode", entry_name_child);
 
     /* 2. Create empty model that is updated later when data is ready */
     var load_result = factory.make_reactive_model(
@@ -4609,33 +5210,33 @@ var ReadMixin = {
       id: id,
       status: 'Loading',
     };
-    _registry.commit('ADD_ENTRY', { name: entry_name_child, data: registry_entry });
+    _registry.commit('ADD_ENTRY', { name: entry_name_child, data: registry_entry });
     // TODO: registry.add_entry( registry_entry)
-    log1(this.name);
+    log1(this.name, "subscribeNode - Made registry entry and started at", entry_name_child, registry_entry);
 
     var customOps = {
       init: function (data) {
-        log1(this$1.name);
+        log1(this$1.name, "subscribeNode:init", data);
         return {}
       },
 
       set: function (target, data) {
-        log1(this$1.name);
+        log1(this$1.name, "subscribeNode:set", target, data);
       },
     };
 
     /* 4. Start syncing */
-    this.sync_individual( id, { customOps: customOps } ).then( function (data) {
+    this._sync_individual( id, { customOps: customOps } ).then( function (data) {
 
       var data_reactive = this$1.getData( id );
-      log1(this$1.name);
+      log1(this$1.name, "subscribeNode - data ready", entry_name_child, data, data_reactive);
 
       if ( data_reactive === undefined ) {
         /* This case will not occur anymore
         /* In some cases, when a node is subscribing and while waiting for the results the list,
            that contains the node is synced as well, it can happen that the list is resetted
            in $registry.state.res (See. ANNOTIATION#1 ) */
-        console.warn(this$1.name, "subscribeNode - subscribeList took over, while waiting for sync_individual. subscribeList will handle instance now.");
+        warn(WARNING_COMMON, this$1.name, "subscribeNode - subscribeList took over, while waiting for _sync_individual. subscribeList will handle instance now.");
 
         /* We need to wait now, until the list is synced, so we can return reactive data. This
            is (hopefully) handled by subscribe List, when picking up 'load_result' from the instance cache */
@@ -4664,7 +5265,7 @@ var ReadMixin = {
       _registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'Ready' });
       // TODO: registry.set_entry_status( entry_name, 'Ready' )
 
-      log1(this$1.name);
+      log1(this$1.name, "subscribeNode - created reactive model", load_result);
       load_result.$promise.resolve(true);
     }).catch(function (e) {
 
@@ -4672,11 +5273,11 @@ var ReadMixin = {
 
         // !!! TODO: Also implement for fetchNode, fetchList !!!
 
-        console.warn(e.message);
-        console.log("======================================");
-        console.log(("PERMISSION_DENIED [" + (this$1.name) + ".subscribeNode( " + id + " )]"));
+        warn(WARNING_PERMISSION_DENIED, e.message);
+        info(INFO_PERMISSION, "======================================");
+        info(INFO_PERMISSION, ("PERMISSION_DENIED [" + (this$1.name) + ".subscribeNode( " + id + " )]"));
         // Query parameter for *List
-        console.log("======================================");
+        info(INFO_PERMISSION, "======================================");
 
         _registry.commit('SET_ENTRY_STATUS', { name: entry_name_child, value: 'NoAccess' });
 
@@ -4737,7 +5338,7 @@ var ReadMixin = {
   },
 
   // ---------------------------------------------------------------------------
-  queryHash: function queryHash( query ) {
+  _query_hash: function _query_hash( query ) {
     var queryHash = [ query.key, query.value, query.limit, query.startAt, query.endAt ].join('_');
     return queryHash;
   },
@@ -4801,17 +5402,17 @@ var ReadMixin = {
 
     var customOps = {
       init: function () {
-        log3(this$1.name);
+        log3(this$1.name, "fetchNode:init");
         return {}
       },
 
       set: function (target, data) {
-        log3(this$1.name);
+        log3(this$1.name, "fetchNode:set", target, data);
       },
     };
 
-    this.fetch_individual( id, { customOps: customOps } ).then( function (data) {
-      log3(this$1.name);
+    this._fetch_individual( id, { customOps: customOps } ).then( function (data) {
+      log3(this$1.name, "fetchNode - data ready", data);
       // TODO: make data reactive
       load_result._update_data( data, this$1.modelDefinition.schema.fields );
       load_result.$ready = true;
@@ -4848,17 +5449,17 @@ var ReadMixin = {
 
     var customOps = {
       init: function () {
-        log3(this$1.name);
+        log3(this$1.name, "fetchList:init");
         return {}
       },
       once: function (target, data, exists) {
-        log3(this$1.name);
+        log3(this$1.name, "fetchList:once", data);
       }
     };
 
     /* 2. Start fetching and update list when data is ready */
-    this.fetch_list({ customOps: customOps, customRef: customRef }).then(function (data) {
-      log3(this$1.name);
+    this._fetch_list({ customOps: customOps, customRef: customRef }).then(function (data) {
+      log3(this$1.name, "fetchList:resolve", data);
 
       var id_list = Object.keys( data || [] );
 
@@ -4918,7 +5519,7 @@ var ReadMixin = {
     if ( safe === void 0 ) safe = false;
     var item_path = '';
     if ( this.isSuffixed || id ) {
-      if ( !id ) {
+      if ( !id ) {
         throw new Error('getData: id required for suffixed stores')
       }
       item_path = this.path.replace(/\{id\}/g, id);
@@ -4932,7 +5533,7 @@ var ReadMixin = {
       return null
     }
 
-    // console.log("[GENS] getData data_path", data_path);
+    // info(INFO_SUBSCRIBE, "getData data_path", data_path);
     {
       return safe
         ? walkGetObjectSave( _registry.state, data_path )
@@ -4950,7 +5551,7 @@ var ReadMixin = {
     // $models.timeslotWeekdayPref.with({ timeslotCollectionId: tscId }).exists()
 
     let existing_path = id
-        ? this._match_existing_synced_nodes( this._previewPath( id ), true )
+        ? this._match_existing_synced_nodes( this.previewPath( id ), true )
         : this._match_existing_synced_nodes( this.path, true )
 
     // This does not work in all cases!
@@ -4964,7 +5565,9 @@ var ReadMixin = {
 
   // ---------------------------------------------------------------------------
 
-  reset_global_instance_cache: function reset_global_instance_cache() {
+  // TODO: make static
+  //       (would be a little bit of work, since this is an object not a class)
+  resetGlobalInstanceCache: function resetGlobalInstanceCache() {
     try {
       _resultInstanceCache.forEach(function (instance) {
         instance.reset();
@@ -4973,76 +5576,13 @@ var ReadMixin = {
         instance.reset();
       });
     } catch ( e ) {
-      console.warn("Reseting instances failed", e);
+      warn(WARNING_COMMON, "Reseting instances failed", e);
     }
     _resultInstanceCache.clear();
     _resultListCache.clear();
   },
 
   // ---------------------------------------------------------------------------
-
-  // hotUpdate() {
-    // TODO
-  // },
-
-  // ---------------------------------------------------------------------------
-  /*
-  syncNode(id) {
-    // Changes are directly written to the database
-    throw new Error('NOT_IMPLEMENTED')
-  },
-
-  // ---------------------------------------------------------------------------
-  syncList() {
-    throw new Error('NOT_IMPLEMENTED')
-  },
-  */
-
-  // ---------------------------------------------------------------------------
-
-  // DEPRECATED: See "getData"
-  /*
-  getters () {
-    // Getter --> Resources -> newIndex
-
-    // Generic Store Getter:
-    // - Nach sortidx sortieren
-    // - moment objekte konvertieren
-    // - readiness
-    // - item by all known id's --> get_task_by_goal_id_and_task_id
-    // - make iterable (!)
-
-    // Ressource Getter: (Besser alles als ressource getter, weil dann klar ist ob Ressource geladen ist)
-    // - "Deleted" filtern
-    // - Object-Array auf arrays mappen -> komplett raus
-    // - "Joins"
-    // - index erstellen
-    // - readiness
-
-    return {
-      by_ids(id) {
-        return walkSet( this.global_store_path );
-      },
-      all() {
-        // const key = _infer_local_path_from_ref( ref )
-
-        return walkSet( this.global_store_path );
-
-        // 1. access data in through a generic getter
-        // 2. sort by sortidx
-        // 3. timestamps replace with moment objects (moment.fromRealtimeDB)
-        // 4. make iterable
-        // 5. include readiness -> return promise ?
-
-        return Object.keys(task.checklist)
-          .map((checklist_item_id) => {
-            return { id: checklist_item_id, ...task.checklist[checklist_item_id] };
-          })
-          .sort(util.sorter.by_sortidx);
-      }
-    }
-  },
-  */
 };
 
 var lodash_isequal = createCommonjsModule(function (module, exports) {
@@ -6903,34 +7443,25 @@ module.exports = isEqual;
 *******************************************************************************/
 
 var BACKEND = 'REALTIMEDB';
-var log$2 = function () {
-var args = [], len = arguments.length;
-while ( len-- ) args[ len ] = arguments[ len ];
- console.log.apply(console, args); };
 
 // -----------------------------------------------------------------------------
 var WriteMixin = {
 
   // ---------------------------------------------------------------------------
-  write_mixin_init: function write_mixin_init( reset ) {
+  _write_mixin_init: function _write_mixin_init( reset ) {
     if ( reset === void 0 ) reset = false;
 
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticActions ) {
 
         var context = {
-          $store: this,
-          $models: _models,
-          $registry: _registry,
-          // state: registry.state,
-          // TODO
-          // state,      // same as `store.state`, or local state if in modules
-          // rootState,  // same as `store.state`, only in modules
-          // commit,     // same as `store.commit`
-          // dispatch,   // same as `store.dispatch`
-          // getters,    // same as `store.getters`, or local getters if in modules
-          // rootGetters // same as `store.getters`, only in modules
+          $model: this,
+          $modelsGetter: function () { return _models; },
+          // $models: _models, // must be injected later
+          // $registry: registry,
+          // $state: registry.state,
         };
+        // const context = this._create_context();
         add_custom_actions( context, this, this.modelDefinition.staticActions, reset );
       }
     }
@@ -6947,8 +7478,9 @@ var WriteMixin = {
     var obj;
 
     /* if ( this.isSuffixed ) {
-      console.warn('Suffixed stores can not create new items, use unsuffixed'
-                    + ' store instead (e.g. goal instead of goalMeta).')
+      warn(WARNING_DEPRECATED,
+        'Suffixed stores can not create new items, use unsuffixed'
+      + ' store instead (e.g. goal instead of goalMeta).')
     } */
 
     var payload = null;
@@ -6956,7 +7488,7 @@ var WriteMixin = {
       new_id = this._get_uid();
     }
 
-    if ( !new_id['.sv'] && !this._validateId( new_id ) ) { // only validate if not a server variable
+    if ( !new_id['.sv'] && !this._validate_id( new_id ) ) { // only validate if not a server variable
       throw new Error('Got invalid id:' + new_id)
     }
 
@@ -6978,7 +7510,7 @@ var WriteMixin = {
             overwrite_data,
             BACKEND );
         } else {
-          console.warn("No create function found in type definition, using overwrite data as payload.");
+          warn(WARNING_NO_CREATE_FUNCTION, "No create function found in type definition, using overwrite data as payload.");
           payload = overwrite_data;
         }
       } else {
@@ -6991,24 +7523,24 @@ var WriteMixin = {
       if ( this.modelDefinition.schema ) {
         this._validate_schema( payload, false );
       } else {
-        console.warn("No schema found to validate input");
+        warn(WARNING_NO_SCHEMA, "No schema found to validate input");
       }
     } else {
-      console.warn("No type definition found, using UNVALIDATED overwrite data as payload.");
+      warn(WARNING_NO_SCHEMA, "No type definition found, using UNVALIDATED overwrite data as payload.");
       payload = overwrite_data;
     }
 
     this._convert_moment_objects( payload );
 
-    log$2("[GENS] Creating at", this._previewPath(new_id), "with payload", payload);
-    // return this.ref.set(payload).then(() => new_id);
-    // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
-    // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
-    /*console.log('new id: ', new_id)
+    info(INFO_STORE_WRITE, "Creating at", this.previewPath(new_id), "with payload", payload);
+
+    /*
     if ('.sv' in new_id) { // server value in key
-      console.log('server value in id detected')
+      warn(WARNING_CLIENT_VALIDATION, 'server value in id detected')
       return this.parentRef.update({ [newPostKey]: payload }).then(() => new_id);
-    } else {*/
+    }
+    */
+
     if ( this.isSuffixed ) {
       return this.childRef( new_id ).update(payload).then(function () { return new_id; });
     } else {
@@ -7039,9 +7571,9 @@ var WriteMixin = {
       throw new Error('Either id or data is missing.')
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
-        console.warn("Got invalid id <" + id + ">, but validation is disabled.");
+        warn(WARNING_INVALID_ID, "Got invalid id <" + id + ">, but validation is disabled.");
       } else {
         throw new Error('Got invalid id in update')
       }
@@ -7052,14 +7584,14 @@ var WriteMixin = {
     if ( this.modelDefinition.schema ) {
       this._validate_schema( data, true );
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     // let path = this.interpolatedPath;
     var payload = data;
     this._convert_moment_objects( payload );
 
-    log$2("[GENS] Updating at", this._previewPath(id), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -7085,13 +7617,23 @@ var WriteMixin = {
 
     var sortkey = options.overwriteSortIdxKey || 'sortidx';
 
-    if ( sortidxList.length > 0 && typeof sortidxList[0] !== 'object' ) {
+    if ( sortidxList.length > 0 ) {
+      var first_item = sortidxList[0];
       var sortidx = 0;
-      sortidxList = sortidxList.map(function (id) {
-        sortidx = sortidx + 100; // ???
-        return { id: id, sortidx: sortidx }
-        // TODO: Why not $id ?
-      });
+
+      if ( isString( first_item ) || isNumeric( first_item ) ) {
+        sortidxList = sortidxList.map(function (id) {
+          sortidx = sortidx + 100;
+          return { id: id, sortidx: sortidx }
+        });
+      }
+
+      if ( '$id' in first_item || first_item.constructor.name === 'GenericModel' ) {
+        sortidxList = sortidxList.map(function (model) {
+          sortidx = sortidx + 100;
+          return { id: model.$id, sortidx: sortidx }
+        });
+      }
     }
 
     var batchData = {};
@@ -7111,7 +7653,7 @@ var WriteMixin = {
         throw new Error("Got invalid sortidx", sortidx);
       }
 
-      if (!this$1._validateId(item.id)) {
+      if (!this$1._validate_id(item.id)) {
         throw new Error("Got invalid id", item.id);
       }
 
@@ -7127,13 +7669,13 @@ var WriteMixin = {
         // data[path + '/' + subset_name + '/' + id + '/' + prop] = data[prop];
         // "/goal/{goalId}/user_list/{uid}/task_names/"
 
-        payload[ this$1._previewPath(id) + '/' + prop ] = data[prop];
+        payload[ this$1.previewPath(id) + '/' + prop ] = data[prop];
       });
     });
 
     // TODO: Check schema if sortidx is allowed
 
-    log$2("[GENS] update at", this._previewPath(), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -7162,7 +7704,7 @@ var WriteMixin = {
       var id_list = id;
       var payload = {};
       id_list.forEach(function (id) {
-        if ( !this$1._validateId(id) ) {
+        if ( !this$1._validate_id(id) ) {
           throw new Error('Got invalid id in remove')
         }
 
@@ -7173,25 +7715,25 @@ var WriteMixin = {
         }
       });
 
-      log$2("[GENS] batch deleting at", this.path, "with payload", payload);
+      info(INFO_STORE_WRITE, "Batch deleting at", this.path, "with payload", payload);
       return this.parentRef.update(payload);
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
     // TODO: Check in schema if soft delete is supported
 
     if ( soft_delete ) {
-      log$2("[GENS] soft deleting at", this.path, "with", { deleted: true });
+      info(INFO_STORE_WRITE, "Soft deleting at", this.path, "with", { deleted: true });
       return this.update(id, { deleted: true })
       // return this.childRef( id ).update({ deleted: true  });
     }
 
     // TODO: automatically remove listener !!!
 
-    log$2("[GENS] hard deleting at", this.path);
+    info(INFO_STORE_WRITE, "Hard deleting at", this.path);
     return this.childRef( id ).remove();
   },
 
@@ -7248,7 +7790,7 @@ var WriteMixin = {
       // TODO: It probably does - test and remove this check
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7319,7 +7861,7 @@ var WriteMixin = {
         payload[pathB] = objectA;
       }
 
-      log$2("[GENS] moving data from ", pathA, "to", pathB, "with payload", payload);
+      info(INFO_STORE_WRITE, "Moving data from ", pathA, "to", pathB, "with payload", payload);
       return this$1.rootRef.update(payload).then(function () { return propsB['id']; })
     });
   },
@@ -7339,7 +7881,7 @@ var WriteMixin = {
 
     if ( value === void 0 ) value = 1;
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -7360,13 +7902,13 @@ var WriteMixin = {
       throw new Error('Transacton must be a function')
     }
 
-    log$2("[GENS] tranaction on ", targetRef.path.toString() /*, "with", transaction*/);
+    info(INFO_STORE_WRITE, "Tranaction on", targetRef.path.toString() /*, "with", transaction*/);
     return targetRef.transaction(transaction$1).then(function (result) {
       if ( result.committed ) {
-        console.log("[GENS] Transacton successfully committed");
+        info(INFO_STORE_WRITE, "Transacton successfully committed");
         return true
       }
-      console.log("[GENS] Transacton aborted"); // To abort transaction return undefined
+      info(INFO_STORE_WRITE, "Transacton aborted"); // To abort transaction return undefined
       return false
     });
   },
@@ -7379,19 +7921,19 @@ var WriteMixin = {
    *
    * @return {type}  description
    */
-  new: function new$1() {
+  new: function new$1() {
     var model = factory.make_reactive_model( this.modelDefinition, null, this._create_context(), false );
     return model;
   },
 
   /**
-   * new_from_template - Create empty model from create function
+   * newFromTemplate - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromTemplate + write = add
    *
    * @return {type}  description
    */
-  new_from_template: function new_from_template( data, optional_data ) {
+  newFromTemplate: function newFromTemplate( data, optional_data ) {
     if ( data === void 0 ) data = {};
     if ( optional_data === void 0 ) optional_data = null;
 
@@ -7401,11 +7943,11 @@ var WriteMixin = {
     return model
   },
   /**
-   * new_from_template - Create empty model from create function
+   * newFromData - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromData + write = add
    */
-  new_from_data: function new_from_data( data, make_dirty ) {
+  newFromData: function newFromData( data, make_dirty ) {
     if ( data === void 0 ) data = {};
 
     var model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
@@ -7416,7 +7958,7 @@ var WriteMixin = {
   /**
    * empty - Create empty payload from schema.create()
    *         This method WILL only create an JS-Object, not a GenericModel
-   *         In most cases, you want to use new_from_template_instead
+   *         In most cases, you want to use newFromTemplate instead
    */
   empty: function empty( data, optional_data ) {
     if ( data === void 0 ) data = {};
@@ -7432,13 +7974,13 @@ var WriteMixin = {
 
     this._check_required_create_arg( data );
 
-    var payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND );
+    var payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND );
 
     /* Validate created data against it's schema. */
     if ( this.modelDefinition.schema ) {
       this._validate_schema( payload, false );
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     return payload;
@@ -7450,7 +7992,7 @@ var WriteMixin = {
    */
   _convert_moment_objects: function _convert_moment_objects( payload ) {
     if ( typeof payload !== 'object' ) {
-      console.log("Got payload", payload, typeof payload);
+      trace(INFO_MOMENT, "Got invalid payload in _convert_moment_objects", payload, typeof payload);
       throw new Error('Expected object, got ' + payload);
     }
     /* payload can either be array or object */
@@ -7471,26 +8013,13 @@ var WriteMixin = {
   }
 };
 
-/*******************************************************************************
-
-// TODO: Everything should return a promise
-
-*******************************************************************************/
+// import { _Vue as Vue } from '../external-deps'
 
 var slugid = require('slugid');
 
-var log$3 = function () {
-var args = [], len = arguments.length;
-while ( len-- ) args[ len ] = arguments[ len ];
- console.log.apply(console, args); };
-var log2$1 = function () {
-  var args = [], len = arguments.length;
-  while ( len-- ) args[ len ] = arguments[ len ];
-};
-
-var subscriptions = new WeakMap();
-
 var defaultDB = null;
+var recentModelCallerComponent = null; // Component, that last called $models
+
 var _Vue$1;
 var _firebase = null; // TODO: Getter with not init warn
 
@@ -7516,6 +8045,17 @@ function setup$1(ref) {
   _firebase = firebase;
 }
 
+var defaultStoreOptions = {
+  isAbstract:           false,
+  uidMethod:            UIDMethod.PUSHID,
+  additionalProps:      [],
+  defaultDeleteMode:    DeleteMode.HARD,
+  enableTypeValidation: true,
+  autoUnsubscribe:      true,
+  isReadonly:           false,
+  allowEmptySchema:     true,
+};
+
 /**
  * Sync-Implementation is bashed on:
  * https://github.com/vuejs/vuefire/blob/master/packages/vuexfire/src/index.js
@@ -7526,6 +8066,8 @@ var GenericStore = function GenericStore( templatePath, modelDefinition, options
 
 
   // TODO: Parse templatePath for "[DBName]:", set LOCAL_PATH_PREFIX
+
+  options = Object.assign( {}, defaultStoreOptions, options );
 
   if ( modelDefinition && ( modelDefinition.abstract_store || options.isAbstract ) ) {
     this.isAbstract = true;
@@ -7569,14 +8111,12 @@ var GenericStore = function GenericStore( templatePath, modelDefinition, options
     }
     this.additionalProps = options.additionalProps || [];
 
-    this.defaultDeleteMode = 'defaultDeleteMode' in options
-      ? options.defaultDeleteMode
-      : DeleteMode.HARD;
+    this.defaultDeleteMode = options.defaultDeleteMode;
   }
 
-  this.enableTypeValidation = 'enableTypeValidation' in options
-    ? options.enableTypeValidation
-    : true;
+  this.enableTypeValidation = options.enableTypeValidation;
+  this.autoUnsubscribe = options.autoUnsubscribe;
+  this.allowEmptySchema = options.allowEmptySchema;
 
   this.isReadonly = options.isReadonly;
   this.templatePath = templatePath;
@@ -7595,29 +8135,29 @@ var GenericStore = function GenericStore( templatePath, modelDefinition, options
 
     // Only execute mixin inits, but don't attach methods
     Object.assign(this, {
-      read_mixin_init: ReadMixin.read_mixin_init,
-      write_mixin_init: WriteMixin.write_mixin_init
+      _read_mixin_init: ReadMixin._read_mixin_init,
+      _write_mixin_init: WriteMixin._write_mixin_init
     });
-    this.read_mixin_init();
-    this.write_mixin_init();
+    this._read_mixin_init();
+    this._write_mixin_init();
 
   } else {
     {
       Object.assign(this, ReadMixin);
-      this.read_mixin_init();
+      this._read_mixin_init();
     }
 
     if (  !this.isReadonly ) {
       Object.assign(this, WriteMixin);
-      this.write_mixin_init();
+      this._write_mixin_init();
     }
   }
 
-  // delete this.read_mixin_init
-  // delete this.write_mixin_init
+  // delete this._read_mixin_init
+  // delete this._write_mixin_init
 };
 
-var prototypeAccessors$2 = { _db: { configurable: true },defaultUserId: { configurable: true },path: { configurable: true },parentRef: { configurable: true },rootRef: { configurable: true },_template_path_field_names: { configurable: true },_schema_fields: { configurable: true },schema_required_fields: { configurable: true },schema_optional_fields: { configurable: true },schema_all_fields: { configurable: true },subscriptions: { configurable: true },rules: { configurable: true } };
+var prototypeAccessors$2 = { _db: { configurable: true },defaultUserId: { configurable: true },path: { configurable: true },parentRef: { configurable: true },rootRef: { configurable: true },_template_path_field_names: { configurable: true },schemaFields: { configurable: true },schemaRequiredFields: { configurable: true },schemaOptionalFields: { configurable: true },schemaAllFields: { configurable: true },_last_caller: { configurable: true },rules: { configurable: true } };
 var staticAccessors = { defaultUserId: { configurable: true } };
 
 /**
@@ -7633,13 +8173,13 @@ GenericStore.prototype._clone = function _clone () {
   // - Only because they are not in the prototype
   // get _db
   // get _template_path_field_names
-  // get _schema_fields
+  // get schemaFields
   // get path
   // get parentRef
   // get rootRef
-  // get schema_required_fields
-  // get schema_optional_fields
-  // get schema_all_fields
+  // get schemaRequiredFields
+  // get schemaOptionalFields
+  // get schemaAllFields
   // get subscriptions
   // get rules
 
@@ -7653,11 +8193,11 @@ GenericStore.prototype._clone = function _clone () {
   {
     delete clone.getters;
     delete clone._vm; // !!!
-    clone.read_mixin_init();
+    clone._read_mixin_init();
   }
 
   if ( !this.isReadonly && REDEFINE_ACTIONS_AFTER_CLONE ) {
-    clone.write_mixin_init(true);
+    clone._write_mixin_init(true);
   }
 
   // Keep track of clones
@@ -7722,15 +8262,23 @@ GenericStore.prototype._get_uid = function _get_uid () {
       // TODO: let key = btoa(email)
       throw new Error('Only email addresses allowed as key')
 
-    case UIDMethod.CUSTOM:
+    case UIDMethod.CUSTOM: {
       var customId = this.uidMethodCallback( this.definedProps );
       if ( !customId ) {
         throw new Error( 'An ID was not defined. Check custom UID Callback.' );
       }
       return customId
+    }
 
     default: throw new Error('Unknown UID Method: ' + this.uidMethod)
   }
+};
+
+/**
+ * Set defaults
+ */
+GenericStore.setDefault = function setDefault (key, value) {
+  defaultStoreOptions[ key ] = value;
 };
 
 /**
@@ -7738,7 +8286,7 @@ GenericStore.prototype._get_uid = function _get_uid () {
  *
  * @param{type} db description
  */
-GenericStore.setDefaultDB = function setDefaultDB ( db ) {
+GenericStore.setDefaultDB = function setDefaultDB ( db ) {
   defaultDB = db;
 };
 
@@ -7752,11 +8300,11 @@ prototypeAccessors$2._db.get = function () {
 };
 
 /**
- * _validateId - Checks if a given id is valid
+ * _validate_id - Checks if a given id is valid
  *
  * @return {type}  true or false
  */
-GenericStore.prototype._validateId = function _validateId ( id ) {
+GenericStore.prototype._validate_id = function _validate_id ( id ) {
   if ( this.uidMethod === UIDMethod.SLUGID ) {
     if ( !isValidId(id) ) {
       return false;
@@ -7769,9 +8317,9 @@ GenericStore.prototype._validateId = function _validateId ( id ) {
 };
 
 /**
- * _defineUser - Define user (userId/uid) based on default value
+ * _define_user - Define user (userId/uid) based on default value
  */
-GenericStore.prototype._defineUser = function _defineUser () {
+GenericStore.prototype._define_user = function _define_user () {
   if ( GenericStore.defaultUserId ) {
     this.definedProps[ 'uid' ] = GenericStore.defaultUserId;
   }
@@ -7807,7 +8355,7 @@ staticAccessors.defaultUserId.set = function (id) {
 
   /* INFO: In the future this should be refactored to be completly stateless! */
 
-  log$3("[GENS] settings default user id to: uid =", id);
+  info(INFO_STORE, "settings default user id to: uid =", id);
   _Vue$1.set( genericStoreGlobalState, 'userId', id);
   // _userId = id;
 };
@@ -7818,7 +8366,7 @@ staticAccessors.defaultUserId.set = function (id) {
  */
 GenericStore.resetState = function resetState () {
   // genericStoreGlobalState.reset();
-  log$3("[GENS] reset state");
+  info(INFO_STORE, "reset state");
   _Vue$1.set( genericStoreGlobalState, 'userId', null);
 };
 
@@ -7829,7 +8377,7 @@ GenericStore.resetState = function resetState () {
 prototypeAccessors$2.path.get = function () { // TODO: rename this to path and this.path to this.uninterpolatedPath
 
   if ( !( 'uid' in this.definedProps ) ) {
-    this._defineUser();
+    this._define_user();
   }
 
   var path = parseTpl(this.templatePath, this.definedProps);
@@ -7853,15 +8401,15 @@ prototypeAccessors$2.path.get = function () { // TODO: rename this to path and t
 };
 
 /**
- * _previewPath - Generate a path preview for a given it
+ * previewPath - Generate a path preview for a given it
  *
  * @param{type} id description
  */
-GenericStore.prototype._previewPath = function _previewPath ( id ) {
+GenericStore.prototype.previewPath = function previewPath ( id ) {
 
   // TODO: Should this be called during preview?
   if ( !( 'uid' in this.definedProps ) ) {
-    this._defineUser();
+    this._define_user();
   }
 
   var path = parseTpl(this.templatePath, this.definedProps);
@@ -7912,27 +8460,23 @@ prototypeAccessors$2.rootRef.get = function () {
  *
  * @returns {nothing}
  */
-GenericStore.prototype._define = function _define ( target, props ) {
+GenericStore.prototype.define = function define ( target, props ) {
   /* Merge new props with previous props */
   target.definedProps = Object.assign({}, this.definedProps, props);
 
   var known_field_names = [].concat( this._template_path_field_names, this.additionalProps );
   for ( var prop in props ) {
     if ( !known_field_names.includes( prop ) ) {
-      console.warn("Prop", prop, "not found in template path. Known fields are", known_field_names);
+      warn(WARNING_DEFINE_UNKNOWN_PROP, "Prop", prop, "not found in template path. Known fields are", known_field_names);
     }
   }
   return target; // Allow chaining
 };
 
-GenericStore.prototype.define = function define ( props ) {
-  return this._define( this, props );
-};
-
 GenericStore.prototype.with = function with$1 ( props ) {
   // Synax: store.with({ prop1: 'value' }).add({...}) - store is not mutated
   var new_this = this._clone();
-  return this._define( new_this, props );
+  return this.define( new_this, props );
 };
 
 /**
@@ -7952,13 +8496,13 @@ GenericStore.prototype.reset = function reset (level) {
     if ( level === void 0 ) level = 1;
 
   if ( level === 1 ) {
-    log2$1("[GENS] resetting", this.name, "with", this._clones.length, "clones");
+    trace(INFO_STORE, "resetting", this.name, "with", this._clones.length, "clones");
   }
 
-  // console.log("[GENS] RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
+  // info(INFO_STORE, "RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
   this.definedProps = {};
   if ( level > 3 ) {
-    console.warn("[GENS] RESET - Stop at recursion level 3", this._clones);
+    warn(WARNING_RESET_MAX_DEPTH, "RESET - Stop at recursion level 3", this._clones);
     return
   }
   this._clones.forEach(function (clone) {
@@ -7969,7 +8513,7 @@ GenericStore.prototype.reset = function reset (level) {
 /**
  *
  */
-prototypeAccessors$2._schema_fields.get = function () {
+prototypeAccessors$2.schemaFields.get = function () {
   var schema = ( ( this.modelDefinition || {} ).schema || {} ).fields;
   if ( typeof schema === 'undefined' ) {
     return [];
@@ -7983,34 +8527,34 @@ prototypeAccessors$2._schema_fields.get = function () {
 };
 
 /**
- * get schema_optional_fields - Returns all required fields defined in the schema
+ * get schemaOptionalFields - Returns all required fields defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_required_fields.get = function () {
-  return this._schema_fields
+prototypeAccessors$2.schemaRequiredFields.get = function () {
+  return this.schemaFields
         .filter( function (field) { return field.required; } )
         .map( function (field) { return field.model; } );
 };
 
 /**
- * get schema_optional_fields - Returns all optional fields defined in the schema
+ * get schemaOptionalFields - Returns all optional fields defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_optional_fields.get = function () {
-  return this._schema_fields
+prototypeAccessors$2.schemaOptionalFields.get = function () {
+  return this.schemaFields
         .filter( function (field) { return !( field.required || false ); })
         .map( function (field) { return field.model; } );
 };
 
 /**
- * get schema_all_fields - Returns all fields that are defined in the schema
+ * get schemaAllFields - Returns all fields that are defined in the schema
  *
  * @return {type}description
  */
-prototypeAccessors$2.schema_all_fields.get = function () {
-  return this._schema_fields.map( function (field) { return field.model; } );
+prototypeAccessors$2.schemaAllFields.get = function () {
+  return this.schemaFields.map( function (field) { return field.model; } );
 };
 
 /**
@@ -8019,7 +8563,7 @@ prototypeAccessors$2.schema_all_fields.get = function () {
  * @param{type} data data to check
  */
 GenericStore.prototype._check_required_fields = function _check_required_fields ( data ) {
-  this.schema_required_fields.forEach(function (required_field) {
+  this.schemaRequiredFields.forEach(function (required_field) {
     if ( !( required_field in data ) ) {
       throw new Error('Required field <' + required_field + '> not present.')
     }
@@ -8058,119 +8602,138 @@ GenericStore.prototype._validate_schema = function _validate_schema ( data, is_u
     return;
   }
 
-  // TODO: Convert object to array
-  var schema = this._schema_fields;
-  if ( schema && schema.length >= 0 ) {
-    /* Check 1: Are required fields present (Disabled for updates) */
-    if ( !is_update ) {
-      this._check_required_fields( data );
-      /*
-      schema.fields.forEach(required_field => {
-        if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
-          throw new Error('Required field <' + required_field.model + '> not present.')
-        }
-      });
-      */
+  var schema = this.schemaFields;
+
+  if ( !this.allowEmptySchema ) {
+    if ( !schema || schema.length === 0 ) {
+      throw new Error('No schema found for "' + this.name + '", please provide one.')
     }
+  }
 
-    // Regexes to match special bolt types
-    var mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
-    var typeRegex = /(?<val>\w+)\s*\[\]/;
-
-    /* Check 2: Are provided fields within schema? */
-    var allowed_field_names = this.schema_all_fields;
-    var allowed_field_regex = [];
-    var allowed_field_map = {};
-
-    if ( schema.length === 0 ) {
-      console.warn('Schema for "' + this.name + '" is empty.');
-    } else {
-      allowed_field_map = Object.assign.apply(Object, allowed_field_names.map(function (k, i) {
-          var obj;
-
-        if ( k.startsWith('/') && k.endsWith('/') ) {
-          allowed_field_regex.push( k );
-        }
-        return ( obj = {}, obj[k] = this$1._schema_fields[i], obj )
-      }));
-
-      Object.keys(allowed_field_map).forEach(function (key, i) {
-
-        var type = allowed_field_map[ key ].validate_bolt_type || '';
-
-        if ( mapRegex.test( type ) ) {
-          // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
-          var regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
-          allowed_field_regex.push( regex );
-          allowed_field_map[ regex ] = this$1._schema_fields[i];
-        }
-      });
-    }
-
-    Object.keys( data ).forEach(function (key) {
-
-      var matchedRegex = allowed_field_regex.find(function (regex) {
-        var flags = regex.includes('\\u00') ? '' : 'u'; // Unicode
-        var rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags );
-        return rx.test( key )
-      });
-
-      if ( !matchedRegex && !allowed_field_names.includes(key) ) {
-        throw new Error('Field <' + key + '> is not allowed by schema.')
-      }
-
-      /* Check 3: Execute validator if present */
-      var field = allowed_field_map[ matchedRegex || key ];
-      if ( field.validator ) {
-
-        // TODO: Try-catch
-        // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
-        var result = field.validator(
-          /* value */ data[ key ],
-          /* field */ field,
-          /* model */ null
-        );
-
-        if ( !result || ( result.length && result.length === 0 ) ) {
-          throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
-        }
-      }
-
-      if ( this$1.enableTypeValidation ) {
-
-        // TODO: Also support Generic types (MyTime<A,B>)
-
-        var type_list = (field.validate_bolt_type || "").split("|");
-        var check = type_list.some(function (typeRaw) {
-
-          var type = typeRaw.trim();
-          var typeInfo = {};
-
-          if ( typeRegex.test( type ) ) {
-            typeInfo = typeRegex.exec( type ).groups;
-            type = 'Array';
-          }
-
-          if ( mapRegex.test( type ) ) {
-            typeInfo = mapRegex.exec( type ).groups;
-            type = 'Map';
-          }
-
-          return this$1._validate_bolt_type(
-            data[ key ],
-            type,
-            typeInfo
-          );
-        });
-
-        if ( !check ) {
-          throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
-        }
+  /* Check 1: Are required fields present (Disabled for updates) */
+  if ( !is_update ) {
+    this._check_required_fields( data );
+    /*
+    schema.fields.forEach(required_field => {
+      if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
+        throw new Error('Required field <' + required_field.model + '> not present.')
       }
     });
-  } else {
-    throw new Error('No schema found for "' + this.name + '", please provide one.')
+    */
   }
+
+  // This is a ES2018 feature that buble won't compile
+  // const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
+  // const typeRegex = /(?<val>\w+)\s*\[\]/;
+
+  // Regexes to match special bolt types
+  var mapRegex = /Map\s*<(\w+),\s*(\w+)>/i;
+  var typeRegex = /(\w+)\s*\[\]/;
+
+  /* Check 2: Are provided fields within schema? */
+  var allowed_field_names = this.schemaAllFields;
+  var allowed_field_regex = [];
+  var allowed_field_map = {};
+
+  if ( schema.length === 0 ) {
+    warn(WARNING_EMPTY_SCHEMA, 'Schema for "' + this.name + '" is empty.');
+  } else {
+    allowed_field_map = Object.assign.apply(Object, allowed_field_names.map(function (k, i) {
+        var obj;
+
+      if ( k.startsWith('/') && k.endsWith('/') ) {
+        allowed_field_regex.push( k );
+      }
+      return ( obj = {}, obj[k] = this$1.schemaFields[i], obj )
+    }));
+
+    Object.keys(allowed_field_map).forEach(function (key, i) {
+
+      var type = allowed_field_map[ key ].type || '';
+
+      if ( mapRegex.test( type ) ) {
+        // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
+        var regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
+        allowed_field_regex.push( regex );
+        allowed_field_map[ regex ] = this$1.schemaFields[i];
+      }
+    });
+  }
+
+  // TODO: Cache everything above this point
+
+  Object.keys( data ).forEach(function (key) {
+
+    var matchedRegex = allowed_field_regex.find(function (regex) {
+      var flags = regex.includes('\\u00') ? '' : 'u'; // Unicode
+      var rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags );
+      return rx.test( key )
+    });
+
+    if ( !matchedRegex && !allowed_field_names.includes(key) ) {
+      throw new Error('Field <' + key + '> is not allowed by schema.')
+    }
+
+    /* Check 3: Execute validator if present */
+    var field = allowed_field_map[ matchedRegex || key ]; // Remove "|| key" ?
+    if ( field.validator ) {
+
+      // TODO: Try-catch
+      // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
+      var result = field.validator(
+        /* value */ data[ key ],
+        /* field */ field,
+        /* model */ null
+      );
+
+      if ( !result || ( result.length && result.length === 0 ) ) {
+        throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
+      }
+    }
+
+    if ( this$1.enableTypeValidation ) {
+
+      // TODO: Also support Generic types (MyTime<A,B>)
+
+      var type_list = (field.type || "").split("|");
+      var check = type_list.some(function (typeRaw) {
+
+        var type = typeRaw.trim();
+        var typeInfo = {};
+
+        if ( typeRegex.test( type ) ) {
+          // typeInfo = typeRegex.exec( type ).groups;
+          var match = typeRegex.exec( type );
+          typeInfo = { val: match[1] };
+          type = 'Array';
+        }
+
+        if ( mapRegex.test( type ) ) {
+          // typeInfo = mapRegex.exec( type ).groups;
+          var match$1 = mapRegex.exec( type );
+          typeInfo = { key: match$1[1], val: match$1[2] };
+          type = 'Map';
+        }
+
+        // For non required fields also allow 'null' as a valid input
+        if ( !field.required ) {
+          if ( data[ key ] === null ) {
+            return true;
+          }
+        }
+
+        return this$1._validate_bolt_type(
+          data[ key ],
+          type,
+          typeInfo
+        );
+      });
+
+      if ( !check ) {
+        throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
+      }
+    }
+  });
 };
 
 /**
@@ -8205,7 +8768,7 @@ GenericStore.prototype._validate_bolt_type = function _validate_bolt_type ( valu
 
           return hasValidKey && hasValidValue;
         });
-    case 'array':
+    case 'array': {
       // Type[] = Map<Number, Type>
       var entries = [];
       if ( isArray( value ) ) {
@@ -8219,101 +8782,39 @@ GenericStore.prototype._validate_bolt_type = function _validate_bolt_type ( valu
         var hasValidType = this$1._validate_bolt_type( v, typeInfo.val );
         return hasValidType;
       });
+    }
     default:
-      console.warn("Can not validate type '" + type + "'");
+      warn(WARNING_UKNONWN_VALIDATION_TYPE, "Can not validate type '" + type + "'");
       return true;
   }
 };
 
 /**
- * get subscriptions - Returns subscriptions that were create by this store
+ * Set the recent caller, this is trigger by the getter that returns $models.
+ * Which means this is called before subscribeList(), when calling it like this:
+ * this.$models.myexample.subscribeList()
+ *    ^               ^
+ *    |               |
+ *    +- _set_caller  +- subscribeList is called
+ *       is called       and can access this._last_caller
  *
- * @return {list} list of subscriptions
  */
-prototypeAccessors$2.subscriptions.get = function () {
-  return subscriptions.get( this );
-};
+GenericStore._set_caller = function _set_caller ( caller ) {
 
-/**
- * _bind_rtdb - Firebase binding
- *
- * Adapted from:
- * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
- *
- * @param {{ key, ref, ops, bindAsArray }} obj - config
- * @param {string} obj.key              - Key where the data is stored locally
- * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
- * @param {type} obj.ops                - operations {init, add, remove, set, set_sync}
- * @param {boolean} obj.bindAsArray.    - bind as list (true), bind as document (false)
- */
-GenericStore.prototype._bind_rtdb = function _bind_rtdb (ref$1) {
-    var key = ref$1.key;
-    var ref = ref$1.ref;
-    var ops = ref$1.ops;
-    var bindAsArray = ref$1.bindAsArray;
-
-  // TODO check ref is valid
-  // TODO check defined in vm
-
-  // TODO: Why do we need subscriptions? isn't that the same as the instance cache and the registry?
-  // subscritions is a liittle bit more fundamental = real listeners
-  // registry = reactive data (but used where?)
-  // instance cache = cached subscriptions (real and 'simulated') as generic models
-
-  var sub = subscriptions.get(this);
-  if (!sub) {
-    sub = Object.create(null);
-    subscriptions.set(this, sub);
+  // Check, if we got a VueComponent instance
+  if ( caller._isVue !== true ) {
+    return false;
   }
 
-  // unbind if ref is already bound
-  if (key in sub) {
-    this._unbind_rtdb(key);
-  }
-
-  // if ( subscriptions.get(key) ) { }
-
-  return new Promise(function (resolve, reject) {
-    sub[ key ] = bindAsArray
-      ? rtdbBindAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
-      : rtdbBindAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
-    // subscriptions.set(key, unsubscribe)
-  })
+  recentModelCallerComponent = caller;
 };
 
 /**
- * _fetch_rtdb - Firebase binding
+ * Returns last VueCompoennt that accessed this.$models (see above).
  *
  */
-GenericStore.prototype._fetch_rtdb = function _fetch_rtdb (ref$1) {
-    var key = ref$1.key;
-    var ref = ref$1.ref;
-    var ops = ref$1.ops;
-    var bindAsArray = ref$1.bindAsArray;
-
-  return new Promise(function (resolve, reject) {
-    bindAsArray
-      ? rtdbFetchAsArray({ key: key, collection: ref, ops: ops, resolve: resolve, reject: reject })
-      : rtdbFetchAsObject({ key: key, document: ref, ops: ops, resolve: resolve, reject: reject });
-  })
-};
-
-/**
- * _unbind_rtdb - Unbind firebase from location
- *
- * @param{type} { key } description
- */
-GenericStore.prototype._unbind_rtdb = function _unbind_rtdb (ref) {
-    var key = ref.key;
-
-  var sub = subscriptions.get(this);
-  if (!sub || !sub[key]) { return }
-
-  // subscriptions.delete( key );
-  // const sub = subscriptions.get(key)
-
-  sub[key]();
-  delete sub[key];
+prototypeAccessors$2._last_caller.get = function () {
+  return recentModelCallerComponent
 };
 
 // ---------------------------------------------------------------------------
@@ -8358,24 +8859,18 @@ Object.defineProperties( GenericStore, staticAccessors );
 
 var obj;
 
-var log$4 = function () {
-  var args = [], len = arguments.length;
-  while ( len-- ) args[ len ] = arguments[ len ];
- /* console.log('[REGISTRY]', ...args) */ };
-// const log = (...args) => { console.log('[REGISTRY]', ...args) };
-
 var genericStoreMutations = ( obj = {}, obj[HELIOSRX_INIT_VALUE] = function (state, ref) {
     var path = ref.path;
     var data = ref.data;
 
-    log$4('[HELIOSRX_INIT_VALUE]', { path: path, data: data });
+    trace(INFO_REGISTRY, '[HELIOSRX_INIT_VALUE]', { path: path, data: data });
     // TODO: will this delete children?
 
     return walkSetAndMerge( state, path, data )
   }, obj[HELIOSRX_UNSET_VALUE] = function (state, ref) {
     var path = ref.path;
 
-    log$4('[HELIOSRX_UNSET_VALUE]', { path: path });
+    trace(INFO_REGISTRY, '[HELIOSRX_UNSET_VALUE]', { path: path });
 
     return walkSetAndMerge( state, path, { '.value': null } )
   }, obj[HELIOSRX_ARRAY_ADD] = function (state, ref) {
@@ -8383,13 +8878,13 @@ var genericStoreMutations = ( obj = {}, obj[HELIOSRX_INIT_VALUE] = function (sta
     var newId = ref.newId;
     var data = ref.data;
 
-    log$4('[HELIOSRX_ARRAY_ADD]', { target: target, newId: newId, data: data });
+    trace(INFO_REGISTRY, '[HELIOSRX_ARRAY_ADD]', { target: target, newId: newId, data: data });
     _Vue.set( target, newId, data );
   }, obj[HELIOSRX_ARRAY_REMOVE] = function (state, ref) {
     var target = ref.target;
     var oldId = ref.oldId;
 
-    log$4('[HELIOSRX_ARRAY_REMOVE]', { target: target, oldId: oldId });
+    trace(INFO_REGISTRY, '[HELIOSRX_ARRAY_REMOVE]', { target: target, oldId: oldId });
     _Vue.delete( target, oldId );
   }, obj[HELIOSRX_ARRAY_SET] = function (state, ref) {
     var target = ref.target;
@@ -8407,7 +8902,7 @@ var genericStoreMutations = ( obj = {}, obj[HELIOSRX_INIT_VALUE] = function (sta
     var data = ref.data;
     var performMerge = ref.performMerge; if ( performMerge === void 0 ) performMerge = false;
 
-    log$4('[HELIOSRX_SET]', { target: target, data: data, performMerge: performMerge });
+    trace(INFO_REGISTRY, '[HELIOSRX_SET]', { target: target, data: data, performMerge: performMerge });
     deepMergeVue( target, data, !performMerge );
   }, obj );
 
@@ -8442,7 +8937,7 @@ var registryModule = {
     },
 
     RESET_REGISTRY: function RESET_REGISTRY(state) {
-      //console.log('RESET_REGISTRY')
+      trace(INFO_REGISTRY, 'RESET_REGISTRY');
       // Callend on logout
       _Vue.set( state, 'sync',  {});
       _Vue.set( state, 'res',   {});
@@ -8454,19 +8949,17 @@ var registryModule = {
       var name = ref.name;
       var data = ref.data;
 
-      //console.log('ADD_ENTRY')
+      trace(INFO_REGISTRY, 'ADD_ENTRY');
       if (!state.sync[name] || state.sync[name] !== data) {
         _Vue.set( state.sync, name, data );
       }
     },
 
-    // TODO: Kann das komplett enfallen?
     SET_ENTRY_STATUS: function SET_ENTRY_STATUS( state, ref ) {
       var name = ref.name;
       var value = ref.value;
 
-      //console.log('SET_ENTRY_STATUS')
-      // state.sync[ name ].status = value;
+      trace(INFO_REGISTRY, 'SET_ENTRY_STATUS');
       if (!state.sync[ name ][status] || state.sync[ name ][status] !== value) {
         _Vue.set(state.sync[ name ], 'status', value);
       }
@@ -8476,8 +8969,7 @@ var registryModule = {
       var name = ref.name;
       var value = ref.value;
 
-      //console.log('SET_GLOBAL_READY_STATE')
-      // state.ready[ name ] = !!value;
+      trace(INFO_REGISTRY, 'SET_GLOBAL_READY_STATE');
       if (!state.ready[name] || state.ready[name] !== !!value) {
         _Vue.set(state.ready, name, !!value);
       }
@@ -8486,7 +8978,7 @@ var registryModule = {
     REM_GLOBAL_READY_STATE: function REM_GLOBAL_READY_STATE( state, ref ) {
       var name = ref.name;
 
-      //console.log('REM_GLOBAL_READY_STATE')
+      trace(INFO_REGISTRY, 'REM_GLOBAL_READY_STATE');
       _Vue.delete(state.ready, name);
     }}),
 };
@@ -8508,7 +9000,7 @@ function install (Vue, options) {
   if (install.installed && _Vue$2 === Vue) { return }
   install.installed = true;
 
-  console.log("[GENS] Installing Generic API plugin");
+  info(INFO_COMMON, "Installing Generic API plugin");
 
   if ( !options ) {
     throw new Error('heliosRX: Missing configuration. Did you supply config with Vue.use("heliosRx", {...})?')
@@ -8553,7 +9045,7 @@ function install (Vue, options) {
 
     (Vue._installedPlugins || []).forEach(function (plugin) {
       if ( plugin.Store && plugin.mapActions ) {
-         console.warn("Existing Vuex detected. Consider using 'useExistingStore'. See heliosRX documentation.");
+         warn(WARNING_COMMON, "Existing Vuex detected. Consider using 'useExistingStore'. See heliosRX documentation.");
       }
     });
 
@@ -8575,7 +9067,10 @@ function install (Vue, options) {
 
   // Define $models
   Object.defineProperty(Vue.prototype, '$models', {
-    get: function get () { return options.models }
+    get: function get () {
+      GenericStore._set_caller( this );
+      return options.models
+    }
   });
 
   // Merge user api with helios API
@@ -8591,58 +9086,26 @@ function install (Vue, options) {
     get: function get () { return mergedApi }
   });
 
+  // TODO: Also allow to set trace / warnings
+  if ( options.devMode ) {
+    loglevel.setDefaultLevel('info');
+    loglevel.setLevel('info');
+    loglevel.getLogger( INFO_STORE_WRITE ).setLevel('trace');
+  } else {
+    loglevel.setDefaultLevel('warn');
+    loglevel.setLevel('warn');
+  }
+
   // Expose everything to developer console
   var isDevEnvironment = process.env.VUE_APP_PRODUCTION === 'false' && process.browser;
-  if ( options.devMode === true ||
-       ( options.devMode === undefined && isDevEnvironment ) ) {
+  if ( options.devMode === true
+  || ( options.devMode === undefined && isDevEnvironment ) ) {
     window.$models = options.models;
     window.$db = options.db;
     window.$api = mergedApi;
     window.$registry = _registry;
   }
 }
-
-// StoreManager
-
-var StoreManager = {
-
-  /*
-  *
-  */
-  registerStore: function registerStore() {
-  },
-
-  /*
-  *
-  */
-  removeStore: function removeStore() {
-  },
-
-  /*
-  *
-  */
-  getAllStores: function getAllStores() {
-
-  },
-
-  /*
-  *
-  */
-  resetAllStores: function resetAllStores() {
-  },
-
-  // TODO: Use for generator too
-
-  // getGlobalSubscriptionList
-  // setDefaultDB
-  // getRegistryState
-  // getAllSyncedPaths
-  // reset_global_instance_cache
-  // get subscriptions()
-};
-
-// TODO: Load models based on path
-// TODO: Move to generic api folder?
 
 function setDefaultDB(db) {
   GenericStore.setDefaultDB(db);
@@ -8662,14 +9125,15 @@ function resetGenericStores( unsubscribe ) {
   GenericStore.resetState();
   // GenericStore.defaultUserId = null;
 
-  var stores = StoreManager.getAllStores();
+  // const stores = ModelRegistry.getAllStores();
+  var stores = _models;
 
   var loop = function ( key ) {
-    // if ( key === '_prototype' ) { // ???
+
+    // if ( key === '_prototype' ) {
     //   continue
     // }
 
-    // xxx-eslint-disable-next-line import/namespace
     var model = stores[ key ];
     var sublist = model.subscriptions;
 
@@ -8680,7 +9144,7 @@ function resetGenericStores( unsubscribe ) {
     if ( unsubscribe && sublist ) {
       Object.keys(sublist).forEach(function (sub) {
         var callback = sublist[ sub ];
-        console.log("Calling unsubscribe for", key, ":", sub);
+        info(INFO_COMMON, "Calling unsubscribe for", key, ":", sub);
         callback();
       });
     }
@@ -8689,11 +9153,120 @@ function resetGenericStores( unsubscribe ) {
   for ( var key in stores ) loop( key );
 }
 
-var version = '0.2.2';
+/* Usage:
+let client_env = functions.config().client_env;
+let config = {
+  apiKey:             client_env.firebase_api_key,
+  authDomain:         client_env.firebase_auth_domain,
+  databaseURL:        client_env.firebase_database_url,
+  projectId:          client_env.firebase_project_id,
+  storageBucket:      client_env.firebase_storage_bucket,
+  messagingSenderId:  client_env.firebase_messaging_sender_id
+}
+
+heliosRX.setup({
+  firebaseConfig: config,
+  runAsUser: false,
+  models: { ... },
+})
+*/
+
+function setupNode( options ) {
+
+  /*
+  options.runAsUser: false | null | <String>,
+  options.firebaseConfig: null | <FirebaseApp>,
+
+  options.firebase
+  options.devMode
+  */
+
+  // eslint-disable-next-line import/no-unresolved
+  var admin = options.firebaseAdmin; // require('firebase-admin');
+
+  // eslint-disable-next-line import/no-unresolved
+  var Vue = options.Vue || _Vue;
+
+  // eslint-disable-next-line import/no-unresolved
+  var Vuex = options.Vuex || _Vuex;
+
+  var usingLocalEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
+
+  if ( options.runAsUser ) {
+    if ( usingLocalEmulator ) {
+      info(INFO_COMMON, "[initializeApp]", "with default config", process.env.FIREBASE_CONFIG);
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+      });
+    } else {
+      // Test config with:
+      admin.initializeApp();
+    }
+  } else {
+
+    // TODO: Scope admin user to regular service user -> "support user"
+    //       https://firebase.googleblog.com/2019/03/firebase-security-rules-admin-sdk-tips.html
+
+    // INFO: This is the same as the env variable CLOUD_RUNTIME_CONFIG,
+    //       which is only configured on host machine, not in local emulator!
+
+    var config = options.firebaseConfig;
+
+    info(INFO_COMMON, "[initializeApp]", "config", config);
+    admin.initializeApp(config);
+  }
+
+  // Set default DB for generic API
+  var defaultDb = admin.database();
+  setDefaultDB( defaultDb );
+
+  setup({
+    Vue: Vue,
+    models: options.models,
+    db:     defaultDb,
+  });
+
+  setup$1({
+    Vue: Vue,
+    firebase: admin
+  });
+
+  if ( Vue && Vuex ) {
+    Vue.use( Vuex );
+    var _registry = new Vuex.Store( setup$2( 'heliosRX' ) );
+    setup({ Vuex: Vuex, registry: _registry });
+
+    // Initialize registry
+    _registry.commit('INIT_REGISTRY');
+  }
+
+  /*
+  // Merge user api with helios API
+  let mergedApi = {};
+  if ( options.userApi ) {
+    mergedApi = options.userApi;
+  }
+
+  // Define $api
+  Object.defineProperty(Vue.prototype, '$api', {
+    get () { return mergedApi }
+  })
+  */
+
+  // Setup heliosRX without Vue?
+  // install( options.Vue, options )
+}
+
+var version = '0.2.4';
 
 var heliosRX = function heliosRX () {};
 
 heliosRX.install = function install () {};
+
+heliosRX.setup = function setup ( options ) {
+  setupNode(options);
+  return heliosRX;
+};
 
 heliosRX.version = version;
 heliosRX.install = install;
@@ -8706,5 +9279,7 @@ heliosRX.DeleteMode = DeleteMode;
 heliosRX.setDefaultDB = setDefaultDB;
 heliosRX.setDefaultUser = setDefaultUser;
 heliosRX.resetGenericStores = resetGenericStores;
+heliosRX.heliosLogger = loglevel;
+heliosRX.heliosLogger.channels = loggerChannel;
 
 module.exports = heliosRX;

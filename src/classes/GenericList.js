@@ -1,5 +1,6 @@
 import { _Vue as Vue } from '../external-deps'
-import { add_custom_getters } from '../classes/utils'
+import { add_custom_getters, add_custom_actions } from '../classes/utils'
+import { warn, info, INFO_COLLECTION, WARNING_NAME_CONFLICT } from "../util/log"
 
 function sortidx_sorter(a, b) {
   if (a.sortidx < b.sortidx) return -1;
@@ -13,13 +14,13 @@ function make_property_sorter(prop) {
   let sorter = null;
   if ( prop[0] === '-' ) {
     prop = prop.slice(1)
-     sorter = (a,b) => {
+     sorter = (a, b) => {
       if (a[prop] < b[prop]) return 1;
       if (a[prop] > b[prop]) return -1;
       return 0;
     }
   } else {
-    sorter = (a,b) => {
+    sorter = (a, b) => {
       if (a[prop] < b[prop]) return -1;
       if (a[prop] > b[prop]) return 1;
       return 0;
@@ -37,8 +38,6 @@ export default class GenericList {
 
   // -----------------------------------------------------------------------------
   constructor( name ) {
-    // console.log("[GENS] GenericList");
-
     this.items        = {}; // $items?
     this.$readyAll    = false;
     this.$readySome   = false;
@@ -49,6 +48,7 @@ export default class GenericList {
     this.$numChildren = 0;
     this._store_name  = name;
     this._unwatch     = null;
+    // this.$lastUpdated = null;
   }
 
   // -----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ export default class GenericList {
   _add_child( id, child ) {
     // TODO: Check if this.items is an array
     this.$readySome = true;
-    this.$lastUpdate = Date.now();
+    // this.$lastUpdated = Date.now();
     Vue.set( this.items, id, child )
     this.$numChildren += 1;
     this.items[ id ].$idx = this.$numChildren;
@@ -71,7 +71,7 @@ export default class GenericList {
   _rem_child( id ) {
     // TODO: Check if this.items is an array
     if ( id in this.items ) {
-      this.items[ id ]._onRemove();
+      this.items[ id ]._on_remove();
     }
     Vue.delete( this.items, id );
     this.$numChildren -= 1;
@@ -83,38 +83,49 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  decorate_actions( listActions, context ) { // TODO: move to util
+  _decorate_actions( listActions, context ) {
     if ( !listActions ) {
       return
     }
+
+    /*
     context.model = this; // HACK
     for ( let key in listActions ) {
       let action = listActions[ key ];
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: list action "${key}" has same name as existing method "${key}" in ${this._store_name}`);
         continue
       }
       Object.defineProperty( this, key, { value: () => action(context) } ) // TODO: bind this?
     }
+    */
+
+    const action_context = {
+      $instance: this,
+      $model: context.model,
+      $models: context.models,
+    }
+
+    add_custom_actions( action_context, this, listActions, false )
   }
 
   // -----------------------------------------------------------------------------
-  decorate_getters( listGetters, context ) { // TODO: move to util
+  _decorate_getters( listGetters, context ) { // TODO: move to util
     if ( !listGetters ) {
       return
     }
 
     for ( let key in listGetters ) {
       if ( Object.prototype.hasOwnProperty.call( this, key ) ) {
-        console.warn(`Name conflict: list getter "${key}" has same name as existing property getter "${key}" in ${this._store_name}`);
+        warn(WARNING_NAME_CONFLICT, `Name conflict: list getter "${key}" has same name as existing property getter "${key}" in ${this._store_name}`);
         delete listGetters[ key ] // ?
         continue
       }
     }
 
     /* Embed getter in vue instance */
-    context.model = this; // HACK
-    let vm = add_custom_getters( context, this, listGetters );
+    const getter_context = [ this, context.model, context.models ]
+    let vm = add_custom_getters( getter_context, this, listGetters );
     externalVMStore.set( this, vm )
 
     // "Self destroy"
@@ -200,7 +211,7 @@ export default class GenericList {
   }
 
   // -----------------------------------------------------------------------------
-  get $id_list() {
+  get $idList() {
     // TODO: Here or static in $models.example?
     return Object.keys( this.items );
   }
@@ -208,7 +219,7 @@ export default class GenericList {
   // -----------------------------------------------------------------------------
   reset() {
     if ( this._unwatch ) {
-      console.log("Found local unwatcher in", this._store_name)
+      info(INFO_COLLECTION, "Found local un-watcher in", this._store_name)
       this._unwatch();
     }
   }

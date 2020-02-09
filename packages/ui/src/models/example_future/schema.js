@@ -28,7 +28,7 @@ export default {
   fields: {
     'name': {
       validator: () => true,
-      validate_bolt_type: 'String',
+      type: 'String',
       required: true,
       db_identifier: 'n',
       /* vue-form-generator
@@ -41,68 +41,68 @@ export default {
     },
     'a': {
       validate: v => v.length < 30,
-      validate_bolt_type: 'String',
+      type: 'String',
     },
     'b': {
       validator: () => true,
-      validate_bolt_type: 'Boolean',
+      type: 'Boolean',
     },
     'nestedA': {
       isNested: true,
       'c': {
         validate: validators.isStringOrNull,
-        validate_bolt_type: 'String | Null',
+        type: 'String | Null',
       },
       'd': {
-        validate_bolt_type: 'Boolean',
+        type: 'Boolean',
       },
     },
     'nestedB': {
       isNested: true,
       'c': {
         validate: validators.isStringOrNull,
-        validate_bolt_type: 'String | Null',
+        type: 'String | Null',
       },
       'nestedC': {
         isNested: true,
         'c': {
           validate: validators.isStringOrNull,
-          validate_bolt_type: 'String | Null',
+          type: 'String | Null',
         },
         'd': {
-          validate_bolt_type: 'Boolean',
+          type: 'Boolean',
         },
       },
     },
     'nested.c': {
       validate: validators.isStringOrNull,
-      validate_bolt_type: 'String | Null',
+      type: 'String | Null',
     },
     'nested.d': {
-      validate_bolt_type: 'Boolean',
+      type: 'Boolean',
     },
     'goalId': {
       validate: validators.isUUID,
-      validate_bolt_type: 'ID',
+      type: 'ID',
       reference: 'goalMeta'
       /* reference can be used to check if referenced data exists */
     },
     'checklist_item_list': {
       validate: validators.isListOfType( taskChecklistItem ),
-      validate_bolt_type: 'Map<ID, taskChecklistItem>'
-      // or: validate_bolt_type: 'taskChecklistItem[]'
+      type: 'Map<ID, taskChecklistItem>'
+      // or: type: 'taskChecklistItem[]'
     },
 
     'someNumber': {
-      validate_bolt_type: 'Number',
+      type: 'Number',
       validator: () => true
     },
     'created': {
-      validate_bolt_type: 'InitialTimestamp',
+      type: 'InitialTimestamp',
       validator: () => true
     },
     'modified': {
-      validate_bolt_type: 'CurrentTimestamp',
+      type: 'CurrentTimestamp',
       validator: () => true
     }
   },

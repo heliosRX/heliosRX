@@ -1,20 +1,39 @@
 name: CI
-on: [push]
+
+on:
+  push:
+    paths:
+    - 'src/**'
+    - 'tests/**'
+    branches:
+    - master
+
 jobs:
   build:
     name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: borales/actions-yarn@v2.0.0
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
-          cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v2.0.0
+          node-version: '10'
+          registry-url: 'https://registry.npmjs.org'
+      - name: yarn install
+        run: yarn install
+      - name: Install peer dependencies
+        run: |
+          chmod +x ./tests/prepare-dev.sh
+          ./tests/prepare-dev.sh
+      - name: Rebuilding firebase
+        run: npm rebuild && npm run prepare --if-present
+      - name: yarn build
+        run: yarn build
+      - name: yarn test
+        run: yarn test
+      - name: Coverage
+        uses: codecov/codecov-action@v1
         with:
-          cmd: test:dev-prepare # will run `yarn test:dev-prepare` command
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: build # will run `yarn build` command
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: test # will run `yarn test` command
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/clover.xml
+          fail_ci_if_error: false

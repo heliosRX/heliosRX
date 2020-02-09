@@ -2,8 +2,8 @@ const path = require('path')
 const buble = require('@rollup/plugin-buble')
 const replacePlugin = require('@rollup/plugin-replace')
 const resolvePlugin = require('@rollup/plugin-node-resolve')
-const commonjsPlugin = require('@rollup/plugin-commonjs');
-const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
+const commonjsPlugin = require('@rollup/plugin-commonjs')
+// const sizeSnapshot = require("rollup-plugin-size-snapshot").sizeSnapshot;
 // const ignorePlugin = require("rollup-plugin-ignore");
 
 const version = process.env.VERSION || require('../package.json').version
@@ -17,25 +17,25 @@ const banner =
 const resolve = _path => path.resolve(__dirname, '../', _path)
 
 const configs = {
-  umdDev: {
+  'umdDev': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.js'),
     format: 'umd',
     env:    'development',
   },
-  umdProd: {
+  'umdProd': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.min.js'),
     format: 'umd',
     env:    'production',
   },
-  commonjs: {
+  'commonjs': {
     input:  resolve('src/index.js'),
     file:   resolve('dist/heliosrx.common.js'),
     format: 'cjs',
     removeImportVue: true,
   },
-  esm: {
+  'esm': {
     input:  resolve('src/index.esm.js'),
     file:   resolve('dist/heliosrx.esm.js'),
     format: 'es'
@@ -123,6 +123,7 @@ function mapValues (obj, fn) {
   return res
 }
 
+// eslint-disable-next-line
 function print( obj ) {
   console.log("---------------------------------------------------------------")
   console.log(obj)

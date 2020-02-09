@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex, { mapGetters } from 'vuex';
 
+// Vue.use(Vuex);
+
 let fake_models = null;
 
 // TODO: Replace vuex store with vue instance
@@ -239,7 +241,7 @@ fake_models = {
     },
 
     /* ------------------------------------------------------------------ new */
-    new() {
+    new() {
       let model = make_reactive_model( fake_schema );
       // let model = make_reactive_model( fake_schema, true );
       model.customAction = function() {
@@ -250,7 +252,7 @@ fake_models = {
   },
 
   /* ---------------------------------------------------------- custom getter */
-  timeslot_collection: new Vue({
+  timeslot_collection: new Vue({
     store: registry,
     computed: {
       ...mapGetters({
@@ -372,12 +374,12 @@ add_custom_getters( 'magic_store', customGetters );
 const fake_db = {}
 
 if ( process.env.VUE_APP_PRODUCTION === 'false' ) {
-  window.$fake_models = fake_models;
-  window.$fake_db = fake_db;
-  window.$fake_registry = registry;
+  window.$fake_models = fake_models;
+  window.$fake_db = fake_db;
+  window.$fake_registry = registry;
 }
 
 // console.log("registry", registry);
 // console.log("fake_models", fake_models);
 
-export { fake_models, fake_db };
+export { fake_models, fake_db };

@@ -11,6 +11,7 @@ yarn-error.log*
 pnpm-debug.log
 
 # Editor directories and files
+DUMP.md
 .DS_Store
 .idea
 .vscode
@@ -26,6 +27,7 @@ pnpm-debug.log
 /keys/*
 *.key
 *.kdbx
+.cc_token
 
 # Firebase
 firebase-debug.log

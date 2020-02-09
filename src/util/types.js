@@ -1,6 +1,8 @@
+import { warn, WARNING_DEPRECATED } from "./log"
+
 export function isValidDate(dateString) {
   // TODO: move to moment or wrap moment
-  console.warn("[DEPRECATED] isValidDate");
+  warn( WARNING_DEPRECATED, "[DEPRECATED] isValidDate");
   let minDate = new Date('1970-01-01 00:00:01');
   let maxDate = new Date('2038-01-19 03:14:07');
   let date = new Date(dateString);

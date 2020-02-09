@@ -1,9 +1,3 @@
-/*******************************************************************************
-
-// TODO: Everything should return a promise
-
-*******************************************************************************/
-
 // import { _Vue as Vue } from '../external-deps'
 import {
   isString,
@@ -18,10 +12,6 @@ import moment from '../moment/moment-enhanced.js'
 import { UIDMethod, DeleteMode } from './enums'
 
 import { parseTpl, analyzeTpl } from '../util/template.js'
-import { rtdbBindAsArray,
-         rtdbBindAsObject,
-         rtdbFetchAsArray,
-         rtdbFetchAsObject } from '../backends/firebase-rtdb/rtdb'
 
 import factory from '../classes/factory'
 import GenericModel from '../classes/GenericModel'
@@ -30,14 +20,19 @@ import GenericList from '../classes/GenericList'
 import ReadMixin from './ReadMixin'
 import WriteMixin from './WriteMixin'
 
+import { info, trace, warn,
+  INFO_STORE,
+  WARNING_EMPTY_SCHEMA,
+  WARNING_UKNONWN_VALIDATION_TYPE,
+  WARNING_DEFINE_UNKNOWN_PROP,
+  WARNING_RESET_MAX_DEPTH,
+} from "../util/log"
+
 const slugid = require('slugid');
 
-const log = (...args) => { console.log(...args) };
-const log2 = (...args) => {};
-
-const subscriptions = new WeakMap()
-
 let defaultDB = null;
+let recentModelCallerComponent = null; // Component, that last called $models
+
 let _Vue;
 let _firebase = null; // TODO: Getter with not init warn
 
@@ -62,6 +57,17 @@ export function setup({ Vue, firebase }) {
 
 const USE_READ_MIXIN = true;
 const USE_WRITE_MIXIN = true;
+
+const defaultStoreOptions = {
+  isAbstract:           false,
+  uidMethod:            UIDMethod.PUSHID,
+  additionalProps:      [],
+  defaultDeleteMode:    DeleteMode.HARD,
+  enableTypeValidation: true,
+  autoUnsubscribe:      true,
+  isReadonly:           false,
+  allowEmptySchema:     true,
+};
 
 /**
  * Sync-Implementation is bashed on:
@@ -110,7 +116,7 @@ export default class GenericStore {
    *
    * Retrieving data:
    *
-   * challenge.sync_list( target )
+   * challenge._sync_list( target )
    * challenge.unsync()
    * challenge.once( target )
    *
@@ -130,6 +136,8 @@ export default class GenericStore {
   constructor( templatePath, modelDefinition, options = {} ) {
 
     // TODO: Parse templatePath for "[DBName]:", set LOCAL_PATH_PREFIX
+
+    options = Object.assign( {}, defaultStoreOptions, options )
 
     if ( modelDefinition && ( modelDefinition.abstract_store || options.isAbstract ) ) {
       this.isAbstract = true;
@@ -173,14 +181,12 @@ export default class GenericStore {
       }
       this.additionalProps = options.additionalProps || [];
 
-      this.defaultDeleteMode = 'defaultDeleteMode' in options
-        ? options.defaultDeleteMode
-        : DeleteMode.HARD;
+      this.defaultDeleteMode = options.defaultDeleteMode;
     }
 
-    this.enableTypeValidation = 'enableTypeValidation' in options
-      ? options.enableTypeValidation
-      : true;
+    this.enableTypeValidation = options.enableTypeValidation;
+    this.autoUnsubscribe = options.autoUnsubscribe;
+    this.allowEmptySchema = options.allowEmptySchema;
 
     this.isReadonly = options.isReadonly;
     this.templatePath = templatePath;
@@ -199,26 +205,26 @@ export default class GenericStore {
 
       // Only execute mixin inits, but don't attach methods
       Object.assign(this, {
-        read_mixin_init: ReadMixin.read_mixin_init,
-        write_mixin_init: WriteMixin.write_mixin_init
+        _read_mixin_init: ReadMixin._read_mixin_init,
+        _write_mixin_init: WriteMixin._write_mixin_init
       });
-      this.read_mixin_init();
-      this.write_mixin_init();
+      this._read_mixin_init();
+      this._write_mixin_init();
 
     } else {
       if ( USE_READ_MIXIN ) {
         Object.assign(this, ReadMixin);
-        this.read_mixin_init();
+        this._read_mixin_init();
       }
 
       if ( USE_WRITE_MIXIN && !this.isReadonly ) {
         Object.assign(this, WriteMixin);
-        this.write_mixin_init();
+        this._write_mixin_init();
       }
     }
 
-    // delete this.read_mixin_init
-    // delete this.write_mixin_init
+    // delete this._read_mixin_init
+    // delete this._write_mixin_init
   }
 
   /**
@@ -234,13 +240,13 @@ export default class GenericStore {
     // - Only because they are not in the prototype
     // get _db
     // get _template_path_field_names
-    // get _schema_fields
+    // get schemaFields
     // get path
     // get parentRef
     // get rootRef
-    // get schema_required_fields
-    // get schema_optional_fields
-    // get schema_all_fields
+    // get schemaRequiredFields
+    // get schemaOptionalFields
+    // get schemaAllFields
     // get subscriptions
     // get rules
 
@@ -256,11 +262,11 @@ export default class GenericStore {
     if ( REDEFINE_GETTERS_AFTER_CLONE ) {
       delete clone.getters
       delete clone._vm // !!!
-      clone.read_mixin_init();
+      clone._read_mixin_init();
     }
 
     if ( !this.isReadonly && REDEFINE_ACTIONS_AFTER_CLONE ) {
-      clone.write_mixin_init(true);
+      clone._write_mixin_init(true);
     }
 
     // Keep track of clones
@@ -325,15 +331,23 @@ export default class GenericStore {
         // TODO: let key = btoa(email)
         throw new Error('Only email addresses allowed as key')
 
-      case UIDMethod.CUSTOM:
+      case UIDMethod.CUSTOM: {
         let customId = this.uidMethodCallback( this.definedProps )
         if ( !customId ) {
           throw new Error( 'An ID was not defined. Check custom UID Callback.' );
         }
         return customId
+      }
 
       default: throw new Error('Unknown UID Method: ' + this.uidMethod)
     }
+  }
+
+  /**
+   * Set defaults
+   */
+  static setDefault(key, value) {
+    defaultStoreOptions[ key ] = value;
   }
 
   /**
@@ -341,7 +355,7 @@ export default class GenericStore {
    *
    * @param  {type} db description
    */
-  static setDefaultDB( db ) {
+  static setDefaultDB( db ) {
     defaultDB = db;
   }
 
@@ -355,11 +369,11 @@ export default class GenericStore {
   }
 
   /**
-   * _validateId - Checks if a given id is valid
+   * _validate_id - Checks if a given id is valid
    *
    * @return {type}    true or false
    */
-  _validateId( id ) {
+  _validate_id( id ) {
     if ( this.uidMethod === UIDMethod.SLUGID ) {
       if ( !isValidId(id) ) {
         return false;
@@ -372,9 +386,9 @@ export default class GenericStore {
   }
 
   /**
-   * _defineUser - Define user (userId/uid) based on default value
+   * _define_user - Define user (userId/uid) based on default value
    */
-  _defineUser() {
+  _define_user() {
     if ( GenericStore.defaultUserId ) {
       this.definedProps[ 'uid' ] = GenericStore.defaultUserId;
     }
@@ -410,7 +424,7 @@ export default class GenericStore {
 
     /* INFO: In the future this should be refactored to be completly stateless! */
 
-    log("[GENS] settings default user id to: uid =", id);
+    info(INFO_STORE, "settings default user id to: uid =", id);
     _Vue.set( genericStoreGlobalState, 'userId', id)
     // _userId = id;
   }
@@ -421,7 +435,7 @@ export default class GenericStore {
    */
   static resetState() {
     // genericStoreGlobalState.reset();
-    log("[GENS] reset state");
+    info(INFO_STORE, "reset state");
     _Vue.set( genericStoreGlobalState, 'userId', null)
   }
 
@@ -432,7 +446,7 @@ export default class GenericStore {
   get path() { // TODO: rename this to path and this.path to this.uninterpolatedPath
 
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps)
@@ -456,15 +470,15 @@ export default class GenericStore {
   }
 
   /**
-   * _previewPath - Generate a path preview for a given it
+   * previewPath - Generate a path preview for a given it
    *
    * @param  {type} id description
    */
-  _previewPath( id ) {
+  previewPath( id ) {
 
     // TODO: Should this be called during preview?
     if ( !( 'uid' in this.definedProps ) ) {
-      this._defineUser();
+      this._define_user();
     }
 
     let path = parseTpl(this.templatePath, this.definedProps)
@@ -515,27 +529,23 @@ export default class GenericStore {
    *
    * @returns {nothing}
    */
-  _define( target, props ) {
+  define( target, props ) {
     /* Merge new props with previous props */
     target.definedProps = Object.assign({}, this.definedProps, props)
 
     let known_field_names = [].concat( this._template_path_field_names, this.additionalProps );
     for ( var prop in props ) {
       if ( !known_field_names.includes( prop ) ) {
-        console.warn("Prop", prop, "not found in template path. Known fields are", known_field_names);
+        warn(WARNING_DEFINE_UNKNOWN_PROP, "Prop", prop, "not found in template path. Known fields are", known_field_names);
       }
     }
     return target; // Allow chaining
   }
 
-  define( props ) {
-    return this._define( this, props );
-  }
-
   with( props ) {
     // Synax: store.with({ prop1: 'value' }).add({...}) - store is not mutated
     let new_this = this._clone();
-    return this._define( new_this, props );
+    return this.define( new_this, props );
   }
 
   /**
@@ -553,13 +563,13 @@ export default class GenericStore {
    */
   reset(level = 1) {
     if ( level === 1 ) {
-      log2("[GENS] resetting", this.name, "with", this._clones.length, "clones")
+      trace(INFO_STORE, "resetting", this.name, "with", this._clones.length, "clones")
     }
 
-    // console.log("[GENS] RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
+    // info(INFO_STORE, "RESET ", level, ":", this.name, " -> Found", this._clones.length, "clones")
     this.definedProps = {}
     if ( level > 3 ) {
-      console.warn("[GENS] RESET - Stop at recursion level 3", this._clones)
+      warn(WARNING_RESET_MAX_DEPTH, "RESET - Stop at recursion level 3", this._clones)
       return
     }
     this._clones.forEach(clone => {
@@ -570,7 +580,7 @@ export default class GenericStore {
   /**
    *
    */
-  get _schema_fields() {
+  get schemaFields() {
     let schema = ( ( this.modelDefinition || {} ).schema || {} ).fields
     if ( typeof schema === 'undefined' ) {
       return [];
@@ -584,34 +594,34 @@ export default class GenericStore {
   }
 
   /**
-   * get schema_optional_fields - Returns all required fields defined in the schema
+   * get schemaOptionalFields - Returns all required fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_required_fields() {
-    return this._schema_fields
+  get schemaRequiredFields() {
+    return this.schemaFields
           .filter( field => field.required )
           .map( field => field.model );
   }
 
   /**
-   * get schema_optional_fields - Returns all optional fields defined in the schema
+   * get schemaOptionalFields - Returns all optional fields defined in the schema
    *
    * @return {type}  description
    */
-  get schema_optional_fields() {
-    return this._schema_fields
+  get schemaOptionalFields() {
+    return this.schemaFields
           .filter( field => !( field.required || false )  )
           .map( field => field.model );
   }
 
   /**
-   * get schema_all_fields - Returns all fields that are defined in the schema
+   * get schemaAllFields - Returns all fields that are defined in the schema
    *
    * @return {type}  description
    */
-  get schema_all_fields() {
-    return this._schema_fields.map( field => field.model );
+  get schemaAllFields() {
+    return this.schemaFields.map( field => field.model );
   }
 
   /**
@@ -620,7 +630,7 @@ export default class GenericStore {
    * @param  {type} data data to check
    */
   _check_required_fields( data ) {
-    this.schema_required_fields.forEach(required_field => {
+    this.schemaRequiredFields.forEach(required_field => {
       if ( !( required_field in data ) ) {
         throw new Error('Required field <' + required_field + '> not present.')
       }
@@ -657,117 +667,136 @@ export default class GenericStore {
       return;
     }
 
-    // TODO: Convert object to array
-    let schema = this._schema_fields
-    if ( schema && schema.length >= 0 ) {
-      /* Check 1: Are required fields present (Disabled for updates) */
-      if ( !is_update ) {
-        this._check_required_fields( data )
-        /*
-        schema.fields.forEach(required_field => {
-          if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
-            throw new Error('Required field <' + required_field.model + '> not present.')
-          }
-        });
-        */
+    let schema = this.schemaFields
+
+    if ( !this.allowEmptySchema ) {
+      if ( !schema || schema.length === 0 ) {
+        throw new Error('No schema found for "' + this.name + '", please provide one.')
       }
+    }
 
-      // Regexes to match special bolt types
-      const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
-      const typeRegex = /(?<val>\w+)\s*\[\]/;
-
-      /* Check 2: Are provided fields within schema? */
-      let allowed_field_names = this.schema_all_fields;
-      let allowed_field_regex = [];
-      let allowed_field_map = {}
-
-      if ( schema.length === 0 ) {
-        console.warn('Schema for "' + this.name + '" is empty.');
-      } else {
-        allowed_field_map = Object.assign(...allowed_field_names.map((k, i) => {
-          if ( k.startsWith('/') && k.endsWith('/') ) {
-            allowed_field_regex.push( k )
-          }
-          return { [k]: this._schema_fields[i] }
-        }));
-
-        Object.keys(allowed_field_map).forEach((key, i) => {
-
-          let type = allowed_field_map[ key ].validate_bolt_type || ''
-
-          if ( mapRegex.test( type ) ) {
-            // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
-            let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
-            allowed_field_regex.push( regex )
-            allowed_field_map[ regex ] = this._schema_fields[i];
-          }
-        })
-      }
-
-      Object.keys( data ).forEach(key => {
-
-        let matchedRegex = allowed_field_regex.find(regex => {
-          const flags = regex.includes('\\u00') ? '' : 'u' // Unicode
-          let rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags )
-          return rx.test( key )
-        })
-
-        if ( !matchedRegex && !allowed_field_names.includes(key) ) {
-          throw new Error('Field <' + key + '> is not allowed by schema.')
+    /* Check 1: Are required fields present (Disabled for updates) */
+    if ( !is_update ) {
+      this._check_required_fields( data )
+      /*
+      schema.fields.forEach(required_field => {
+        if ( ( required_field.required || false ) && !( required_field.model in data ) ) {
+          throw new Error('Required field <' + required_field.model + '> not present.')
         }
+      });
+      */
+    }
 
-        /* Check 3: Execute validator if present */
-        let field = allowed_field_map[ matchedRegex || key ]
-        if ( field.validator ) {
+    // This is a ES2018 feature that buble won't compile
+    // const mapRegex = /Map\s*<(?<key>\w+),\s*(?<val>\w+)>/i;
+    // const typeRegex = /(?<val>\w+)\s*\[\]/;
 
-          // TODO: Try-catch
-          // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
-          let result = field.validator(
-            /* value */ data[ key ],
-            /* field */ field,
-            /* model */ null
-          );
+    // Regexes to match special bolt types
+    const mapRegex = /Map\s*<(\w+),\s*(\w+)>/i;
+    const typeRegex = /(\w+)\s*\[\]/;
 
-          if ( !result || ( result.length && result.length === 0 ) ) {
-            throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
-          }
+    /* Check 2: Are provided fields within schema? */
+    let allowed_field_names = this.schemaAllFields;
+    let allowed_field_regex = [];
+    let allowed_field_map = {}
+
+    if ( schema.length === 0 ) {
+      warn(WARNING_EMPTY_SCHEMA, 'Schema for "' + this.name + '" is empty.');
+    } else {
+      allowed_field_map = Object.assign(...allowed_field_names.map((k, i) => {
+        if ( k.startsWith('/') && k.endsWith('/') ) {
+          allowed_field_regex.push( k )
         }
+        return { [k]: this.schemaFields[i] }
+      }));
 
-        if ( this.enableTypeValidation ) {
+      Object.keys(allowed_field_map).forEach((key, i) => {
 
-          // TODO: Also support Generic types (MyTime<A,B>)
+        let type = allowed_field_map[ key ].type || ''
 
-          let type_list = (field.validate_bolt_type || "").split("|");
-          let check = type_list.some(typeRaw => {
-
-            let type = typeRaw.trim()
-            let typeInfo = {};
-
-            if ( typeRegex.test( type ) ) {
-              typeInfo = typeRegex.exec( type ).groups;
-              type = 'Array';
-            }
-
-            if ( mapRegex.test( type ) ) {
-              typeInfo = mapRegex.exec( type ).groups;
-              type = 'Map';
-            }
-
-            return this._validate_bolt_type(
-              data[ key ],
-              type,
-              typeInfo
-            );
-          })
-
-          if ( !check ) {
-            throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
-          }
+        if ( mapRegex.test( type ) ) {
+          // See: https://github.com/firebase/firebase-js-sdk/blob/master/packages/database/src/core/util/validation.ts
+          let regex = "/^" + key + "\\/((?![\\/\\[\\]\\.\\#\\$\\/\\u0000-\\u001F\\u007F]).)*$/";
+          allowed_field_regex.push( regex )
+          allowed_field_map[ regex ] = this.schemaFields[i];
         }
       })
-    } else {
-      throw new Error('No schema found for "' + this.name + '", please provide one.')
     }
+
+    // TODO: Cache everything above this point
+
+    Object.keys( data ).forEach(key => {
+
+      let matchedRegex = allowed_field_regex.find(regex => {
+        const flags = regex.includes('\\u00') ? '' : 'u' // Unicode
+        let rx = new RegExp( regex.substring( 1, regex.length - 1 ), flags )
+        return rx.test( key )
+      })
+
+      if ( !matchedRegex && !allowed_field_names.includes(key) ) {
+        throw new Error('Field <' + key + '> is not allowed by schema.')
+      }
+
+      /* Check 3: Execute validator if present */
+      let field = allowed_field_map[ matchedRegex || key ] // Remove "|| key" ?
+      if ( field.validator ) {
+
+        // TODO: Try-catch
+        // TODO: see https://vue-generators.gitbook.io/vue-generators/validation/custom-validators
+        let result = field.validator(
+          /* value */ data[ key ],
+          /* field */ field,
+          /* model */ null
+        );
+
+        if ( !result || ( result.length && result.length === 0 ) ) {
+          throw new Error('User-defined schema validation failed for key "' + key + '" with error: ' + result)
+        }
+      }
+
+      if ( this.enableTypeValidation ) {
+
+        // TODO: Also support Generic types (MyTime<A,B>)
+
+        let type_list = (field.type || "").split("|");
+        let check = type_list.some(typeRaw => {
+
+          let type = typeRaw.trim()
+          let typeInfo = {};
+
+          if ( typeRegex.test( type ) ) {
+            // typeInfo = typeRegex.exec( type ).groups;
+            let match = typeRegex.exec( type );
+            typeInfo = { val: match[1] }
+            type = 'Array';
+          }
+
+          if ( mapRegex.test( type ) ) {
+            // typeInfo = mapRegex.exec( type ).groups;
+            let match = mapRegex.exec( type );
+            typeInfo = { key: match[1], val: match[2] }
+            type = 'Map';
+          }
+
+          // For non required fields also allow 'null' as a valid input
+          if ( !field.required ) {
+            if ( data[ key ] === null ) {
+              return true;
+            }
+          }
+
+          return this._validate_bolt_type(
+            data[ key ],
+            type,
+            typeInfo
+          );
+        })
+
+        if ( !check ) {
+          throw new Error('Type-based schema validation failed for key "' + key + '" with error.')
+        }
+      }
+    })
   }
 
   /**
@@ -796,7 +825,7 @@ export default class GenericStore {
 
             return hasValidKey && hasValidValue;
           });
-      case 'array':
+      case 'array': {
         // Type[] = Map<Number, Type>
         let entries = [];
         if ( isArray( value ) ) {
@@ -810,89 +839,39 @@ export default class GenericStore {
           let hasValidType = this._validate_bolt_type( v, typeInfo.val );
           return hasValidType;
         });
+      }
       default:
-        console.warn("Can not validate type '" + type + "'");
+        warn(WARNING_UKNONWN_VALIDATION_TYPE, "Can not validate type '" + type + "'");
         return true;
     }
   }
 
   /**
-   * get subscriptions - Returns subscriptions that were create by this store
+   * Set the recent caller, this is trigger by the getter that returns $models.
+   * Which means this is called before subscribeList(), when calling it like this:
+   * this.$models.myexample.subscribeList()
+   *      ^                 ^
+   *      |                 |
+   *      +- _set_caller    +- subscribeList is called
+   *         is called         and can access this._last_caller
    *
-   * @return {list} list of subscriptions
    */
-  get subscriptions() {
-    return subscriptions.get( this );
-  }
+  static _set_caller( caller ) {
 
-  /**
-   * _bind_rtdb - Firebase binding
-   *
-   * Adapted from:
-   * see: https://github.com/vuejs/vuefire/blob/feat/rtdb/packages/vuexfire/src/rtdb/index.js
-   *
-   * @param {{ key, ref, ops, bindAsArray }} obj - config
-   * @param {string} obj.key                - Key where the data is stored locally
-   * @param {firebase.database.ref} obj.ref - Firebase Realtime Database reference
-   * @param {type} obj.ops                  - operations {init, add, remove, set, set_sync}
-   * @param {boolean} obj.bindAsArray.      - bind as list (true), bind as document (false)
-   */
-  _bind_rtdb({ key, ref, ops, bindAsArray }) {
-    // TODO check ref is valid
-    // TODO check defined in vm
-
-    // TODO: Why do we need subscriptions? isn't that the same as the instance cache and the registry?
-    // subscritions is a liittle bit more fundamental = real listeners
-    // registry = reactive data (but used where?)
-    // instance cache = cached subscriptions (real and 'simulated') as generic models
-
-    let sub = subscriptions.get(this)
-    if (!sub) {
-      sub = Object.create(null)
-      subscriptions.set(this, sub)
+    // Check, if we got a VueComponent instance
+    if ( caller._isVue !== true ) {
+      return false;
     }
 
-    // unbind if ref is already bound
-    if (key in sub) {
-      this._unbind_rtdb(key)
-    }
-
-    // if ( subscriptions.get(key) ) { }
-
-    return new Promise((resolve, reject) => {
-      sub[ key ] = bindAsArray
-        ? rtdbBindAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbBindAsObject({ key, document: ref, ops, resolve, reject })
-      // subscriptions.set(key, unsubscribe)
-    })
+    recentModelCallerComponent = caller;
   }
 
   /**
-   * _fetch_rtdb - Firebase binding
+   * Returns last VueCompoennt that accessed this.$models (see above).
    *
    */
-  _fetch_rtdb({ key, ref, ops, bindAsArray }) {
-    return new Promise((resolve, reject) => {
-      bindAsArray
-        ? rtdbFetchAsArray({ key, collection: ref, ops, resolve, reject })
-        : rtdbFetchAsObject({ key, document: ref, ops, resolve, reject })
-    })
-  }
-
-  /**
-   * _unbind_rtdb - Unbind firebase from location
-   *
-   * @param  {type} { key } description
-   */
-  _unbind_rtdb({ key }) {
-    const sub = subscriptions.get(this)
-    if (!sub || !sub[key]) return
-
-    // subscriptions.delete( key );
-    // const sub = subscriptions.get(key)
-
-    sub[key]()
-    delete sub[key]
+  get _last_caller() {
+    return recentModelCallerComponent
   }
 
   // ---------------------------------------------------------------------------

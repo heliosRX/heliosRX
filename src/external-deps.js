@@ -2,7 +2,11 @@
 // Has to be imported as external dependency!
 
 // These are replaced by "{}" for commonJS (see rollup config) !!
+
+// eslint-disable-next-line import/no-unresolved
 import Vue from 'vue';
+
+// eslint-disable-next-line import/no-unresolved
 import Vuex from 'vuex';
 
 // bind on install

@@ -7,36 +7,39 @@
 import isEqual from 'lodash.isequal'
 import { DeleteMode } from './enums'
 import { _models } from '../external-deps'
-import { _registry as registry } from '../external-deps'
+// import { _registry as registry } from '../external-deps'
 import { parseTpl, analyzeTpl } from '../util/template'
 import { add_custom_actions } from '../classes/utils'
 import factory from '../classes/factory'
 import moment from '../moment'
+import { isString, isNumeric } from '../util/types'
+
+import { info, trace, warn,
+  INFO_STORE_WRITE,
+  INFO_MOMENT,
+  WARNING_NO_CREATE_FUNCTION,
+  WARNING_INVALID_ID,
+  WARNING_NO_SCHEMA,
+} from "../util/log"
 
 const BACKEND = 'REALTIMEDB';
-const log = (...args) => { console.log(...args) };
 
 // -----------------------------------------------------------------------------
 export default {
 
   // ---------------------------------------------------------------------------
-  write_mixin_init( reset = false ) {
+  _write_mixin_init( reset = false ) {
     if ( this.modelDefinition ) {
       if ( this.modelDefinition.staticActions ) {
 
         const context = {
-          $store: this,
-          $models: _models,
-          $registry: registry,
-          // state: registry.state,
-          // TODO
-          // state,      // same as `store.state`, or local state if in modules
-          // rootState,  // same as `store.state`, only in modules
-          // commit,     // same as `store.commit`
-          // dispatch,   // same as `store.dispatch`
-          // getters,    // same as `store.getters`, or local getters if in modules
-          // rootGetters // same as `store.getters`, only in modules
+          $model: this,
+          $modelsGetter: () => _models,
+          // $models: _models, // must be injected later
+          // $registry: registry,
+          // $state: registry.state,
         }
+        // const context = this._create_context();
         add_custom_actions( context, this, this.modelDefinition.staticActions, reset )
       }
     }
@@ -51,8 +54,9 @@ export default {
   */
   add( overwrite_data, new_id, options ) {
     /* if ( this.isSuffixed ) {
-      console.warn('Suffixed stores can not create new items, use unsuffixed'
-                    + ' store instead (e.g. goal instead of goalMeta).')
+      warn(WARNING_DEPRECATED,
+        'Suffixed stores can not create new items, use unsuffixed'
+      + ' store instead (e.g. goal instead of goalMeta).')
     } */
 
     let payload = null;
@@ -60,7 +64,7 @@ export default {
       new_id = this._get_uid();
     }
 
-    if ( !new_id['.sv'] && !this._validateId( new_id ) ) { // only validate if not a server variable
+    if ( !new_id['.sv'] && !this._validate_id( new_id ) ) { // only validate if not a server variable
       throw new Error('Got invalid id:' + new_id)
     }
 
@@ -82,7 +86,7 @@ export default {
             overwrite_data,
             BACKEND )
         } else {
-          console.warn("No create function found in type definition, using overwrite data as payload.");
+          warn(WARNING_NO_CREATE_FUNCTION, "No create function found in type definition, using overwrite data as payload.");
           payload = overwrite_data;
         }
       } else {
@@ -95,24 +99,24 @@ export default {
       if ( this.modelDefinition.schema ) {
         this._validate_schema( payload, false )
       } else {
-        console.warn("No schema found to validate input");
+        warn(WARNING_NO_SCHEMA, "No schema found to validate input");
       }
     } else {
-      console.warn("No type definition found, using UNVALIDATED overwrite data as payload.");
+      warn(WARNING_NO_SCHEMA, "No type definition found, using UNVALIDATED overwrite data as payload.");
       payload = overwrite_data;
     }
 
     this._convert_moment_objects( payload )
 
-    log("[GENS] Creating at", this._previewPath(new_id), "with payload", payload);
-    // return this.ref.set(payload).then(() => new_id);
-    // return this._db.ref( this.interpolatedPath ).set(payload).then(() => new_id); <<<<< FALSCH!!!
-    // return this.childRef( new_id ).update({ [new_id]: payload }).then(() => new_id);
-    /*console.log('new id: ', new_id)
+    info(INFO_STORE_WRITE, "Creating at", this.previewPath(new_id), "with payload", payload);
+
+    /*
     if ('.sv' in new_id) { // server value in key
-      console.log('server value in id detected')
+      warn(WARNING_CLIENT_VALIDATION, 'server value in id detected')
       return this.parentRef.update({ [newPostKey]: payload }).then(() => new_id);
-    } else {*/
+    }
+    */
+
     if ( this.isSuffixed ) {
       return this.childRef( new_id ).update(payload).then(() => new_id);
     } else {
@@ -143,9 +147,9 @@ export default {
       throw new Error('Either id or data is missing.')
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       if ( (this.modelDefinition.schema || {}).unsafe_disable_validation ) {
-        console.warn("Got invalid id <" + id + ">, but validation is disabled.");
+        warn(WARNING_INVALID_ID, "Got invalid id <" + id + ">, but validation is disabled.");
       } else {
         throw new Error('Got invalid id in update')
       }
@@ -156,14 +160,14 @@ export default {
     if ( this.modelDefinition.schema ) {
       this._validate_schema( data, true );
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     // let path = this.interpolatedPath;
     let payload = data;
     this._convert_moment_objects( payload )
 
-    log("[GENS] Updating at", this._previewPath(id), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(id), "with payload", payload);
     return this.childRef( id ).update(payload);
   },
 
@@ -186,13 +190,23 @@ export default {
 
     let sortkey = options.overwriteSortIdxKey || 'sortidx'
 
-    if ( sortidxList.length > 0 && typeof sortidxList[0] !== 'object' ) {
+    if ( sortidxList.length > 0 ) {
+      let first_item = sortidxList[0];
       let sortidx = 0;
-      sortidxList = sortidxList.map((id) => {
-        sortidx = sortidx + 100; // ???
-        return { id: id, sortidx: sortidx }
-        // TODO: Why not $id ?
-      })
+
+      if ( isString( first_item ) || isNumeric( first_item ) ) {
+        sortidxList = sortidxList.map((id) => {
+          sortidx = sortidx + 100;
+          return { id: id, sortidx: sortidx }
+        })
+      }
+
+      if ( '$id' in first_item || first_item.constructor.name === 'GenericModel' ) {
+        sortidxList = sortidxList.map((model) => {
+          sortidx = sortidx + 100;
+          return { id: model.$id, sortidx: sortidx }
+        })
+      }
     }
 
     let batchData = {};
@@ -210,7 +224,7 @@ export default {
         throw new Error("Got invalid sortidx", sortidx);
       }
 
-      if (!this._validateId(item.id)) {
+      if (!this._validate_id(item.id)) {
         throw new Error("Got invalid id", item.id);
       }
 
@@ -226,13 +240,13 @@ export default {
         // data[path + '/' + subset_name + '/' + id + '/' + prop] = data[prop];
         // "/goal/{goalId}/user_list/{uid}/task_names/"
 
-        payload[ this._previewPath(id) + '/' + prop ] = data[prop];
+        payload[ this.previewPath(id) + '/' + prop ] = data[prop];
       })
     });
 
     // TODO: Check schema if sortidx is allowed
 
-    log("[GENS] update at", this._previewPath(), "with payload", payload);
+    info(INFO_STORE_WRITE, "Updating at", this.previewPath(), "with payload", payload);
     return this.rootRef.update(payload)
   },
 
@@ -259,7 +273,7 @@ export default {
       const id_list = id;
       const payload = {};
       id_list.forEach(id => {
-        if ( !this._validateId(id) ) {
+        if ( !this._validate_id(id) ) {
           throw new Error('Got invalid id in remove')
         }
 
@@ -270,25 +284,25 @@ export default {
         }
       })
 
-      log("[GENS] batch deleting at", this.path, "with payload", payload);
+      info(INFO_STORE_WRITE, "Batch deleting at", this.path, "with payload", payload);
       return this.parentRef.update(payload);
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
     // TODO: Check in schema if soft delete is supported
 
     if ( soft_delete ) {
-      log("[GENS] soft deleting at", this.path, "with", { deleted: true });
+      info(INFO_STORE_WRITE, "Soft deleting at", this.path, "with", { deleted: true });
       return this.update(id, { deleted: true })
       // return this.childRef( id ).update({ deleted: true  });
     }
 
     // TODO: automatically remove listener !!!
 
-    log("[GENS] hard deleting at", this.path);
+    info(INFO_STORE_WRITE, "Hard deleting at", this.path);
     return this.childRef( id ).remove();
   },
 
@@ -340,7 +354,7 @@ export default {
       // TODO: It probably does - test and remove this check
     }
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -411,7 +425,7 @@ export default {
         payload = { [pathB]: objectA };
       }
 
-      log("[GENS] moving data from ", pathA, "to", pathB, "with payload", payload);
+      info(INFO_STORE_WRITE, "Moving data from ", pathA, "to", pathB, "with payload", payload);
       return this.rootRef.update(payload).then(() => propsB['id'])
     });
   },
@@ -428,7 +442,7 @@ export default {
   */
   transaction( id, prop, transaction, value = 1 ) {
 
-    if ( !this._validateId(id) ) {
+    if ( !this._validate_id(id) ) {
       throw new Error('Got invalid id in remove')
     }
 
@@ -449,13 +463,13 @@ export default {
       throw new Error('Transacton must be a function')
     }
 
-    log("[GENS] tranaction on ", targetRef.path.toString() /*, "with", transaction*/);
+    info(INFO_STORE_WRITE, "Tranaction on", targetRef.path.toString() /*, "with", transaction*/);
     return targetRef.transaction(transaction).then((result) => {
       if ( result.committed ) {
-        console.log("[GENS] Transacton successfully committed")
+        info(INFO_STORE_WRITE, "Transacton successfully committed")
         return true
       }
-      console.log("[GENS] Transacton aborted") // To abort transaction return undefined
+      info(INFO_STORE_WRITE, "Transacton aborted") // To abort transaction return undefined
       return false
     });
   },
@@ -468,30 +482,30 @@ export default {
    *
    * @return {type}  description
    */
-  new() {
+  new() {
     let model = factory.make_reactive_model( this.modelDefinition, null, this._create_context(), false );
     return model;
   },
 
   /**
-   * new_from_template - Create empty model from create function
+   * newFromTemplate - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromTemplate + write = add
    *
    * @return {type}  description
    */
-  new_from_template( data = {}, optional_data = null ) {
+  newFromTemplate( data = {}, optional_data = null ) {
     let generated_data = this.empty( data, optional_data )
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     model._update_data( generated_data, null, true ); // doppelt
     return model
   },
   /**
-   * new_from_template - Create empty model from create function
+   * newFromData - Create empty model from create function
    *
-   * new_from_template + write = add
+   * newFromData + write = add
    */
-  new_from_data( data = {}, make_dirty = false ) {
+  newFromData( data = {}, make_dirty = false ) {
     let model = factory.make_reactive_model( this.modelDefinition, data, this._create_context(), false );
     // model._update_data( generated_data, null, true );
     return model
@@ -500,7 +514,7 @@ export default {
   /**
    * empty - Create empty payload from schema.create()
    *         This method WILL only create an JS-Object, not a GenericModel
-   *         In most cases, you want to use new_from_template_instead
+   *         In most cases, you want to use newFromTemplate instead
    */
   empty( data = {}, optional_data = null ) {
     if ( !this.modelDefinition ) {
@@ -513,13 +527,13 @@ export default {
 
     this._check_required_create_arg( data );
 
-    let payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND )
+    let payload = this.modelDefinition.schema.create( data, optional_data || data /*HACK*/, BACKEND )
 
     /* Validate created data against it's schema. */
     if ( this.modelDefinition.schema ) {
       this._validate_schema( payload, false )
     } else {
-      console.warn("No schema found to validate input");
+      warn(WARNING_NO_SCHEMA, "No schema found to validate input");
     }
 
     return payload;
@@ -531,7 +545,7 @@ export default {
    */
   _convert_moment_objects( payload ) {
     if ( typeof payload !== 'object' ) {
-      console.log("Got payload", payload, typeof payload);
+      trace(INFO_MOMENT, "Got invalid payload in _convert_moment_objects", payload, typeof payload);
       throw new Error('Expected object, got ' + payload);
     }
     /* payload can either be array or object */

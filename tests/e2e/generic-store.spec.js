@@ -5,7 +5,7 @@ const assert = (expr, text) => {
   if ( !expr ) throw new Error('Assertion failed', text)
 };
 
-export const testCases = {
+export const testCases = {
 
   new_item_id: null,
 
@@ -42,7 +42,7 @@ export const testCases = {
     })
     assert( test_store.isSuffixed === true );
     assert( test_store.path === '/goal/A1/user_list/U1/task_details/{id}/task_subscription');
-    assert( test_store._previewPath( 'ID1' ) === '/goal/A1/user_list/U1/task_details/ID1/task_subscription');
+    assert( test_store.previewPath( 'ID1' ) === '/goal/A1/user_list/U1/task_details/ID1/task_subscription');
   },
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,6 +77,8 @@ export const testCases = {
       cachedName: "My testname",
       cachedProfilePic: "http://profile.pic/img.jpg",
     });
+
+    assert(new_item_id, 'got invalid id')
   },
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -89,6 +91,7 @@ export const testCases = {
     let new_item_id = await genstores.commitment_task_end_dates.add({
       endDate: +new Date() / 1000 // HACK
     });
+    assert(new_item_id, 'got invalid id')
   },
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

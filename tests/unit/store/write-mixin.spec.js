@@ -1,7 +1,7 @@
 import GenericStore from '@/store'
-import { MockRef, MockBackend } from './mock-backend'
 import GenericModel from '@/classes/GenericModel'
-import { matcherHint, printReceived } from 'jest-matcher-utils';
+import { MockRef, MockBackend } from './mock-backend'
+import '../matchers/toHaveBeenCalledWithFunction';
 
 jest.mock('./mock-backend');
 
@@ -57,8 +57,6 @@ beforeAll(() => {
 
 beforeEach(() => {
   MockBackend.mockClear();
-  // mockBackend.mockClear();
-  // console.log(mockBackend)
 });
 
 describe('add', () => {
@@ -590,40 +588,6 @@ describe('copy / move', () => {
     // await expect( () => storeNested.move(1, { testId: 5 }, { testId: undefined }) ).toThrow(/Required/i)
     // await expect( () => storeNested.move(1, { testId: 5 }, { testId: 5 }) ).toThrow() // TODO
   });
-});
-
-expect.extend({
-  toHaveBeenCalledWithFunction(expected, fn, testcases = []) {
-
-    const predicate = (transaction, fn, testcases) => {
-      const isFunction = typeof expected === 'function';
-      return isFunction && testcases.every(test => {
-        // console.log(fn(test), "===", transaction(test))
-        return fn(test) === transaction(test);
-      });
-    }
-
-    const transaction = expected.mock.calls[0][0];
-    const pass = predicate(transaction, fn, testcases);
-
-    const passMessage = received => () =>
-      matcherHint('.not.toHaveBeenCalledWithFunction', 'received', '')
-      + '\n\n'
-      + 'Expected value to not be a function, received:\n'
-      + `  ${printReceived(received)}`;
-
-    const failMessage = received => () =>
-      matcherHint('.toHaveBeenCalledWithFunction', 'received', '')
-      + '\n\n'
-      + 'Expected to receive a function, received:\n'
-      + `  ${printReceived(received)}`;
-
-    if (pass) {
-      return { pass: true, message: passMessage(transaction) };
-    }
-
-    return { pass: false, message: failMessage(transaction) };
-  }
 });
 
 describe('transaction', () => {

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`subscribeNode subscribeNode 1 1`] = `
+Object {
+  "initialized": true,
+  "ready": Object {},
+  "res": Object {
+    "example": Object {
+      "sub": Object {
+        "id1": Object {
+          "boolField": true,
+          "numField": 9,
+          "strField": "foo",
+        },
+      },
+    },
+  },
+  "sync": Object {
+    "/example/sub/id1": Object {
+      "id": "id1",
+      "status": "Ready",
+    },
+  },
+}
+`;

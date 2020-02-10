@@ -5,7 +5,7 @@ import firebase from 'firebase'
 import GenericStore from '@/store'
 import { setup } from '@/store/GenericStore'
 import { DeleteMode, UIDMethod } from '@/store/enums'
-// import { isValidId } from '@/util/types.js'
+import '../matchers/toBeValidId';
 
 setup({ Vue, firebase });
 
@@ -169,25 +169,6 @@ test('reset store', () => {
 test('uid methods', () => {
 
 })
-
-expect.extend({
-  toBeValidId(received) {
-    // const pass = isValidId( received );
-    // eslint-disable-next-line no-control-regex, no-useless-escape
-    const pass = /^((?![\/\[\]\.\#\$\/\u0000-\u001F\u007F]).)*$/.test( received )
-    if (pass) {
-      return {
-        message: () => `expected ${received} to be valid id`,
-        pass: true,
-      };
-    } else {
-      return {
-        message: () => `expected ${received} to be valid id`,
-        pass: false,
-      };
-    }
-  },
-});
 
 describe.skip("uid methods", () => {
 

@@ -35,6 +35,15 @@ export class MockRef {
     console.log("transaction")
     return Promise.resolve(-1)
   }
+
+  orderByValue() {}
+  orderByKey() {}
+  orderByChild() {}
+  equalTo() {}
+  startAt() {}
+  endAt() {}
+  limitToFirst() {}
+  limitToLast() {}
 }
 
 export class MockBackend {
